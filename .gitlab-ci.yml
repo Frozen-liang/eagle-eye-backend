@@ -78,7 +78,7 @@ task_build_image:
   image: docker:19.03.1
   script:
     - echo "Running build docker image"
-    - 'REPO=${PROD_RELEASE_NAME} consul-template -config /tool/consul-config/.consul-template.hcl -template "application.tpl:tmp.tpl" -once && consul-template -config /tool/consul-config/.consul-template.hcl -template "tmp.tpl:./build/application.properties" -once'
+    - 'REPO=${PROD_RELEASE_NAME} consul-template -config /tool/consul-config/.consul-template.hcl -template "application.tpl:tmp.tpl" -once && consul-template -config /tool/consul-config/.consul-template.hcl -template "tmp.tpl:./build/application.yaml" -once'
     - 'docker build -t ${IMAGE}:${IMAGE_TAG} .'
     - 'docker --config=/tool/.docker/ push ${IMAGE}:${IMAGE_TAG}'
     - echo "Clean image cache for docker runner"
