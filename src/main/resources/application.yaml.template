@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: eagle-eye-backend
+  cloud:
+    vault:
+      enabled: true
+      host: localhost
+      port: 443
+      token: token
+      authentication: token
+    consul:
+      host: localhost
+      port: 443
+      config:
+        prefixes:
+          - DevOps
+        default-context: ${spring.application.name}
+        format: properties
+        acl-token: localhost
+  config:
+    import: 'optional:vault://secret/${spring.application.name},consul:'
+  datasource:
+    url: jdbc:postgresql://localhost:5666/dbName
+server:
+  port: 8080

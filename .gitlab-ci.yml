@@ -1,0 +1,116 @@
+image: openjdk:11-jdk-slim
+
+before_script:
+  - 'source /tool/.bash_profile_docker'
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+stages:
+  - test
+  - build_code
+  - build_image
+  - deploy
+  - release
+
+variables:
+  IMAGE: ${CI_REGISTRY}/${CI_PROJECT_PATH}
+  PROD_RELEASE_NAME: ${CI_PROJECT_NAME}
+  JACOCO_CSV_LOCATION: $CI_PROJECT_DIR/build/reports/jacoco/test/jacocoTestReport.csv
+  GIT_DEPTH: 1
+
+
+task_test:
+  tags:
+    - docker-runner
+  stage: test
+  only:
+    - merge_requests
+  except:
+    variables:
+      - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
+  script:
+    - ./gradlew check --build-cache --stacktrace
+    - awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print covered, "/", instructions, "instructions covered"; print "Total " int(100*covered/instructions) "% covered"}' $JACOCO_CSV_LOCATION
+
+  cache:
+    key: ${CI_PROJECT_NAME}
+    paths:
+      - .gradle/caches
+      - .gradle/wrapper
+  artifacts:
+    reports:
+      junit:
+        - build/test-results/test/**/TEST-*.xml
+
+
+task_build_artifact:
+  tags:
+    - docker-runner
+  stage: build_code
+  only:
+    refs:
+      - master
+  script:
+    - ./gradlew bootjar --build-cache
+    - IMAGE_TAG=$(ls ./build/libs | grep $PROD_RELEASE_NAME)&&IMAGE_TAG=${IMAGE_TAG:${#PROD_RELEASE_NAME}+1}&&IMAGE_TAG=${IMAGE_TAG%%.jar}
+    - echo "IMAGE_TAG=$IMAGE_TAG" >> version.env
+    - cat version.env
+  cache:
+    key: ${CI_PROJECT_NAME}
+    paths:
+      - .gradle/caches
+      - .gradle/wrapper
+    policy: pull
+  artifacts:
+    paths:
+      - build/libs
+    reports:
+      dotenv: version.env
+    expire_in: 1 day
+
+
+task_build_image:
+  tags:
+    - docker-runner
+  stage: build_image
+  only:
+    refs:
+      - master
+  image: docker:19.03.1
+  script:
+    - echo "Running build docker image"
+    - 'REPO=${PROD_RELEASE_NAME} consul-template -config /tool/consul-config/.consul-template.hcl -template "application.tpl:tmp.tpl" -once && consul-template -config /tool/consul-config/.consul-template.hcl -template "tmp.tpl:./build/application.properties" -once'
+    - 'docker build -t ${IMAGE}:${IMAGE_TAG} .'
+    - 'docker --config=/tool/.docker/ push ${IMAGE}:${IMAGE_TAG}'
+    - echo "Clean image cache for docker runner"
+    - 'docker --config=/tool/.docker/ rmi ${IMAGE}:${IMAGE_TAG}'
+    - echo "Finished build docker image ${IMAGE} ${IMAGE_TAG}"
+
+task_release:
+  tags:
+    - docker-runner
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  only:
+    refs:
+      - master
+  release:
+    tag_name: v${IMAGE_TAG}
+    description: './CHANGELOG.md'
+    milestones:
+      - v${IMAGE_TAG}
+  script:
+    - echo "Release ${IMAGE_TAG} Successful."
+
+task_deploy:
+  tags:
+    - linux
+  stage: deploy
+  only:
+    refs:
+      - master
+  before_script:
+    - echo "Running deploy docker image"
+  script:
+    - ssh API-DEV /home/ec2-user/eagle-eye/release.sh reload ${PROD_RELEASE_NAME} ${IMAGE_TAG}
+
+
