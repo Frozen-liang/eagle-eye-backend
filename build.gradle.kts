@@ -23,6 +23,7 @@ val springCloudVersion by extra("2021.0.0")
 val guavaVersion by extra("31.0.1-jre")
 val grpcVersion by extra("1.42.1")
 val protocVersion by extra("3.19.1")
+val grpcMapStructVersion by extra("1.1.9")
 
 plugins {
     java
@@ -93,9 +94,10 @@ dependencies {
 
 
     // grpc
-    compileOnly("com.google.protobuf:protobuf-java:$protocVersion")
+    implementation("com.google.protobuf:protobuf-java-util:$protocVersion")
     implementation("io.grpc:grpc-stub:$grpcVersion")
     implementation("io.grpc:grpc-protobuf:$grpcVersion")
+    implementation("io.grpc:grpc-netty-shaded:$grpcVersion")
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(module = "spring-boot-starter-tomcat")
@@ -110,6 +112,7 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:$versionMapstruct")
     annotationProcessor("org.projectlombok:lombok:$versionLombok")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+    annotationProcessor("no.entur.mapstruct.spi:protobuf-spi-impl:$grpcMapStructVersion")
     compileOnly("org.mapstruct:mapstruct:$versionMapstruct")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springdoc:springdoc-openapi-ui:1.5.12")
