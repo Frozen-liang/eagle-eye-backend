@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package eagle.plugin;
+option java_package = "com.sms.eagle.eye.plugin.v1";
+option java_multiple_files = true;
+option go_package = "/plugin/v1;v1";
+
+import "google/protobuf/empty.proto";
+
+message RegisterResponse{
+  string name = 1;
+  string description = 2;
+  int32 version = 3;
+  map<int32, PluginMetadata> pluginMetadata = 4;
+  bool enableSchedule = 5;
+
+}
+
+enum FieldType{
+  FIELD_UNKNOWN = 0;
+  INPUT = 1;
+  PASSWORD = 2;
+  SQL_EDITOR = 3;
+  LOG_EDITOR = 4;
+
+}
+
+enum ThresholdType{
+  THRESHOLD_UNKNOWN = 0;
+  LESS_THAN = 1; //Less than than the configured threshold.
+  GREATER_THAN = 2; //Greater than the configured threshold.
+  LESS_THAN_OR_EQUAL = 3; //Less than or equal to the configured threshold.
+  GREATER_THAN_OR_EQUAL = 4; //Greater than or equal to the configured threshold. ThresholdType value is not applicable for MissingData and ResolvedMissingData triggerTypes and will be ignored if specified.
+}
+
+
+message PluginMetadata{
+  string key = 1;
+  string labelName = 2;
+  FieldType type = 3;
+  string defaultValue = 4;
+  bool required = 5;
+  bool encrypted = 6;
+}
+
+
+message Rule{
+  string id = 1;
+  string thresholdField = 2;
+  ThresholdType threshold = 3;
+  string triggerValue = 4;
+  bool matched = 5;
+
+}
+
+message ProcessRequest{
+
+  map<int32, PluginMetadata> pluginMetadata = 1;
+  repeated Rule rule = 2;
+}
+
+message ProcessResponse{
+  repeated Rule rule = 2;
+}
+
+service PluginService{
+  rpc GetMetadata(google.protobuf.Empty) returns (RegisterResponse);
+  rpc Ping(google.protobuf.Empty) returns (stream google.protobuf.Empty);
+  rpc Process(stream ProcessRequest) returns (ProcessResponse);
+}

@@ -11,7 +11,7 @@
 -->
 <FindBugsFilter>
     <Match>
-        <Package name="com.sms.eagle.eye.grpc.api"/>
+        <Package name="com.sms.eagle.eye.plugin.v1"/>
     </Match>
 
 </FindBugsFilter>

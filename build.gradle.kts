@@ -23,7 +23,7 @@ val springCloudVersion by extra("2021.0.0")
 val guavaVersion by extra("31.0.1-jre")
 val grpcVersion by extra("1.42.1")
 val protocVersion by extra("3.19.1")
-val grpcMapStructVersion by extra("1.1.9")
+val grpcMapStructVersion by extra("1.19")
 
 plugins {
     java
@@ -70,10 +70,10 @@ jacoco {
 
 repositories {
 //    mavenLocal()
+    mavenCentral()
     maven {
         url = uri("https://maven.aliyun.com/repository/public")
     }
-    mavenCentral()
 //    maven("https://plugins.gradle.org/m2/")
 }
 
