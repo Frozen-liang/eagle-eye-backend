@@ -182,9 +182,9 @@ tasks.spotbugsMain {
 
 
 tasks.jacocoTestReport {
-    classDirectories.setFrom(sourceSets.main.get().output.asFileTree.matching {
-        exclude("com/sms/eagle/eye/backend/**")
-    })
+//    classDirectories.setFrom(sourceSets.main.get().output.asFileTree.matching {
+//        exclude("com/sms/eagle/eye/backend/**")
+//    })
     dependsOn(tasks.test)
     reports {
         xml.required.set(false)
