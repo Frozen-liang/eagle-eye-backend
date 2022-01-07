@@ -18,7 +18,6 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutRuleRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutRuleResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutTargetsRequest;
-import software.amazon.awssdk.services.eventbridge.model.PutTargetsResponse;
 import software.amazon.awssdk.services.eventbridge.model.Target;
 
 @Component
@@ -68,7 +67,7 @@ public class AwsOperationImpl implements AwsOperation {
                 .input(generateInput(task, plugin.getUrl(), fields))
                 .build())
             .build();
-        PutTargetsResponse putTargetsResponse = eventBridgeClient.putTargets(putTargetsRequest);
+        eventBridgeClient.putTargets(putTargetsRequest);
         return id;
     }
 
