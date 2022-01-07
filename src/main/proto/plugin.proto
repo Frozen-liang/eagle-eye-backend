@@ -79,6 +79,7 @@ message CreateTaskResponse{
 
 message DeleteTaskRequest{
   string mappingId=1;
+  string config = 2;
 }
 
 message GeneralResponse{
