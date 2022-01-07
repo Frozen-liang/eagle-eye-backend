@@ -24,6 +24,10 @@ val guavaVersion by extra("31.0.1-jre")
 val grpcVersion by extra("1.42.1")
 val protocVersion by extra("3.19.1")
 val grpcMapStructVersion by extra("1.19")
+val mybatisPlusVersion by extra("3.4.2")
+val transmittableThreadVersion by extra("2.12.2")
+val jasyptVersion by extra("3.0.4")
+val powermockVersion by extra("2.0.2")
 
 plugins {
     java
@@ -90,6 +94,8 @@ dependencyManagement {
 
 dependencies {
 
+    implementation("org.jetbrains:annotations:20.1.0")
+    implementation("org.jetbrains:annotations:20.1.0")
     runtimeOnly("org.postgresql:postgresql")
 
 
@@ -108,6 +114,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-undertow")
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+//    implementation("org.springframework.security.oauth:spring-security-oauth2")
+    implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:$jasyptVersion")
+    implementation(platform("software.amazon.awssdk:bom:2.17.100"))
+    implementation("software.amazon.awssdk:auth")
+    implementation("software.amazon.awssdk:regions")
+    implementation("software.amazon.awssdk:lambda")
+    implementation("software.amazon.awssdk:cloudwatchlogs")
+    implementation("software.amazon.awssdk:eventbridge")
+    implementation("com.baomidou:mybatis-plus-boot-starter:$mybatisPlusVersion")
     compileOnly("org.projectlombok:lombok:$versionLombok")
     annotationProcessor("org.mapstruct:mapstruct-processor:$versionMapstruct")
     annotationProcessor("org.projectlombok:lombok:$versionLombok")
@@ -121,6 +136,8 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("io.vavr:vavr:0.10.4")
+    implementation("com.hubspot.jackson:jackson-datatype-protobuf:0.9.12")
+    implementation("com.alibaba:transmittable-thread-local:$transmittableThreadVersion")
     implementation("org.codehaus.groovy:groovy:3.0.8")
     compileOnly("com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}")
     spotbugs("com.github.spotbugs:spotbugs:${spotbugs.toolVersion.get()}")
@@ -165,9 +182,9 @@ tasks.spotbugsMain {
 
 
 tasks.jacocoTestReport {
-    classDirectories.setFrom(sourceSets.main.get().output.asFileTree.matching {
-        exclude("com/sms/eagle/eye/**")
-    })
+//    classDirectories.setFrom(sourceSets.main.get().output.asFileTree.matching {
+//        exclude("com/sms/eagle/eye/backend/**")
+//    })
     dependsOn(tasks.test)
     reports {
         xml.required.set(false)
