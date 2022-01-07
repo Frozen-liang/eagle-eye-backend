@@ -50,6 +50,7 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
             HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(param, headers);
             OAuth2AccessTokenResponse response = restTemplate.postForObject(
                 nerkoOAuth2Properties.getTokenEndpoint(), httpEntity, OAuth2AccessTokenResponse.class);
+            assert response != null;
             return response.getAccessToken();
         } catch (HttpClientErrorException exception) {
             log.error(OAUTH_CODE_ERROR.getMessage(), exception);

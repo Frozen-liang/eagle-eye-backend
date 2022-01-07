@@ -144,7 +144,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     public boolean stopByTaskId(Long taskId) {
         TaskEntity task = taskService.getEntityById(taskId);
         PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
-        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
+        pluginConfigFieldService.getListByPluginId(plugin.getId());
         if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
             log.info("执行rpc");
         } else {
@@ -173,7 +173,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
                 .status(TaskStatus.ERROR.getValue())
                 .build());
         } else {
-            if (!Objects.equals(request.getTaskId(), request.getMappingId())) {
+            if (!Objects.equals(request.getTaskId().toString(), request.getMappingId())) {
                 thirdPartyMappingService.addPluginSystemUnionIdMapping(request);
             }
         }

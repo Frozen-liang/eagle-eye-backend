@@ -57,7 +57,7 @@ public class AesEncryptor {
             return null;
         }
         Cipher cipher = Cipher.getInstance(AES_CBC_ALGORITHM);
-        byte[] keyBytes = secretKey.getBytes();
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, ALGORITHM);
         // use cbc iv offset to enhance the alg
         IvParameterSpec iv = new IvParameterSpec(keyBytes);
@@ -68,7 +68,6 @@ public class AesEncryptor {
     public static String aes128Cbcstringdecoding(byte[] source, String secretKey)
         throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException,
         InvalidAlgorithmParameterException, InvalidKeyException {
-
         if (StringUtils.isBlank(secretKey) || secretKey.length() != 16) {
             return null;
         }
