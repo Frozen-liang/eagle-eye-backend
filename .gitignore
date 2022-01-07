@@ -4,6 +4,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+.java-version
 
 ### STS ###
 .apt_generated
@@ -39,3 +40,4 @@ out/
 # Ignore Gradle build output directory
 build
 /src/main/resources/application.properties
+/src/main/resources/application.yaml

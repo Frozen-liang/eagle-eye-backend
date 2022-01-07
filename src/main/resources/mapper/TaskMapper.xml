@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sms.eagle.eye.backend.domain.mapper.TaskMapper">
+
+    <select id="getPage" resultType="com.sms.eagle.eye.backend.response.task.TaskResponse">
+        select task.id,
+               task.name,
+               task.description,
+               task.creator,
+               task.project,
+               task.team,
+               task.plugin_id,
+               task.schedule_interval,
+               task.schedule_unit,
+               task.plugin_config,
+               task.utc_create_time createTime
+        from task
+        <where>
+            task.is_deleted = false
+            <if test="request.name != null">
+                and task.name ilike ('%' || #{request.name} || '%')
+            </if>
+            <if test="request.creator != null">
+                and task.creator ilike ('%' || #{request.creator} || '%')
+            </if>
+            <if test="request.project != null">
+                and task.project ilike ('%' || #{request.project} || '%')
+            </if>
+            <if test="request.team != null">
+                and task.team ilike ('%' || #{request.team} || '%')
+            </if>
+            <if test="request.pluginId != null">
+                and task.pluginId = #{request.pluginId}
+            </if>
+        </where>
+        order by task.utc_create_time desc
+    </select>
+</mapper>

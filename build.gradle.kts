@@ -23,6 +23,11 @@ val springCloudVersion by extra("2021.0.0")
 val guavaVersion by extra("31.0.1-jre")
 val grpcVersion by extra("1.42.1")
 val protocVersion by extra("3.19.1")
+val grpcMapStructVersion by extra("1.21")
+val mybatisPlusVersion by extra("3.4.3.4")
+val transmittableThreadVersion by extra("2.12.3")
+val jasyptVersion by extra("3.0.4")
+val powermockVersion by extra("2.0.2")
 
 plugins {
     java
@@ -38,7 +43,7 @@ plugins {
 
 spotbugs {
     ignoreFailures.set(false)
-    toolVersion.set("4.5.0")
+    toolVersion.set("4.5.2")
     showProgress.set(true)
     effort.set(com.github.spotbugs.snom.Effort.MAX)
     reportLevel.set(com.github.spotbugs.snom.Confidence.MEDIUM)
@@ -64,15 +69,15 @@ checkstyle {
 }
 
 jacoco {
-    toolVersion = "0.8.6"
+    toolVersion = "0.8.7"
 }
 
 repositories {
 //    mavenLocal()
+    mavenCentral()
     maven {
         url = uri("https://maven.aliyun.com/repository/public")
     }
-    mavenCentral()
 //    maven("https://plugins.gradle.org/m2/")
 }
 
@@ -89,41 +94,55 @@ dependencyManagement {
 
 dependencies {
 
+
     runtimeOnly("org.postgresql:postgresql")
 
 
     // grpc
-    compileOnly("com.google.protobuf:protobuf-java:$protocVersion")
+    implementation("com.google.protobuf:protobuf-java-util:$protocVersion")
     implementation("io.grpc:grpc-stub:$grpcVersion")
     implementation("io.grpc:grpc-protobuf:$grpcVersion")
+    implementation("io.grpc:grpc-netty-shaded:$grpcVersion")
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(module = "spring-boot-starter-tomcat")
     }
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.springframework.cloud:spring-cloud-starter-consul-config:3.0.4")
+    implementation("org.springframework.cloud:spring-cloud-starter-consul-config:")
     implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
     implementation("org.springframework.boot:spring-boot-starter-undertow")
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+//    implementation("org.springframework.security.oauth:spring-security-oauth2")
+    implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:$jasyptVersion")
+    implementation(platform("software.amazon.awssdk:bom:2.17.100"))
+    implementation("software.amazon.awssdk:auth")
+    implementation("software.amazon.awssdk:regions")
+    implementation("software.amazon.awssdk:lambda")
+    implementation("software.amazon.awssdk:cloudwatchlogs")
+    implementation("software.amazon.awssdk:eventbridge")
+    implementation("com.baomidou:mybatis-plus-boot-starter:$mybatisPlusVersion")
     compileOnly("org.projectlombok:lombok:$versionLombok")
     annotationProcessor("org.mapstruct:mapstruct-processor:$versionMapstruct")
     annotationProcessor("org.projectlombok:lombok:$versionLombok")
     annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+    annotationProcessor("no.entur.mapstruct.spi:protobuf-spi-impl:$grpcMapStructVersion")
     compileOnly("org.mapstruct:mapstruct:$versionMapstruct")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springdoc:springdoc-openapi-ui:1.5.12")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.3")
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("commons-io:commons-io:2.11.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("io.vavr:vavr:0.10.4")
+    implementation("com.hubspot.jackson:jackson-datatype-protobuf:0.9.12")
+    implementation("com.alibaba:transmittable-thread-local:$transmittableThreadVersion")
     implementation("org.codehaus.groovy:groovy:3.0.8")
     compileOnly("com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}")
     spotbugs("com.github.spotbugs:spotbugs:${spotbugs.toolVersion.get()}")
     implementation("net.logstash.logback:logstash-logback-encoder:7.0.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.mockito:mockito-inline:4.1.0")
+    testImplementation("org.mockito:mockito-inline:4.2.0")
 
 }
 
@@ -162,8 +181,14 @@ tasks.spotbugsMain {
 
 
 tasks.jacocoTestReport {
+    getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"));
     classDirectories.setFrom(sourceSets.main.get().output.asFileTree.matching {
-        exclude("com/sms/eagle/eye/**")
+        exclude(
+            "com/sms/eagle/eye/backend/aspect",
+            "com/sms/eagle/eye/plugin/v1",
+            "com/sms/eagle/eye/backend/model",
+            "com/sms/eagle/eye/backend/service"
+        )
     })
     dependsOn(tasks.test)
     reports {
@@ -182,7 +207,7 @@ tasks.jacocoTestCoverageVerification {
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = "0.2".toBigDecimal()
+                minimum = "0.0".toBigDecimal()
             }
         }
 
