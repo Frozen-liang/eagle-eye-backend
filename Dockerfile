@@ -29,7 +29,7 @@ COPY --from=builder application/dependencies/ ./
 COPY --from=builder application/spring-boot-loader/ ./
 COPY --from=builder application/snapshot-dependencies/ ./
 COPY --from=builder application/application/ ./
-COPY ./build/application.properties ./
+COPY ./build/application.yaml ./
 # security patch - remove apt from container
 EXPOSE 8080
 
