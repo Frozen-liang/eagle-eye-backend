@@ -11,9 +11,9 @@ message RegisterResponse{
   string name = 1;
   string description = 2;
   int32 version = 3;
-  map<int32, PluginMetadata> pluginMetadata = 4;
-  bool enableSchedule = 5;
-
+  repeated ConfigField fields = 4;
+  repeated SelectOption options = 5;
+  bool scheduleBySelf = 6;
 }
 
 enum FieldType{
@@ -22,49 +22,82 @@ enum FieldType{
   PASSWORD = 2;
   SQL_EDITOR = 3;
   LOG_EDITOR = 4;
-
+  RULE_EDITOR = 5;
+  RULE_SINGLE_EDITOR = 6;
 }
 
-enum ThresholdType{
-  THRESHOLD_UNKNOWN = 0;
-  LESS_THAN = 1; //Less than than the configured threshold.
-  GREATER_THAN = 2; //Greater than the configured threshold.
-  LESS_THAN_OR_EQUAL = 3; //Less than or equal to the configured threshold.
-  GREATER_THAN_OR_EQUAL = 4; //Greater than or equal to the configured threshold. ThresholdType value is not applicable for MissingData and ResolvedMissingData triggerTypes and will be ignored if specified.
+//enum ThresholdType{
+//  THRESHOLD_UNKNOWN = 0;
+//  LESS_THAN = 1; //Less than than the configured threshold.
+//  GREATER_THAN = 2; //Greater than the configured threshold.
+//  LESS_THAN_OR_EQUAL = 3; //Less than or equal to the configured threshold.
+//  GREATER_THAN_OR_EQUAL = 4; //Greater than or equal to the configured threshold. ThresholdType value is not applicable for MissingData and ResolvedMissingData triggerTypes and will be ignored if specified.
+//}
+
+enum ScheduleUnit{
+  MINUTE = 0;
+  HOUR = 1;
+  DAY = 2;
+  MONTH = 3;
 }
 
-
-message PluginMetadata{
+message ConfigField{
   string key = 1;
   string labelName = 2;
   FieldType type = 3;
   string defaultValue = 4;
   bool required = 5;
   bool encrypted = 6;
+  int32 order = 7;
+  string option = 8;
 }
 
+message SelectOption {
+  string key = 1;
+  repeated SelectOptionItem items = 2;
+}
 
-message Rule{
+message SelectOptionItem {
+  string label = 1;
+  string value = 2;
+}
+
+message CreateTaskRequest{
   string id = 1;
-  string thresholdField = 2;
-  ThresholdType threshold = 3;
-  string triggerValue = 4;
-  bool matched = 5;
+  string name = 2;
+  string description = 3;
+  string config = 4;
+  int32 interval = 5;
+}
+
+message CreateTaskResponse{
+  string Id = 1;
+  bool triggered =2;
+  string alarmMessage=3;
 
 }
 
-message ProcessRequest{
-
-  map<int32, PluginMetadata> pluginMetadata = 1;
-  repeated Rule rule = 2;
+message DeleteTaskRequest{
+  string mappingId=1;
 }
 
-message ProcessResponse{
-  repeated Rule rule = 2;
+message GeneralResponse{
+  bool success=1;
+  string errorMessage =2;
 }
+
+message UpdateTaskRequest{
+  string mappingId = 1;
+  string name = 2;
+  string description = 3;
+  string config = 4;
+  int32 interval = 5;
+}
+
 
 service PluginService{
-  rpc GetMetadata(google.protobuf.Empty) returns (RegisterResponse);
-  rpc Ping(google.protobuf.Empty) returns (stream google.protobuf.Empty);
-  rpc Process(stream ProcessRequest) returns (ProcessResponse);
+  rpc FetchMetadata(google.protobuf.Empty) returns (RegisterResponse);
+  rpc CreateOrExecute(CreateTaskRequest) returns (CreateTaskResponse);
+  rpc Remove(DeleteTaskRequest) returns (GeneralResponse);
+  rpc Edit(UpdateTaskRequest) returns (GeneralResponse);
 }

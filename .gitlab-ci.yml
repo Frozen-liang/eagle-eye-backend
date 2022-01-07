@@ -111,6 +111,6 @@ task_deploy:
   before_script:
     - echo "Running deploy docker image"
   script:
-    - ssh API-DEV /home/ec2-user/eagle-eye/deploy.sh reload ${PROD_RELEASE_NAME} ${IMAGE_TAG}
+    - ssh MONITOR-SERVER /home/ec2-user/eagle-eye/deploy.sh reload ${PROD_RELEASE_NAME} ${IMAGE_TAG}
 
 

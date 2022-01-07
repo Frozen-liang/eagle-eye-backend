@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sms.eagle.eye.backend.domain.mapper.AlertMapper">
+
+    <select id="getPage" resultType="com.sms.eagle.eye.backend.response.alert.AlertResponse">
+        select task_name,
+               project,
+               team,
+               description,
+               utc_alert_time
+        from alert
+        <where>
+            is_deleted = false
+            <if test="request.taskName != null">
+                and task_name ilike ('%' || #{request.taskName} || '%')
+            </if>
+            <if test="request.project != null">
+                and project ilike ('%' || #{request.project} || '%')
+            </if>
+            <if test="request.team != null">
+                and team ilike ('%' || #{request.team} || '%')
+            </if>
+        </where>
+        order by utc_alert_time desc
+    </select>
+</mapper>

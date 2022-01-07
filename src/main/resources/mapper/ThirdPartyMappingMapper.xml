@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sms.eagle.eye.backend.domain.mapper.ThirdPartyMappingMapper">
+
+    <select id="getTaskIdByMappingId" resultType="java.lang.Long">
+        select task_id
+        from third_party_mapping
+        where mapping_id = #{mappingId}
+          and type = #{type}
+        order by utc_create_time desc
+        limit 1
+    </select>
+    <select id="getMappingIdByTaskId" resultType="java.lang.String">
+        select *
+        from third_party_mapping
+        where task_id = #{taskId}
+          and type = #{type}
+        order by utc_create_time desc
+        limit 1
+    </select>
+</mapper>
