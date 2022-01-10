@@ -64,6 +64,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, TaskEntity>
     public void deleteTaskById(Long taskId) {
         removeById(taskId);
     }
+
+    @Override
+    public Optional<Long> getIdByName(String name) {
+        return getBaseMapper().getIdByName(name);
+    }
 }
 
 

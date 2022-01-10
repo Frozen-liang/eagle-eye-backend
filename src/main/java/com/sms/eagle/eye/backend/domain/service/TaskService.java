@@ -6,6 +6,7 @@ import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
+import java.util.Optional;
 
 public interface TaskService extends IService<TaskEntity> {
 
@@ -20,4 +21,6 @@ public interface TaskService extends IService<TaskEntity> {
     void updateTaskEntity(TaskEntity taskEntity);
 
     void deleteTaskById(Long taskId);
+
+    Optional<Long> getIdByName(String name);
 }
