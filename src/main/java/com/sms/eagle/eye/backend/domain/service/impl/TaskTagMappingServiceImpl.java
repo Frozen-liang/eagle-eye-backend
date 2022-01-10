@@ -8,6 +8,7 @@ import com.sms.eagle.eye.backend.domain.mapper.TaskTagMappingMapper;
 import com.sms.eagle.eye.backend.domain.service.TaskTagMappingService;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,12 +20,15 @@ public class TaskTagMappingServiceImpl extends ServiceImpl<TaskTagMappingMapper,
     public void updateTagMapping(Long taskId, List<Long> tagList) {
         remove(Wrappers.<TaskTagMappingEntity>lambdaQuery()
             .eq(TaskTagMappingEntity::getTaskId, taskId));
-        saveBatch(tagList.stream()
-            .map(tag -> TaskTagMappingEntity.builder()
-                .taskId(taskId)
-                .tagId(tag)
-                .build())
-            .collect(Collectors.toList()));
+        if (CollectionUtils.isNotEmpty(tagList)) {
+            saveBatch(tagList.stream()
+                .map(tag -> TaskTagMappingEntity.builder()
+                    .taskId(taskId)
+                    .tagId(tag)
+                    .build())
+                .collect(Collectors.toList()));
+        }
+
     }
 
     @Override
