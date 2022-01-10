@@ -3,6 +3,7 @@ package com.sms.eagle.eye.backend.interceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sms.eagle.eye.backend.context.UserContextHolder;
 import com.sms.eagle.eye.backend.model.UserInfo;
+import io.vavr.control.Try;
 import java.util.Base64;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,12 +28,11 @@ public class UserinfoInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String userInfoBase64 = request.getHeader(userinfoHeader);
-        try {
+        Try.of(() -> {
             UserContextHolder.setUserInfo(objectMapper.readValue(
                 Base64.getDecoder().decode(userInfoBase64), UserInfo.class));
-        } catch (Exception ignored) {
-            return false;
-        }
+            return true;
+        });
         return true;
     }
 }
