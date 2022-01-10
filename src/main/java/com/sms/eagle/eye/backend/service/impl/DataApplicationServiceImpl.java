@@ -28,16 +28,6 @@ public class DataApplicationServiceImpl implements DataApplicationService {
     }
 
     @Override
-    public List<String> getProjectList() {
-        return Arrays.asList("nerko", "courier");
-    }
-
-    @Override
-    public List<String> getTeamList() {
-        return Arrays.asList("7up", "cola", "AMP");
-    }
-
-    @Override
     public List<IdNameResponse<Integer>> getScheduleUnitList() {
         return Arrays.stream(TaskScheduleUnit.values())
             .map(taskScheduleUnit -> IdNameResponse.<Integer>builder()

@@ -31,6 +31,7 @@ public class AlertController {
 
     @PostMapping("/webhook")
     public Response<Boolean> webhook(@RequestBody WebHookRequest request) {
+        log.info("Alert webhook, {}", request);
         return Response.ok(alertApplicationService.resolveWebHook(request));
     }
 

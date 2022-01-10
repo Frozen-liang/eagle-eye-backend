@@ -9,6 +9,8 @@ public interface ThirdPartyMappingService extends IService<ThirdPartyMappingEnti
 
     void addPluginSystemUnionIdMapping(LambdaInvokeResult request);
 
+    Optional<String> getPluginSystemUnionId(Long taskId);
+
     Optional<Long> getTaskIdByPluginSystemUnionId(String mappingId);
 
     Optional<String> getAwsRuleArnByTaskId(Long taskId);

@@ -111,6 +111,7 @@ public class TaskController {
 
     @PostMapping("/invoke-result")
     public Response<Boolean> resolveInvokeResult(@Validated @RequestBody LambdaInvokeResult request) {
+        log.info("Lambda invoke result, {}", request);
         return Response.ok(taskApplicationService.resolveInvokeResult(request));
     }
 
