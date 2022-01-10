@@ -12,10 +12,10 @@ import lombok.Getter;
 
 @Getter
 public enum TaskScheduleUnit {
-    MINUTE(0, "minute", TaskScheduleUnit::minuteToMinute),
-    HOUR(1, "hour", TaskScheduleUnit::hourToMinute),
-    DAY(2, "day", TaskScheduleUnit::dayToMinute),
-    MONTH(3, "month", TaskScheduleUnit::monthToMinute);
+    MINUTE(0, "Minute", TaskScheduleUnit::minuteToMinute),
+    HOUR(1, "Hour", TaskScheduleUnit::hourToMinute),
+    DAY(2, "Day", TaskScheduleUnit::dayToMinute),
+    MONTH(3, "Month", TaskScheduleUnit::monthToMinute);
 
     private static final Map<Integer, TaskScheduleUnit> MAPPING;
 

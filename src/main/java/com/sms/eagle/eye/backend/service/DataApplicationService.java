@@ -7,10 +7,6 @@ public interface DataApplicationService {
 
     List<IdNameResponse<Long>> getPluginList();
 
-    List<String> getProjectList();
-
-    List<String> getTeamList();
-
     List<IdNameResponse<Integer>> getScheduleUnitList();
 
     List<IdNameResponse<Long>> getTagList();
