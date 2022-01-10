@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
+import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Repository;
 public interface TaskMapper extends BaseMapper<TaskEntity> {
 
     IPage<TaskResponse> getPage(Page<?> page, @Param("request") TaskQueryRequest request);
+
+    Optional<Long> getIdByName(@Param("name") String name);
 }
 
 

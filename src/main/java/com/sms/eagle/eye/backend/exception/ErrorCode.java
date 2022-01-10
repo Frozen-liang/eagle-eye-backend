@@ -12,7 +12,8 @@ public enum ErrorCode {
     ALERT_RULE_FIELD_MISSING_ERROR("", "%s is required, please fill in the configuration"),
     TASK_ID_IS_NOT_CORRECT("", "Can't find the corresponding monitoring task"),
     PLUGIN_ID_IS_NOT_CORRECT("", "Can't find the corresponding plugin"),
-    INVALID_TASK_SCHEDULE_UNIT_ID("", "");
+    INVALID_TASK_SCHEDULE_UNIT_ID("", ""),
+    INVALID_ALERT_FIELD_KEY("", "");
 
     private final String code;
     private final String message;

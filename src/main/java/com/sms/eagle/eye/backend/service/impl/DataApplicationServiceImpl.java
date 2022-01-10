@@ -3,10 +3,13 @@ package com.sms.eagle.eye.backend.service.impl;
 import com.sms.eagle.eye.backend.common.enums.TaskScheduleUnit;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
 import com.sms.eagle.eye.backend.domain.service.TagService;
+import com.sms.eagle.eye.backend.domain.service.TaskService;
+import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.model.IdNameResponse;
 import com.sms.eagle.eye.backend.service.DataApplicationService;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +18,17 @@ public class DataApplicationServiceImpl implements DataApplicationService {
 
     private final PluginService pluginService;
     private final TagService tagService;
+    private final TaskService taskService;
+    private final ThirdPartyMappingService thirdPartyMappingService;
 
     public DataApplicationServiceImpl(PluginService pluginService,
-        TagService tagService) {
+        TagService tagService,
+        TaskService taskService,
+        ThirdPartyMappingService thirdPartyMappingService) {
         this.pluginService = pluginService;
         this.tagService = tagService;
+        this.taskService = taskService;
+        this.thirdPartyMappingService = thirdPartyMappingService;
     }
 
     @Override
@@ -40,6 +49,16 @@ public class DataApplicationServiceImpl implements DataApplicationService {
     @Override
     public List<IdNameResponse<Long>> getTagList() {
         return tagService.getList();
+    }
+
+    @Override
+    public Optional<Long> getTaskByMappingId(String uniqueValue) {
+        return thirdPartyMappingService.getTaskIdByPluginSystemUnionId(uniqueValue);
+    }
+
+    @Override
+    public Optional<Long> getTaskIdByTaskName(String uniqueValue) {
+        return taskService.getIdByName(uniqueValue);
     }
 
 }
