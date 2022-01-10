@@ -17,7 +17,8 @@ public interface PluginRpcService {
 
     CreateTaskResponse createTask(TaskEntity task, PluginEntity plugin, List<PluginConfigFieldEntity> fields);
 
-    GeneralResponse removeTask(String target, String mappingId);
+    GeneralResponse removeTask(String mappingId, TaskEntity task, PluginEntity plugin,
+        List<PluginConfigFieldEntity> fields);
 
     GeneralResponse updateTask(String mappingId, TaskEntity task, PluginEntity plugin,
         List<PluginConfigFieldEntity> fields);

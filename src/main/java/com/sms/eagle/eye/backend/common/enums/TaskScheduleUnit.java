@@ -13,9 +13,7 @@ import lombok.Getter;
 @Getter
 public enum TaskScheduleUnit {
     MINUTE(0, "Minute", TaskScheduleUnit::minuteToMinute),
-    HOUR(1, "Hour", TaskScheduleUnit::hourToMinute),
-    DAY(2, "Day", TaskScheduleUnit::dayToMinute),
-    MONTH(3, "Month", TaskScheduleUnit::monthToMinute);
+    HOUR(1, "Hour", TaskScheduleUnit::hourToMinute);
 
     private static final Map<Integer, TaskScheduleUnit> MAPPING;
 
