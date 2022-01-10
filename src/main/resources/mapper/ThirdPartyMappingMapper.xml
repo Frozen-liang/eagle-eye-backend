@@ -13,7 +13,7 @@
         limit 1
     </select>
     <select id="getMappingIdByTaskId" resultType="java.lang.String">
-        select *
+        select mapping_id
         from third_party_mapping
         where task_id = #{taskId}
           and type = #{type}

@@ -113,6 +113,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         taskEntity.setPluginConfig(pluginConfigResolver
             .checkAndEncrypt(configFieldList, request.getPluginConfig()));
         taskService.updateTaskEntity(taskEntity);
+        update(request.getId());
         return true;
     }
 
@@ -123,7 +124,24 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
             .scheduleUnit(request.getScheduleUnit())
             .scheduleInterval(request.getScheduleInterval())
             .build());
+        update(request.getId());
         return true;
+    }
+
+    private void update(Long taskId) {
+        TaskEntity task = taskService.getEntityById(taskId);
+        PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
+        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
+        if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
+            log.info("执行rpc");
+            Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(taskId);
+            mappingIdOptional.ifPresent(mappingId -> {
+                GeneralResponse generalResponse = pluginRpcService.updateTask(mappingId, task, plugin, configFields);
+                log.info("update response, {}", generalResponse);
+            });
+        } else {
+            log.info("not schedule");
+        }
     }
 
     @Override
@@ -133,10 +151,16 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
         if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
             log.info("执行rpc");
-            CreateTaskResponse rpcResponse = pluginRpcService.createTask(task, plugin, configFields);
-            resolveInvokeResult(LambdaInvokeResult.builder()
-                .taskId(taskId).success(rpcResponse.getTriggered())
-                .mappingId(rpcResponse.getId()).errorMsg(rpcResponse.getAlarmMessage()).build());
+            try {
+                CreateTaskResponse rpcResponse = pluginRpcService.createTask(task, plugin, configFields);
+                resolveInvokeResult(LambdaInvokeResult.builder()
+                    .taskId(taskId).success(Boolean.TRUE)
+                    .mappingId(rpcResponse.getId()).errorMsg(rpcResponse.getAlarmMessage()).build());
+            } catch (Exception exception) {
+                resolveInvokeResult(LambdaInvokeResult.builder()
+                    .taskId(taskId).success(Boolean.FALSE)
+                    .errorMsg(exception.getMessage()).build());
+            }
         } else {
             Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(taskId);
             awsRuleOptional.ifPresentOrElse(ruleArn -> {
@@ -155,11 +179,12 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     public boolean stopByTaskId(Long taskId) {
         TaskEntity task = taskService.getEntityById(taskId);
         PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
+        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
         if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
             log.info("执行rpc");
             Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(taskId);
             mappingIdOptional.ifPresent(mappingId -> {
-                GeneralResponse removeResponse = pluginRpcService.removeTask(plugin.getUrl(), mappingId);
+                GeneralResponse removeResponse = pluginRpcService.removeTask(mappingId, task, plugin, configFields);
                 log.info("stopByTaskId response : {}", removeResponse);
             });
         } else {
@@ -176,10 +201,11 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     public boolean removeTask(Long taskId) {
         TaskEntity task = taskService.getEntityById(taskId);
         PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
+        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
         if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
             Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(taskId);
             mappingIdOptional.ifPresent(mappingId -> {
-                GeneralResponse removeResponse = pluginRpcService.removeTask(plugin.getUrl(), mappingId);
+                GeneralResponse removeResponse = pluginRpcService.removeTask(mappingId, task, plugin, configFields);
                 log.info("removeTask response : {}", removeResponse);
             });
         } else {
@@ -194,6 +220,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
 
     @Override
     public boolean resolveInvokeResult(LambdaInvokeResult request) {
+        log.info("LambdaInvokeResult: {}", request);
         if (Objects.equals(request.getSuccess(), Boolean.FALSE)) {
             invokeErrorRecordService.addErrorRecord(request);
             taskService.updateTaskEntity(TaskEntity.builder()
