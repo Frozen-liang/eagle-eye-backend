@@ -37,4 +37,11 @@
         </where>
         order by task.utc_create_time desc
     </select>
+    <select id="getIdByName" resultType="java.lang.Long">
+        select id
+        from task
+        where name = #{name}
+        order by task.utc_create_time desc
+        limit 1
+    </select>
 </mapper>

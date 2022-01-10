@@ -17,7 +17,8 @@ import lombok.NoArgsConstructor;
 public class WebHookRequest {
 
     @NotNull
-    private String mappingId;
+    private String uniqueValue;
+    private String uniqueField;
     private String alarmMessage;
     @JsonFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime alertTime;
