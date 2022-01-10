@@ -13,7 +13,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 
 group = "com.sms.eagle.eye"
-version = "1.0.0"
+version = "1.0.1"
 description = "backend"
 
 val checkstyleVersion by extra("8.42")
