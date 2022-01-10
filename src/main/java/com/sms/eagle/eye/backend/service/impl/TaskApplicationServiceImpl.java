@@ -22,7 +22,10 @@ import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
 import com.sms.eagle.eye.backend.resolver.PluginConfigResolver;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
+import com.sms.eagle.eye.backend.service.PluginRpcService;
 import com.sms.eagle.eye.backend.service.TaskApplicationService;
+import com.sms.eagle.eye.plugin.v1.CreateTaskResponse;
+import com.sms.eagle.eye.plugin.v1.GeneralResponse;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +41,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     private final TaskService taskService;
     private final AwsOperation awsOperation;
     private final PluginService pluginService;
+    private final PluginRpcService pluginRpcService;
     private final PluginConfigFieldService pluginConfigFieldService;
     private final PluginSelectOptionService pluginSelectOptionService;
     private final TaskTagMappingService taskTagMappingService;
@@ -46,6 +50,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
 
     public TaskApplicationServiceImpl(PluginConfigResolver pluginConfigResolver, TaskService taskService,
         AwsOperation awsOperation, PluginService pluginService,
+        PluginRpcService pluginRpcService,
         PluginConfigFieldService pluginConfigFieldService,
         PluginSelectOptionService pluginSelectOptionService,
         TaskTagMappingService taskTagMappingService,
@@ -55,6 +60,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         this.taskService = taskService;
         this.awsOperation = awsOperation;
         this.pluginService = pluginService;
+        this.pluginRpcService = pluginRpcService;
         this.pluginConfigFieldService = pluginConfigFieldService;
         this.pluginSelectOptionService = pluginSelectOptionService;
         this.taskTagMappingService = taskTagMappingService;
@@ -127,6 +133,10 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
         if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
             log.info("执行rpc");
+            CreateTaskResponse rpcResponse = pluginRpcService.createTask(task, plugin, configFields);
+            resolveInvokeResult(LambdaInvokeResult.builder()
+                .taskId(taskId).success(rpcResponse.getTriggered())
+                .mappingId(rpcResponse.getId()).errorMsg(rpcResponse.getAlarmMessage()).build());
         } else {
             Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(taskId);
             awsRuleOptional.ifPresentOrElse(ruleArn -> {
@@ -137,6 +147,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
                 thirdPartyMappingService.addAwsRuleMapping(taskId, ruleArn);
             });
         }
+        taskService.updateTaskEntity(TaskEntity.builder().id(taskId).status(TaskStatus.RUNNING.getValue()).build());
         return true;
     }
 
@@ -144,22 +155,39 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     public boolean stopByTaskId(Long taskId) {
         TaskEntity task = taskService.getEntityById(taskId);
         PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
-        pluginConfigFieldService.getListByPluginId(plugin.getId());
         if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
             log.info("执行rpc");
+            Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(taskId);
+            mappingIdOptional.ifPresent(mappingId -> {
+                GeneralResponse removeResponse = pluginRpcService.removeTask(plugin.getUrl(), mappingId);
+                log.info("stopByTaskId response : {}", removeResponse);
+            });
         } else {
             Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(taskId);
             awsRuleOptional.ifPresentOrElse(ruleArn -> {
                 log.info("stop event bridge, {}", ruleArn);
-            }, () -> {
-                log.info("stop error");
-            });
+            }, () -> log.info("stop error"));
         }
+        taskService.updateTaskEntity(TaskEntity.builder().id(taskId).status(TaskStatus.AWAITING.getValue()).build());
         return true;
     }
 
     @Override
     public boolean removeTask(Long taskId) {
+        TaskEntity task = taskService.getEntityById(taskId);
+        PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
+        if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
+            Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(taskId);
+            mappingIdOptional.ifPresent(mappingId -> {
+                GeneralResponse removeResponse = pluginRpcService.removeTask(plugin.getUrl(), mappingId);
+                log.info("removeTask response : {}", removeResponse);
+            });
+        } else {
+            Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(taskId);
+            awsRuleOptional.ifPresentOrElse(ruleArn -> {
+                log.info("delete event bridge, {}", ruleArn);
+            }, () -> log.info("delete error"));
+        }
         taskService.deleteTaskById(taskId);
         return true;
     }

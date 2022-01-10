@@ -27,6 +27,11 @@ public class ThirdPartyMappingServiceImpl extends ServiceImpl<ThirdPartyMappingM
     }
 
     @Override
+    public Optional<String> getPluginSystemUnionId(Long taskId) {
+        return getBaseMapper().getMappingIdByTaskId(taskId, ThirdPartyType.PLUGIN_SYSTEM_UNION_ID.getValue());
+    }
+
+    @Override
     public Optional<Long> getTaskIdByPluginSystemUnionId(String mappingId) {
         return getBaseMapper().getTaskIdByMappingId(mappingId, ThirdPartyType.PLUGIN_SYSTEM_UNION_ID.getValue());
     }
