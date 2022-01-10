@@ -15,6 +15,7 @@ import io.vavr.control.Try;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,8 +55,10 @@ public class PluginSelectOptionServiceImpl extends ServiceImpl<PluginSelectOptio
 
     @Override
     public void saveFromRpcData(List<SelectOption> list, Long pluginId) {
-        saveBatch(list.stream().map(pluginSelectOption -> pluginOptionConverter
-                .rpcToEntity(pluginSelectOption, pluginId, objectMapper))
-            .collect(Collectors.toList()));
+        if (CollectionUtils.isNotEmpty(list)) {
+            saveBatch(list.stream().map(pluginSelectOption -> pluginOptionConverter
+                    .rpcToEntity(pluginSelectOption, pluginId, objectMapper))
+                .collect(Collectors.toList()));
+        }
     }
 }
