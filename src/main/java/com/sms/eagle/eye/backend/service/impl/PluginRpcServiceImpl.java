@@ -94,9 +94,12 @@ public class PluginRpcServiceImpl implements PluginRpcService {
     }
 
     @Override
-    public GeneralResponse removeTask(String target, String mappingId) {
-        return factory.getClient(target).getBlockingStub()
-            .remove(DeleteTaskRequest.newBuilder().setMappingId(mappingId).build());
+    public GeneralResponse removeTask(String mappingId, TaskEntity task, PluginEntity plugin,
+        List<PluginConfigFieldEntity> fields) {
+        String config = pluginConfigResolver.decryptToString(fields, task.getPluginConfig());
+        return factory.getClient(plugin.getUrl()).getBlockingStub()
+            .remove(DeleteTaskRequest.newBuilder().setMappingId(mappingId)
+                .setConfig(config).build());
     }
 
     @Override
