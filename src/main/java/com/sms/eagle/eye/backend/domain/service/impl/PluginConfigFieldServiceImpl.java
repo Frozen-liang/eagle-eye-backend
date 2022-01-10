@@ -12,6 +12,7 @@ import com.sms.eagle.eye.plugin.v1.ConfigField;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -42,8 +43,10 @@ public class PluginConfigFieldServiceImpl extends ServiceImpl<PluginConfigFieldM
 
     @Override
     public void saveFromRpcData(List<ConfigField> list, Long pluginId) {
-        saveBatch(list.stream().map(pluginConfigField -> pluginConfigFieldConverter
-                .rpcToEntity(pluginConfigField, pluginId))
-            .collect(Collectors.toList()));
+        if (CollectionUtils.isNotEmpty(list)) {
+            saveBatch(list.stream().map(pluginConfigField -> pluginConfigFieldConverter
+                    .rpcToEntity(pluginConfigField, pluginId))
+                .collect(Collectors.toList()));
+        }
     }
 }

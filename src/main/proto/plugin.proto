@@ -59,7 +59,7 @@ message SelectOption {
 
 message SelectOptionItem {
   string label = 1;
-  string value = 2;
+  int32 value = 2;
 }
 
 message CreateTaskRequest{

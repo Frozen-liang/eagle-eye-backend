@@ -22,6 +22,6 @@ public class PluginSelectOptionResponse {
     public static class PluginSelectOptionItemResponse {
 
         private String label;
-        private String value;
+        private Integer value;
     }
 }
