@@ -5,24 +5,24 @@
 <mapper namespace="com.sms.eagle.eye.backend.domain.mapper.AlertMapper">
 
     <select id="getPage" resultType="com.sms.eagle.eye.backend.response.alert.AlertResponse">
-        select task_name,
-               project,
-               team,
-               description,
-               utc_alert_time
+        select alert.id,
+               alert.task_name,
+               alert.project,
+               alert.description,
+               plugin.name pluginName,
+               alert.utc_alert_time alert_time
         from alert
+                 left join task on alert.task_id = task.id
+                 left join plugin on task.plugin_id = plugin.id
         <where>
-            is_deleted = false
+            alert.is_deleted = false
             <if test="request.taskName != null">
-                and task_name ilike ('%' || #{request.taskName} || '%')
+                and alert.task_name ilike ('%' || #{request.taskName} || '%')
             </if>
             <if test="request.project != null">
-                and project ilike ('%' || #{request.project} || '%')
-            </if>
-            <if test="request.team != null">
-                and team ilike ('%' || #{request.team} || '%')
+                and alert.project ilike ('%' || #{request.project} || '%')
             </if>
         </where>
-        order by utc_alert_time desc
+        order by alert.utc_alert_time desc
     </select>
 </mapper>

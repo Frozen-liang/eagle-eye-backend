@@ -17,5 +17,4 @@ public class AlertQueryRequest extends PageRequest<AlertEntity> {
 
     private String taskName;
     private String project;
-    private String team;
 }

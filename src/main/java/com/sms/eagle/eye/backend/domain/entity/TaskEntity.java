@@ -26,7 +26,6 @@ public class TaskEntity implements Serializable {
     private String description;
     private String creator;
     private String project;
-    private String team;
     private Long pluginId;
     private Integer scheduleInterval;
     private Integer scheduleUnit;

@@ -1,6 +1,7 @@
 package com.sms.eagle.eye.backend.service.impl;
 
 import com.sms.eagle.eye.backend.common.enums.TaskScheduleUnit;
+import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
 import com.sms.eagle.eye.backend.domain.service.TagService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
@@ -49,6 +50,16 @@ public class DataApplicationServiceImpl implements DataApplicationService {
     @Override
     public List<IdNameResponse<Long>> getTagList() {
         return tagService.getList();
+    }
+
+    @Override
+    public List<IdNameResponse<Integer>> getTaskStatusList() {
+        return Arrays.stream(TaskStatus.values())
+            .map(taskStatus -> IdNameResponse.<Integer>builder()
+                .id(taskStatus.getValue())
+                .name(taskStatus.getName())
+                .build())
+            .collect(Collectors.toList());
     }
 
     @Override
