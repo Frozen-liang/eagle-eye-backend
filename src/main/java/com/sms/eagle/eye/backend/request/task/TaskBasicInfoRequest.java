@@ -34,10 +34,6 @@ public class TaskBasicInfoRequest {
     @NotBlank(groups = {InsertGroup.class})
     private String project;
     /**
-     * 所属团队.
-     */
-    private String team;
-    /**
      * 监控描述.
      */
     private String description;

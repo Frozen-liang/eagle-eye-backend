@@ -4,6 +4,7 @@ import static com.sms.eagle.eye.backend.common.TimePatternConstant.DATE_TIME_PAT
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,7 @@ public class WebHookRequest {
     private String uniqueValue;
     private String uniqueField;
     private String alarmMessage;
+    @Builder.Default
     @JsonFormat(pattern = DATE_TIME_PATTERN)
-    private LocalDateTime alertTime;
+    private LocalDateTime alertTime = LocalDateTime.now(ZoneOffset.UTC);
 }

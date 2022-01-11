@@ -29,7 +29,6 @@ public class AlertServiceImpl extends ServiceImpl<AlertMapper, AlertEntity>
         save(AlertEntity.builder()
             .taskId(task.getId())
             .project(task.getProject())
-            .team(task.getTeam())
             .taskName(task.getName())
             .description(request.getAlarmMessage())
             .utcAlertTime(request.getAlertTime())

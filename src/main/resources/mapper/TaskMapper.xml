@@ -10,10 +10,10 @@
                task.description,
                task.creator,
                task.project,
-               task.team,
                task.plugin_id,
                task.schedule_interval,
                task.schedule_unit,
+               task.status,
                task.plugin_config,
                task.utc_create_time createTime
         from task
@@ -27,9 +27,6 @@
             </if>
             <if test="request.project != null">
                 and task.project ilike ('%' || #{request.project} || '%')
-            </if>
-            <if test="request.team != null">
-                and task.team ilike ('%' || #{request.team} || '%')
             </if>
             <if test="request.pluginId != null">
                 and task.pluginId = #{request.pluginId}
