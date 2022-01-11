@@ -25,7 +25,6 @@ public class AlertEntity implements Serializable {
     private Long taskId;
     private String taskName;
     private String project;
-    private String team;
     private String description;
     private LocalDateTime utcAlertTime;
     private LocalDateTime utcCreateTime;

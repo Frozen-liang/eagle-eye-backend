@@ -12,6 +12,8 @@ public interface DataApplicationService {
 
     List<IdNameResponse<Long>> getTagList();
 
+    List<IdNameResponse<Integer>> getTaskStatusList();
+
     Optional<Long> getTaskByMappingId(String uniqueValue);
 
     Optional<Long> getTaskIdByTaskName(String uniqueValue);

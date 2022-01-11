@@ -10,7 +10,8 @@ import lombok.Getter;
 public enum SelectData {
     PLUGIN("plugin", SelectData::getPluginList),
     SCHEDULE_UNIT("scheduleUnit", SelectData::getScheduleUnit),
-    TASK_TAG("tag", SelectData::getTagList);
+    TASK_TAG("tag", SelectData::getTagList),
+    TASK_STATUS("taskStatus", SelectData::getTaskStatusList);
 
     private final String key;
     private final Function<DataApplicationService, Object> function;
@@ -31,6 +32,10 @@ public enum SelectData {
 
     private static Object getTagList(DataApplicationService dataApplicationService) {
         return dataApplicationService.getTagList();
+    }
+
+    private static Object getTaskStatusList(DataApplicationService dataApplicationService) {
+        return dataApplicationService.getTaskStatusList();
     }
 
     public static Map<String, Object> getSelectData(DataApplicationService dataApplicationService) {

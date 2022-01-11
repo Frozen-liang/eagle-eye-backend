@@ -28,10 +28,6 @@ public class TaskQueryRequest extends PageRequest<TaskEntity> {
      */
     private String project;
     /**
-     * 所属团队.
-     */
-    private String team;
-    /**
      * 所属插件id.
      */
     private Long pluginId;

@@ -39,13 +39,11 @@ public class TaskResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long pluginId;
     /**
-     * 所属团队.
-     */
-    private String team;
-    /**
      * 任务间隔数值.
      */
     private Integer scheduleInterval;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Integer status;
     /**
      * 任务间隔单位.
      */

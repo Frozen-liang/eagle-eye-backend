@@ -19,7 +19,6 @@ public class AlertResponse {
     private Long id;
     private String taskName;
     private String project;
-    private String team;
     private String description;
     private String pluginName;
     @JsonFormat(pattern = DATE_TIME_PATTERN)
