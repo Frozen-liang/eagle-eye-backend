@@ -6,7 +6,6 @@ import com.sms.eagle.eye.backend.common.enums.ThirdPartyType;
 import com.sms.eagle.eye.backend.domain.entity.ThirdPartyMappingEntity;
 import com.sms.eagle.eye.backend.domain.mapper.ThirdPartyMappingMapper;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
-import com.sms.eagle.eye.backend.request.alert.LambdaInvokeResult;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,10 +17,10 @@ public class ThirdPartyMappingServiceImpl extends ServiceImpl<ThirdPartyMappingM
     implements ThirdPartyMappingService {
 
     @Override
-    public void addPluginSystemUnionIdMapping(LambdaInvokeResult request) {
+    public void addPluginSystemUnionIdMapping(Long taskId, String mappingId) {
         save(ThirdPartyMappingEntity.builder()
-            .taskId(request.getTaskId())
-            .mappingId(request.getMappingId())
+            .taskId(taskId)
+            .mappingId(mappingId)
             .type(ThirdPartyType.PLUGIN_SYSTEM_UNION_ID.getValue())
             .build());
     }

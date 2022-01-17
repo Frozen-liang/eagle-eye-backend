@@ -61,6 +61,7 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
     }
 
     /**
+     * TODO 完善逻辑
      * 删除插件 停止并删除使用该插件的任务.
      */
     @Transactional(rollbackFor = Exception.class)

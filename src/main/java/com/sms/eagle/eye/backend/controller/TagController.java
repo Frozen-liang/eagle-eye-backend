@@ -24,7 +24,7 @@ public class TagController {
     }
 
     /**
-     * 添加插件.
+     * 添加Tag.
      */
     @PostMapping
     public Response<List<IdNameResponse<Long>>> addTags(@RequestBody TagRequest request) {

@@ -3,11 +3,7 @@ package com.sms.eagle.eye.backend.service.impl;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.PLUGIN_SERVER_URL_ERROR;
 
 import com.google.protobuf.Empty;
-import com.sms.eagle.eye.backend.common.enums.TaskScheduleUnit;
 import com.sms.eagle.eye.backend.convert.PluginConfigFieldConverter;
-import com.sms.eagle.eye.backend.domain.entity.PluginConfigFieldEntity;
-import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
-import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.factory.PluginClientFactory;
 import com.sms.eagle.eye.backend.resolver.PluginConfigResolver;
@@ -15,12 +11,7 @@ import com.sms.eagle.eye.backend.response.plugin.PluginConfigFieldResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginMetadataResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginSelectOptionResponse;
 import com.sms.eagle.eye.backend.service.PluginRpcService;
-import com.sms.eagle.eye.plugin.v1.CreateTaskRequest;
-import com.sms.eagle.eye.plugin.v1.CreateTaskResponse;
-import com.sms.eagle.eye.plugin.v1.DeleteTaskRequest;
-import com.sms.eagle.eye.plugin.v1.GeneralResponse;
 import com.sms.eagle.eye.plugin.v1.RegisterResponse;
-import com.sms.eagle.eye.plugin.v1.UpdateTaskRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +39,7 @@ public class PluginRpcServiceImpl implements PluginRpcService {
             return factory.getClient(target)
                 .getBlockingStub().fetchMetadata(Empty.newBuilder().build());
         } catch (Exception exception) {
+            factory.removeClient(target);
             log.error(PLUGIN_SERVER_URL_ERROR.getMessage(), exception);
             throw new EagleEyeException(PLUGIN_SERVER_URL_ERROR);
         }
@@ -76,49 +68,5 @@ public class PluginRpcServiceImpl implements PluginRpcService {
             .options(options)
             .scheduleBySelf(registerResponse.getScheduleBySelf())
             .build();
-    }
-
-    // TODO
-    @Override
-    public CreateTaskResponse createTask(TaskEntity task, PluginEntity plugin, List<PluginConfigFieldEntity> fields) {
-        Integer minuteInterval = convertToMinuteInterval(task);
-        String config = pluginConfigResolver.decryptToString(fields, task.getPluginConfig());
-        CreateTaskRequest request = CreateTaskRequest.newBuilder()
-            .setId(task.getId().toString())
-            .setName(task.getName())
-            .setDescription(task.getDescription())
-            .setInterval(minuteInterval)
-            .setConfig(config)
-            .build();
-        return factory.getClient(plugin.getUrl()).getBlockingStub().createOrExecute(request);
-    }
-
-    @Override
-    public GeneralResponse removeTask(String mappingId, TaskEntity task, PluginEntity plugin,
-        List<PluginConfigFieldEntity> fields) {
-        String config = pluginConfigResolver.decryptToString(fields, task.getPluginConfig());
-        return factory.getClient(plugin.getUrl()).getBlockingStub()
-            .remove(DeleteTaskRequest.newBuilder().setMappingId(mappingId)
-                .setConfig(config).build());
-    }
-
-    @Override
-    public GeneralResponse updateTask(String mappingId, TaskEntity task, PluginEntity plugin,
-        List<PluginConfigFieldEntity> fields) {
-        Integer minuteInterval = convertToMinuteInterval(task);
-        String config = pluginConfigResolver.decryptToString(fields, task.getPluginConfig());
-        UpdateTaskRequest request = UpdateTaskRequest.newBuilder()
-            .setMappingId(mappingId)
-            .setName(task.getName())
-            .setDescription(task.getDescription())
-            .setInterval(minuteInterval)
-            .setConfig(config)
-            .build();
-        return factory.getClient(plugin.getUrl()).getBlockingStub().edit(request);
-    }
-
-    private Integer convertToMinuteInterval(TaskEntity task) {
-        return TaskScheduleUnit.resolve(task.getScheduleUnit())
-            .getConvertToMinute().apply(task.getScheduleInterval());
     }
 }

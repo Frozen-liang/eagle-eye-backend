@@ -13,7 +13,14 @@ public enum ErrorCode {
     TASK_ID_IS_NOT_CORRECT("", "Can't find the corresponding monitoring task"),
     PLUGIN_ID_IS_NOT_CORRECT("", "Can't find the corresponding plugin"),
     INVALID_TASK_SCHEDULE_UNIT_ID("", ""),
-    INVALID_ALERT_FIELD_KEY("", "");
+    INVALID_ALERT_FIELD_KEY("", ""),
+    TASK_HANDLER_IS_NOT_EXIST("", ""),
+    PLUGIN_CLIENT_SHUTDOWN_ERROR("", ""),
+    TASK_IS_RUNNING_AND_DELETE_ERROR("", "Task is running, please stop first"),
+    TASK_NAME_HAS_ALREADY_EXIST("", "Task name already exists, please set to other"),
+    TASK_STATUS_VALUE_ERROR("", ""),
+    TASK_IS_ALREADY_RUNNING("", "Task is already running"),
+    TASK_IS_ALREADY_NON_RUNNING("", "The task is already in a non-running state");
 
     private final String code;
     private final String message;

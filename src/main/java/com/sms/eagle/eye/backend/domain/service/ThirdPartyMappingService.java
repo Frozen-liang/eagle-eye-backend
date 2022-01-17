@@ -2,12 +2,11 @@ package com.sms.eagle.eye.backend.domain.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sms.eagle.eye.backend.domain.entity.ThirdPartyMappingEntity;
-import com.sms.eagle.eye.backend.request.alert.LambdaInvokeResult;
 import java.util.Optional;
 
 public interface ThirdPartyMappingService extends IService<ThirdPartyMappingEntity> {
 
-    void addPluginSystemUnionIdMapping(LambdaInvokeResult request);
+    void addPluginSystemUnionIdMapping(Long taskId, String mappingId);
 
     Optional<String> getPluginSystemUnionId(Long taskId);
 
