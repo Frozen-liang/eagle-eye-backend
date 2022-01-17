@@ -5,7 +5,6 @@ import com.sms.eagle.eye.backend.aspect.DomainServiceAdvice;
 import com.sms.eagle.eye.backend.domain.entity.InvokeErrorRecordEntity;
 import com.sms.eagle.eye.backend.domain.mapper.InvokeErrorRecordMapper;
 import com.sms.eagle.eye.backend.domain.service.InvokeErrorRecordService;
-import com.sms.eagle.eye.backend.request.alert.LambdaInvokeResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +15,10 @@ public class InvokeErrorRecordServiceImpl extends ServiceImpl<InvokeErrorRecordM
     implements InvokeErrorRecordService {
 
     @Override
-    public void addErrorRecord(LambdaInvokeResult request) {
+    public void addErrorRecord(Long taskId, String errorMsg) {
         save(InvokeErrorRecordEntity.builder()
-            .taskId(request.getTaskId())
-            .errMessage(request.getErrorMsg())
+            .taskId(taskId)
+            .errMessage(errorMsg)
             .build());
     }
 }

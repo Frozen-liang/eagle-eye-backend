@@ -2,6 +2,7 @@ package com.sms.eagle.eye.backend.domain.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
@@ -23,4 +24,8 @@ public interface TaskService extends IService<TaskEntity> {
     void deleteTaskById(Long taskId);
 
     Optional<Long> getIdByName(String name);
+
+    Integer countByName(String name);
+
+    TaskStatus getTaskStatusById(Long taskId);
 }

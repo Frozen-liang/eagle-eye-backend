@@ -1,7 +1,12 @@
 package com.sms.eagle.eye.backend.service.impl;
 
+import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_IS_ALREADY_NON_RUNNING;
+import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_IS_ALREADY_RUNNING;
+import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_IS_RUNNING_AND_DELETE_ERROR;
+import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_NAME_HAS_ALREADY_EXIST;
+import static com.sms.eagle.eye.backend.handler.impl.TaskHandlerProxy.TASK_HANDLER_PROXY;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.sms.eagle.eye.backend.aws.AwsOperation;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.domain.entity.PluginConfigFieldEntity;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
@@ -13,23 +18,23 @@ import com.sms.eagle.eye.backend.domain.service.PluginService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.TaskTagMappingService;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
+import com.sms.eagle.eye.backend.exception.EagleEyeException;
+import com.sms.eagle.eye.backend.handler.TaskHandler;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.request.alert.LambdaInvokeResult;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
+import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
 import com.sms.eagle.eye.backend.resolver.PluginConfigResolver;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
-import com.sms.eagle.eye.backend.service.PluginRpcService;
 import com.sms.eagle.eye.backend.service.TaskApplicationService;
-import com.sms.eagle.eye.plugin.v1.CreateTaskResponse;
-import com.sms.eagle.eye.plugin.v1.GeneralResponse;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,30 +42,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TaskApplicationServiceImpl implements TaskApplicationService {
 
+    private final TaskHandler taskHandler;
     private final PluginConfigResolver pluginConfigResolver;
     private final TaskService taskService;
-    private final AwsOperation awsOperation;
     private final PluginService pluginService;
-    private final PluginRpcService pluginRpcService;
     private final PluginConfigFieldService pluginConfigFieldService;
     private final PluginSelectOptionService pluginSelectOptionService;
     private final TaskTagMappingService taskTagMappingService;
     private final InvokeErrorRecordService invokeErrorRecordService;
     private final ThirdPartyMappingService thirdPartyMappingService;
 
-    public TaskApplicationServiceImpl(PluginConfigResolver pluginConfigResolver, TaskService taskService,
-        AwsOperation awsOperation, PluginService pluginService,
-        PluginRpcService pluginRpcService,
+    public TaskApplicationServiceImpl(@Qualifier(TASK_HANDLER_PROXY) TaskHandler taskHandler,
+        PluginConfigResolver pluginConfigResolver, TaskService taskService,
+        PluginService pluginService,
         PluginConfigFieldService pluginConfigFieldService,
         PluginSelectOptionService pluginSelectOptionService,
         TaskTagMappingService taskTagMappingService,
         InvokeErrorRecordService invokeErrorRecordService,
         ThirdPartyMappingService thirdPartyMappingService) {
+        this.taskHandler = taskHandler;
         this.pluginConfigResolver = pluginConfigResolver;
         this.taskService = taskService;
-        this.awsOperation = awsOperation;
         this.pluginService = pluginService;
-        this.pluginRpcService = pluginRpcService;
         this.pluginConfigFieldService = pluginConfigFieldService;
         this.pluginSelectOptionService = pluginSelectOptionService;
         this.taskTagMappingService = taskTagMappingService;
@@ -81,6 +84,10 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String addTask(TaskBasicInfoRequest request) {
+        if (taskService.countByName(request.getName()) != 0) {
+            // TODO Create unique index
+            throw new EagleEyeException(TASK_NAME_HAS_ALREADY_EXIST);
+        }
         Long taskId = taskService.saveFromRequest(request);
         taskTagMappingService.updateTagMapping(taskId, request.getTagList());
         return taskId.toString();
@@ -89,6 +96,9 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateTask(TaskBasicInfoRequest request) {
+        if (taskService.countByName(request.getName()) > 1) {
+            throw new EagleEyeException(TASK_NAME_HAS_ALREADY_EXIST);
+        }
         taskService.updateFromRequest(request);
         taskTagMappingService.updateTagMapping(request.getId(), request.getTagList());
         return true;
@@ -105,6 +115,9 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
             .build();
     }
 
+    /**
+     * 更新数据库中的插件配置信息 如果任务正在运行中，则通知任务更新其配置.
+     */
     @Override
     public boolean updatePluginConfig(TaskPluginConfigRequest request) {
         TaskEntity taskEntity = taskService.getEntityById(request.getId());
@@ -113,10 +126,13 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         taskEntity.setPluginConfig(pluginConfigResolver
             .checkAndEncrypt(configFieldList, request.getPluginConfig()));
         taskService.updateTaskEntity(taskEntity);
-        update(request.getId());
+        updateTaskIfIsRunning(request.getId(), TaskStatus.resolve(taskEntity.getStatus()));
         return true;
     }
 
+    /**
+     * 更新数据库中的任务执行频率信息 如果任务正在运行中，则通知任务更新其执行频率.
+     */
     @Override
     public boolean updateSchedule(TaskScheduleRequest request) {
         taskService.updateTaskEntity(TaskEntity.builder()
@@ -124,115 +140,89 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
             .scheduleUnit(request.getScheduleUnit())
             .scheduleInterval(request.getScheduleInterval())
             .build());
-        update(request.getId());
+        updateTaskIfIsRunning(request.getId(), taskService.getTaskStatusById(request.getId()));
         return true;
     }
 
-    private void update(Long taskId) {
-        TaskEntity task = taskService.getEntityById(taskId);
-        PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
-        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
-        if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
-            log.info("执行rpc");
-            Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(taskId);
-            mappingIdOptional.ifPresent(mappingId -> {
-                GeneralResponse generalResponse = pluginRpcService.updateTask(mappingId, task, plugin, configFields);
-                log.info("update response, {}", generalResponse);
-            });
-        } else {
-            log.info("not schedule");
+    private void updateTaskIfIsRunning(Long taskId, TaskStatus taskStatus) {
+        if (Objects.equals(taskStatus, TaskStatus.RUNNING)) {
+            TaskOperationRequest operationRequest = getOperationRequest(taskId);
+            taskHandler.updateTask(operationRequest);
         }
     }
 
+    /**
+     * 检查任务状态， 如果正则运行，则抛出异常 检查配置等信息是否完整.
+     */
     @Override
     public boolean startByTaskId(Long taskId) {
-        TaskEntity task = taskService.getEntityById(taskId);
-        PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
-        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
-        if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
-            log.info("执行rpc");
-            try {
-                CreateTaskResponse rpcResponse = pluginRpcService.createTask(task, plugin, configFields);
-                resolveInvokeResult(LambdaInvokeResult.builder()
-                    .taskId(taskId).success(Boolean.TRUE)
-                    .mappingId(rpcResponse.getId()).errorMsg(rpcResponse.getAlarmMessage()).build());
-            } catch (Exception exception) {
-                resolveInvokeResult(LambdaInvokeResult.builder()
-                    .taskId(taskId).success(Boolean.FALSE)
-                    .errorMsg(exception.getMessage()).build());
-            }
-        } else {
-            Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(taskId);
-            awsRuleOptional.ifPresentOrElse(ruleArn -> {
-                log.info("awsOperation, update and enable ");
-            }, () -> {
-                String ruleArn = awsOperation.createRuleAndReturnArn(task);
-                awsOperation.createRuleTargetAndReturnId(task, plugin, configFields);
-                thirdPartyMappingService.addAwsRuleMapping(taskId, ruleArn);
-            });
+        TaskStatus taskStatus = taskService.getTaskStatusById(taskId);
+        if (!taskStatus.isRunningStatus()) {
+            TaskOperationRequest operationRequest = getOperationRequest(taskId);
+            taskHandler.startTask(operationRequest);
+            // TODO task status 由事件修改
+            taskService.updateTaskEntity(TaskEntity.builder().id(taskId).status(TaskStatus.RUNNING.getValue()).build());
+            return true;
         }
-        taskService.updateTaskEntity(TaskEntity.builder().id(taskId).status(TaskStatus.RUNNING.getValue()).build());
-        return true;
+        throw new EagleEyeException(TASK_IS_ALREADY_RUNNING);
     }
 
+    /**
+     * 检查任务状态 如果是等待或失败状态，则抛出异常.
+     */
     @Override
     public boolean stopByTaskId(Long taskId) {
-        TaskEntity task = taskService.getEntityById(taskId);
-        PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
-        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
-        if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
-            log.info("执行rpc");
-            Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(taskId);
-            mappingIdOptional.ifPresent(mappingId -> {
-                GeneralResponse removeResponse = pluginRpcService.removeTask(mappingId, task, plugin, configFields);
-                log.info("stopByTaskId response : {}", removeResponse);
-            });
-        } else {
-            Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(taskId);
-            awsRuleOptional.ifPresentOrElse(ruleArn -> {
-                log.info("stop event bridge, {}", ruleArn);
-            }, () -> log.info("stop error"));
+        TaskStatus taskStatus = taskService.getTaskStatusById(taskId);
+        if (taskStatus.isRunningStatus()) {
+            TaskOperationRequest operationRequest = getOperationRequest(taskId);
+            taskHandler.stopTask(operationRequest);
+            // TODO task status 由事件修改
+            taskService.updateTaskEntity(
+                TaskEntity.builder().id(taskId).status(TaskStatus.AWAITING.getValue()).build());
+            return true;
         }
-        taskService.updateTaskEntity(TaskEntity.builder().id(taskId).status(TaskStatus.AWAITING.getValue()).build());
-        return true;
+        throw new EagleEyeException(TASK_IS_ALREADY_NON_RUNNING);
     }
 
+    /**
+     * 如果任务正则运行中，则提示先停止任务 否则直接删除任务.
+     */
     @Override
     public boolean removeTask(Long taskId) {
-        TaskEntity task = taskService.getEntityById(taskId);
-        PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
-        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
-        if (Objects.equals(plugin.getScheduleBySelf(), Boolean.TRUE)) {
-            Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(taskId);
-            mappingIdOptional.ifPresent(mappingId -> {
-                GeneralResponse removeResponse = pluginRpcService.removeTask(mappingId, task, plugin, configFields);
-                log.info("removeTask response : {}", removeResponse);
-            });
-        } else {
-            Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(taskId);
-            awsRuleOptional.ifPresentOrElse(ruleArn -> {
-                log.info("delete event bridge, {}", ruleArn);
-            }, () -> log.info("delete error"));
+        TaskStatus taskStatus = taskService.getTaskStatusById(taskId);
+        if (taskStatus.isRunningStatus()) {
+            throw new EagleEyeException(TASK_IS_RUNNING_AND_DELETE_ERROR);
         }
         taskService.deleteTaskById(taskId);
         return true;
     }
 
+    // TODO Refactor
     @Override
     public boolean resolveInvokeResult(LambdaInvokeResult request) {
-        log.info("LambdaInvokeResult: {}", request);
         if (Objects.equals(request.getSuccess(), Boolean.FALSE)) {
-            invokeErrorRecordService.addErrorRecord(request);
+            invokeErrorRecordService.addErrorRecord(request.getTaskId(), request.getErrorMsg());
             taskService.updateTaskEntity(TaskEntity.builder()
                 .id(request.getTaskId())
                 .status(TaskStatus.ERROR.getValue())
                 .build());
         } else {
             if (!Objects.equals(request.getTaskId().toString(), request.getMappingId())) {
-                thirdPartyMappingService.addPluginSystemUnionIdMapping(request);
+                thirdPartyMappingService.addPluginSystemUnionIdMapping(request.getTaskId(), request.getMappingId());
             }
         }
         return true;
     }
 
+    private TaskOperationRequest getOperationRequest(Long taskId) {
+        TaskEntity task = taskService.getEntityById(taskId);
+        PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
+        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
+        String config = pluginConfigResolver.decryptToString(configFields, task.getPluginConfig());
+        return TaskOperationRequest.builder()
+            .task(task)
+            .plugin(plugin)
+            .decryptedConfig(config)
+            .build();
+    }
 }

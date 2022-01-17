@@ -6,5 +6,8 @@ import java.util.List;
 
 public interface TagApplicationService {
 
+    /**
+     * 添加tag，并返回所有tag列表.
+     */
     List<IdNameResponse<Long>> addTags(TagRequest request);
 }
