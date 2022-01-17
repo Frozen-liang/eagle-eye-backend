@@ -37,8 +37,16 @@
     <select id="getIdByName" resultType="java.lang.Long">
         select id
         from task
-        where name = #{name}
+        where lower(name) = #{name} and is_deleted = false
         order by task.utc_create_time desc
         limit 1
+    </select>
+    <select id="selectCountByName" resultType="java.lang.Integer">
+        select count(1)
+        from task
+        where lower(name) = #{name} and is_deleted = false
+    </select>
+    <select id="getTaskStatusById" resultType="java.lang.Integer">
+        select status from task where id = #{id} and is_deleted = false
     </select>
 </mapper>

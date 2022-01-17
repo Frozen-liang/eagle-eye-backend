@@ -5,6 +5,7 @@ import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_ID_IS_NOT_CORRE
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sms.eagle.eye.backend.aspect.DomainServiceAdvice;
+import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.convert.TaskConverter;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.domain.mapper.TaskMapper;
@@ -14,6 +15,7 @@ import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import com.sms.eagle.eye.backend.utils.SecurityUtil;
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +69,21 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, TaskEntity>
 
     @Override
     public Optional<Long> getIdByName(String name) {
-        return getBaseMapper().getIdByName(name);
+        return getBaseMapper().getIdByName(name.toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public Integer countByName(String name) {
+        return getBaseMapper().selectCountByName(name.toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public TaskStatus getTaskStatusById(Long taskId) {
+        Optional<Integer> optional = getBaseMapper().getTaskStatusById(taskId);
+        if (optional.isPresent()) {
+            return TaskStatus.resolve(optional.get());
+        }
+        throw new EagleEyeException(TASK_ID_IS_NOT_CORRECT);
     }
 }
 

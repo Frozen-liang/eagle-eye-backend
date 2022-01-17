@@ -15,7 +15,3 @@ public interface ThirdPartyMappingMapper extends BaseMapper<ThirdPartyMappingEnt
 
     Optional<String> getMappingIdByTaskId(@Param("taskId") Long taskId, @Param("type") Integer type);
 }
-
-
-
-

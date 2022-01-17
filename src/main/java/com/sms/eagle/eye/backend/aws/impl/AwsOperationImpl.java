@@ -1,17 +1,15 @@
 package com.sms.eagle.eye.backend.aws.impl;
 
+import static com.sms.eagle.eye.backend.utils.TaskScheduleUtil.getMinuteInterval;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sms.eagle.eye.backend.aws.AwsOperation;
 import com.sms.eagle.eye.backend.common.encrypt.AesEncryptor;
-import com.sms.eagle.eye.backend.common.enums.TaskScheduleUnit;
 import com.sms.eagle.eye.backend.config.AwsProperties;
-import com.sms.eagle.eye.backend.domain.entity.PluginConfigFieldEntity;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.request.AwsLambdaInput;
-import com.sms.eagle.eye.backend.resolver.PluginConfigResolver;
 import io.vavr.control.Try;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -29,22 +27,19 @@ public class AwsOperationImpl implements AwsOperation {
     private final ObjectMapper objectMapper;
     private final AwsProperties awsProperties;
     private final AesEncryptor aesEncryptor;
-    private final PluginConfigResolver pluginConfigResolver;
     private final EventBridgeClient eventBridgeClient;
 
     public AwsOperationImpl(ObjectMapper objectMapper, AwsProperties awsProperties,
-        AesEncryptor aesEncryptor, PluginConfigResolver pluginConfigResolver,
-        EventBridgeClient eventBridgeClient) {
+        AesEncryptor aesEncryptor, EventBridgeClient eventBridgeClient) {
         this.objectMapper = objectMapper;
         this.awsProperties = awsProperties;
         this.aesEncryptor = aesEncryptor;
-        this.pluginConfigResolver = pluginConfigResolver;
         this.eventBridgeClient = eventBridgeClient;
     }
 
     @Override
     public String createRuleAndReturnArn(TaskEntity task) {
-        Integer minuteInterval = convertToMinuteInterval(task);
+        Integer minuteInterval = getMinuteInterval(task);
         PutRuleRequest putRuleRequest = PutRuleRequest.builder()
             .name(task.getName())
             .scheduleExpression(String.format(EXPRESSION_TEMPLATE, minuteInterval))
@@ -56,24 +51,22 @@ public class AwsOperationImpl implements AwsOperation {
 
     @Override
     public String createRuleTargetAndReturnId(TaskEntity task, PluginEntity plugin,
-        List<PluginConfigFieldEntity> fields) {
+        String decryptedConfig) {
         String id = UUID.randomUUID().toString();
         PutTargetsRequest putTargetsRequest = PutTargetsRequest.builder()
             .rule(task.getName())
             .targets(Target.builder()
                 .id(id)
                 .arn(awsProperties.getLambdaArn())
-                .roleArn(awsProperties.getRoleArn())
-                .input(generateInput(task, plugin.getUrl(), fields))
+                .input(generateInput(task, plugin.getUrl(), decryptedConfig))
                 .build())
             .build();
         eventBridgeClient.putTargets(putTargetsRequest);
         return id;
     }
 
-    private String generateInput(TaskEntity task, String pluginUrl, List<PluginConfigFieldEntity> fields) {
-        Integer minuteInterval = convertToMinuteInterval(task);
-        String config = pluginConfigResolver.decryptToString(fields, task.getPluginConfig());
+    private String generateInput(TaskEntity task, String pluginUrl, String decryptedConfig) {
+        Integer minuteInterval = getMinuteInterval(task);
         AwsLambdaInput input = AwsLambdaInput.builder()
             .id(task.getId().toString())
             .name(task.getName())
@@ -82,13 +75,8 @@ public class AwsOperationImpl implements AwsOperation {
             .pluginUrl(pluginUrl)
             .webhookUrl(awsProperties.getWebhookUrl())
             .decryptKey(aesEncryptor.getSecretKey())
-            .payload(aesEncryptor.encrypt(config))
+            .payload(aesEncryptor.encrypt(decryptedConfig))
             .build();
         return Try.of(() -> objectMapper.writeValueAsString(input)).getOrElse(DEFAULT_INPUT);
-    }
-
-    private Integer convertToMinuteInterval(TaskEntity task) {
-        return TaskScheduleUnit.resolve(task.getScheduleUnit())
-            .getConvertToMinute().apply(task.getScheduleInterval());
     }
 }
