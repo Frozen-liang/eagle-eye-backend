@@ -1,6 +1,7 @@
-package com.sms.eagle.eye.backend.response.password;
+package com.sms.eagle.eye.backend.response.task;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PasswordResponse {
+public class TaskGroupResponse {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
     private String name;
-    private String description;
-
+    private Integer index;
+    private List<TaskGroupResponse> child;
 }
