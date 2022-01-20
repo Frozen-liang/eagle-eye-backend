@@ -1,4 +1,6 @@
-package com.sms.eagle.eye.backend.request.password;
+package com.sms.eagle.eye.backend.request.group;
+
+import static com.sms.eagle.eye.backend.domain.service.impl.TaskGroupServiceImpl.ROOT_ID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
@@ -13,14 +15,21 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PasswordRequest {
+public class TaskGroupRequest {
 
     @NotNull(groups = {UpdateGroup.class})
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class})
-    private String key;
-    @NotNull(groups = {InsertGroup.class, UpdateGroup.class})
-    private String value;
-    private String description;
+
+    @NotNull(groups = {InsertGroup.class})
+    private String name;
+
+    @NotNull(groups = {UpdateGroup.class})
+    @Builder.Default
+    private Integer preIndex = 0;
+
+    @NotNull(groups = {UpdateGroup.class})
+    @Builder.Default
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long parentId = ROOT_ID;
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface PluginConfigResolver {
 
-    String checkAndEncrypt(List<PluginConfigFieldEntity> fields, String config);
+    String checkAndEncrypt(List<PluginConfigFieldEntity> fields, String config, String oldConfig);
 
     List<PluginConfigFieldWithValueResponse> decryptToResponse(List<PluginConfigFieldEntity> fields, String config);
 

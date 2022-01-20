@@ -15,6 +15,7 @@ import com.sms.eagle.eye.backend.domain.service.InvokeErrorRecordService;
 import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
+import com.sms.eagle.eye.backend.domain.service.TaskGroupMappingService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.TaskTagMappingService;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
@@ -49,6 +50,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     private final PluginConfigFieldService pluginConfigFieldService;
     private final PluginSelectOptionService pluginSelectOptionService;
     private final TaskTagMappingService taskTagMappingService;
+    private final TaskGroupMappingService taskGroupMappingService;
     private final InvokeErrorRecordService invokeErrorRecordService;
     private final ThirdPartyMappingService thirdPartyMappingService;
 
@@ -58,6 +60,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         PluginConfigFieldService pluginConfigFieldService,
         PluginSelectOptionService pluginSelectOptionService,
         TaskTagMappingService taskTagMappingService,
+        TaskGroupMappingService taskGroupMappingService,
         InvokeErrorRecordService invokeErrorRecordService,
         ThirdPartyMappingService thirdPartyMappingService) {
         this.taskHandler = taskHandler;
@@ -67,6 +70,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         this.pluginConfigFieldService = pluginConfigFieldService;
         this.pluginSelectOptionService = pluginSelectOptionService;
         this.taskTagMappingService = taskTagMappingService;
+        this.taskGroupMappingService = taskGroupMappingService;
         this.invokeErrorRecordService = invokeErrorRecordService;
         this.thirdPartyMappingService = thirdPartyMappingService;
     }
@@ -76,6 +80,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         IPage<TaskResponse> page = taskService.getPage(request);
         page.convert(taskResponse -> {
             taskResponse.setTagList(taskTagMappingService.getTagListByTaskId(taskResponse.getId()));
+            taskResponse.setGroupList(taskGroupMappingService.getGroupListByTaskId(taskResponse.getId()));
             return taskResponse;
         });
         return new CustomPage<>(page);
@@ -90,6 +95,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         }
         Long taskId = taskService.saveFromRequest(request);
         taskTagMappingService.updateTagMapping(taskId, request.getTagList());
+        taskGroupMappingService.updateGroupMapping(taskId, request.getGroupList());
         return taskId.toString();
     }
 
@@ -101,6 +107,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         }
         taskService.updateFromRequest(request);
         taskTagMappingService.updateTagMapping(request.getId(), request.getTagList());
+        taskGroupMappingService.updateGroupMapping(request.getId(), request.getGroupList());
         return true;
     }
 
@@ -124,7 +131,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         List<PluginConfigFieldEntity> configFieldList = pluginConfigFieldService
             .getListByPluginId(taskEntity.getPluginId());
         taskEntity.setPluginConfig(pluginConfigResolver
-            .checkAndEncrypt(configFieldList, request.getPluginConfig()));
+            .checkAndEncrypt(configFieldList, request.getPluginConfig(), taskEntity.getPluginConfig()));
         taskService.updateTaskEntity(taskEntity);
         updateTaskIfIsRunning(request.getId(), TaskStatus.resolve(taskEntity.getStatus()));
         return true;

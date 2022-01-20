@@ -47,11 +47,12 @@ public class GrpcTaskHandler implements TaskHandler {
             .setName(request.getTask().getName())
             .setDescription(request.getTask().getDescription())
             .setInterval(minuteInterval)
-            .setConfig(request.getTask().getPluginConfig())
+            .setConfig(request.getDecryptedConfig())
             .build();
         try {
             CreateTaskResponse response = factory.getClient(request.getPlugin().getUrl())
                 .getBlockingStub().createOrExecute(grpcRequest);
+            log.info("CreateTaskResponse: {}", response);
             if (!Objects.equals(request.getTask().getId().toString(), response.getId())) {
                 thirdPartyMappingService.addPluginSystemUnionIdMapping(request.getTask().getId(), response.getId());
             }
