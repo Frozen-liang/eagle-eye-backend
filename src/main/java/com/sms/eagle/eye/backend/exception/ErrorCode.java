@@ -11,6 +11,7 @@ public enum ErrorCode {
     PLUGIN_CONFIG_FIELD_MISSING_ERROR("", "%s is required, please fill in the configuration"),
     ALERT_RULE_FIELD_MISSING_ERROR("", "%s is required, please fill in the configuration"),
     TASK_ID_IS_NOT_CORRECT("", "Can't find the corresponding monitoring task"),
+    GROUP_ID_IS_NOT_CORRECT("", "Can't find the corresponding group"),
     PLUGIN_ID_IS_NOT_CORRECT("", "Can't find the corresponding plugin"),
     INVALID_TASK_SCHEDULE_UNIT_ID("", ""),
     INVALID_ALERT_FIELD_KEY("", ""),
@@ -20,7 +21,11 @@ public enum ErrorCode {
     TASK_NAME_HAS_ALREADY_EXIST("", "Task name already exists, please set to other"),
     TASK_STATUS_VALUE_ERROR("", ""),
     TASK_IS_ALREADY_RUNNING("", "Task is already running"),
-    TASK_IS_ALREADY_NON_RUNNING("", "The task is already in a non-running state");
+    TASK_IS_ALREADY_NON_RUNNING("", "The task is already in a non-running state"),
+    PASSWORD_KEY_HAS_ALREADY_EXIST("", ""),
+    PASSWORD_KEY_IS_NOT_EXIST("", ""),
+    GROUP_NAME_HAS_ALREADY_EXIST("", "Group name already exists, please set to other"),
+    REMOVE_CHILD_BEFORE_DELETE_GROUP("", "Please delete sub-Groups first");
 
     private final String code;
     private final String message;

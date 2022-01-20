@@ -51,6 +51,8 @@ public class TaskResponse {
     private Integer scheduleUnit;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private List<Long> tagList;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private List<Long> groupList;
     /**
      * 创建时间.
      */

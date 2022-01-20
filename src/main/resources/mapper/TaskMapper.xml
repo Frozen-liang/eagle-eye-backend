@@ -17,8 +17,9 @@
                task.plugin_config,
                task.utc_create_time createTime
         from task
+         inner join plugin on task.plugin_id = plugin.id
         <where>
-            task.is_deleted = false
+            task.is_deleted = false and plugin.is_deleted = false
             <if test="request.name != null">
                 and task.name ilike ('%' || #{request.name} || '%')
             </if>
@@ -30,6 +31,10 @@
             </if>
             <if test="request.pluginId != null">
                 and task.pluginId = #{request.pluginId}
+            </if>
+            <if test="request.groupId != null">
+                and task.id in (
+                  select task_id from task_group_mapping tgm where tgm.group_id = #{request.groupId})
             </if>
         </where>
         order by task.utc_create_time desc

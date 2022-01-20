@@ -31,6 +31,11 @@ public class PluginConfigFieldResponse {
     @Builder.Default
     private Boolean required = Boolean.FALSE;
     /**
+     * 是否加密.
+     */
+    @Builder.Default
+    private Boolean encrypted = Boolean.FALSE;
+    /**
      * 显示顺序.
      */
     private Integer order;

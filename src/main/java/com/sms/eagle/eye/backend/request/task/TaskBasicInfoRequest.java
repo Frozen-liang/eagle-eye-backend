@@ -47,4 +47,9 @@ public class TaskBasicInfoRequest {
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private List<Long> tagList;
+    /**
+     * group列表.
+     */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private List<Long> groupList;
 }
