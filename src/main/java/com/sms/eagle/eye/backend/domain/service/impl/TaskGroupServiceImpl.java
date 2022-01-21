@@ -11,6 +11,7 @@ import com.sms.eagle.eye.backend.domain.service.TaskGroupService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.request.group.TaskGroupRequest;
 import com.sms.eagle.eye.backend.response.task.TaskGroupResponse;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -114,7 +115,7 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
     private List<Long> getChildIdList(Long id, Map<Long, List<TaskGroupEntity>> map) {
         List<TaskGroupEntity> entities = map.get(id);
         if (CollectionUtils.isEmpty(entities)) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         return entities.stream().map(TaskGroupEntity::getId).collect(Collectors.toList());
     }
