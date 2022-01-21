@@ -16,6 +16,7 @@ import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
 import com.sms.eagle.eye.backend.domain.service.TaskGroupMappingService;
+import com.sms.eagle.eye.backend.domain.service.TaskGroupService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.TaskTagMappingService;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
@@ -32,6 +33,7 @@ import com.sms.eagle.eye.backend.resolver.PluginConfigResolver;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import com.sms.eagle.eye.backend.service.TaskApplicationService;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     private final PluginConfigFieldService pluginConfigFieldService;
     private final PluginSelectOptionService pluginSelectOptionService;
     private final TaskTagMappingService taskTagMappingService;
+    private final TaskGroupService taskGroupService;
     private final TaskGroupMappingService taskGroupMappingService;
     private final InvokeErrorRecordService invokeErrorRecordService;
     private final ThirdPartyMappingService thirdPartyMappingService;
@@ -60,6 +63,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         PluginConfigFieldService pluginConfigFieldService,
         PluginSelectOptionService pluginSelectOptionService,
         TaskTagMappingService taskTagMappingService,
+        TaskGroupService taskGroupService,
         TaskGroupMappingService taskGroupMappingService,
         InvokeErrorRecordService invokeErrorRecordService,
         ThirdPartyMappingService thirdPartyMappingService) {
@@ -70,6 +74,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         this.pluginConfigFieldService = pluginConfigFieldService;
         this.pluginSelectOptionService = pluginSelectOptionService;
         this.taskTagMappingService = taskTagMappingService;
+        this.taskGroupService = taskGroupService;
         this.taskGroupMappingService = taskGroupMappingService;
         this.invokeErrorRecordService = invokeErrorRecordService;
         this.thirdPartyMappingService = thirdPartyMappingService;
@@ -77,13 +82,22 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
 
     @Override
     public CustomPage<TaskResponse> page(TaskQueryRequest request) {
-        IPage<TaskResponse> page = taskService.getPage(request);
+        IPage<TaskResponse> page = taskService.getPage(request, getSelfAndChildGroupList(request));
         page.convert(taskResponse -> {
             taskResponse.setTagList(taskTagMappingService.getTagListByTaskId(taskResponse.getId()));
             taskResponse.setGroupList(taskGroupMappingService.getGroupListByTaskId(taskResponse.getId()));
             return taskResponse;
         });
         return new CustomPage<>(page);
+    }
+
+    private List<Long> getSelfAndChildGroupList(TaskQueryRequest request) {
+        if (Objects.nonNull(request.getGroupId())) {
+            List<Long> groups = taskGroupService.getChildGroupById(request.getGroupId());
+            groups.add(request.getGroupId());
+            return  groups;
+        }
+        return Collections.emptyList();
     }
 
     @Transactional(rollbackFor = Exception.class)
