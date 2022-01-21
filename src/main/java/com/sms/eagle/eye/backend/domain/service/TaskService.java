@@ -7,11 +7,12 @@ import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
+import java.util.List;
 import java.util.Optional;
 
 public interface TaskService extends IService<TaskEntity> {
 
-    IPage<TaskResponse> getPage(TaskQueryRequest request);
+    IPage<TaskResponse> getPage(TaskQueryRequest request, List<Long> groups);
 
     Long saveFromRequest(TaskBasicInfoRequest request);
 

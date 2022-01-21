@@ -93,6 +93,13 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
         removeById(id);
     }
 
+    @Override
+    public List<Long> getChildGroupById(Long id) {
+        Map<Long, List<TaskGroupEntity>> parentGroupMap = list().stream()
+            .collect(Collectors.groupingBy(TaskGroupEntity::getParentId));
+        return getChildIdList(id, parentGroupMap);
+    }
+
     private List<TaskGroupResponse> getChildList(Long id, Map<Long, List<TaskGroupEntity>> map) {
         List<TaskGroupEntity> entities = map.get(id);
         if (CollectionUtils.isEmpty(entities)) {
@@ -102,6 +109,14 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
             .sorted(Comparator.comparing(TaskGroupEntity::getIndex))
             .map(entity -> toResponse(entity, map))
             .collect(Collectors.toList());
+    }
+
+    private List<Long> getChildIdList(Long id, Map<Long, List<TaskGroupEntity>> map) {
+        List<TaskGroupEntity> entities = map.get(id);
+        if (CollectionUtils.isEmpty(entities)) {
+            return Collections.emptyList();
+        }
+        return entities.stream().map(TaskGroupEntity::getId).collect(Collectors.toList());
     }
 
     private TaskGroupResponse toResponse(TaskGroupEntity entity, Map<Long, List<TaskGroupEntity>> map) {

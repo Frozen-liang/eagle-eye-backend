@@ -32,9 +32,14 @@
             <if test="request.pluginId != null">
                 and task.pluginId = #{request.pluginId}
             </if>
-            <if test="request.groupId != null">
+            <if test="groups != null and groups.size() &gt; 0">
                 and task.id in (
-                  select task_id from task_group_mapping tgm where tgm.group_id = #{request.groupId})
+                select task_id from task_group_mapping tgm where tgm.group_id in
+                <foreach item="item" index="index" collection="groups" open="(" close=")"
+                    separator=",">
+                    #{item}
+                </foreach>
+                )
             </if>
         </where>
         order by task.utc_create_time desc

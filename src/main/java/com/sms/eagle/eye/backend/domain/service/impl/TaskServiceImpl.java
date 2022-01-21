@@ -15,6 +15,7 @@ import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import com.sms.eagle.eye.backend.utils.SecurityUtil;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, TaskEntity>
     }
 
     @Override
-    public IPage<TaskResponse> getPage(TaskQueryRequest request) {
-        return getBaseMapper().getPage(request.getPageInfo(), request);
+    public IPage<TaskResponse> getPage(TaskQueryRequest request, List<Long> groups) {
+        return getBaseMapper().getPage(request.getPageInfo(), request, groups);
     }
 
     @Override
