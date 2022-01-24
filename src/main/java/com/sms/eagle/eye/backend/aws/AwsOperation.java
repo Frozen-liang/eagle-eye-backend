@@ -7,5 +7,9 @@ public interface AwsOperation {
 
     String createRuleAndReturnArn(TaskEntity task);
 
-    String createRuleTargetAndReturnId(TaskEntity task, PluginEntity plugin, String decryptedConfig);
+    void createOrUpdateRuleTarget(TaskEntity task, PluginEntity plugin, String decryptedConfig);
+
+    void deleteRule(String ruleName);
+
+
 }

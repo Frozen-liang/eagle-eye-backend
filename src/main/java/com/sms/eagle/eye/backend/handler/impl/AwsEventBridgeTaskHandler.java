@@ -23,29 +23,29 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
 
     @Override
     public void startTask(TaskOperationRequest request) {
-        Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(request.getTask().getId());
-        awsRuleOptional.ifPresentOrElse(ruleArn -> {
-            log.info("awsOperation, update and enable ");
-        }, () -> {
-            String ruleArn = awsOperation.createRuleAndReturnArn(request.getTask());
-            awsOperation.createRuleTargetAndReturnId(
-                request.getTask(), request.getPlugin(), request.getDecryptedConfig());
-            thirdPartyMappingService.addAwsRuleMapping(request.getTask().getId(), ruleArn);
-        });
-
+        String ruleArn = awsOperation.createRuleAndReturnArn(request.getTask());
+        awsOperation.createOrUpdateRuleTarget(
+            request.getTask(), request.getPlugin(), request.getDecryptedConfig());
+        thirdPartyMappingService.addAwsRuleMapping(request.getTask().getId(), ruleArn);
     }
 
     @Override
     public void stopTask(TaskOperationRequest request) {
         Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(request.getTask().getId());
         awsRuleOptional.ifPresentOrElse(ruleArn -> {
+            awsOperation.deleteRule(request.getTask().getName());
             log.info("delete event bridge, {}", ruleArn);
         }, () -> log.info("delete error"));
     }
 
     @Override
     public void updateTask(TaskOperationRequest request) {
-
+        Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(request.getTask().getId());
+        awsRuleOptional.ifPresent(ruleArn -> {
+            awsOperation.createOrUpdateRuleTarget(
+                request.getTask(), request.getPlugin(), request.getDecryptedConfig());
+            thirdPartyMappingService.addAwsRuleMapping(request.getTask().getId(), ruleArn);
+        });
     }
 
     @Override
