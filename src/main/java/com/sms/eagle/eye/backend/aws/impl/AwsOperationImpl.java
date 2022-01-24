@@ -10,14 +10,19 @@ import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.request.AwsLambdaInput;
 import io.vavr.control.Try;
+import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.DeleteRuleRequest;
+import software.amazon.awssdk.services.eventbridge.model.DeleteRuleResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutRuleRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutRuleResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutTargetsRequest;
+import software.amazon.awssdk.services.eventbridge.model.PutTargetsResponse;
 import software.amazon.awssdk.services.eventbridge.model.Target;
 
+@Slf4j
 @Component
 public class AwsOperationImpl implements AwsOperation {
 
@@ -46,25 +51,31 @@ public class AwsOperationImpl implements AwsOperation {
             .description(task.getDescription())
             .build();
         PutRuleResponse putRuleResponse = eventBridgeClient.putRule(putRuleRequest);
+        log.info("PutRuleResponse: {}", putRuleResponse);
         return putRuleResponse.ruleArn();
     }
 
     @Override
     public void createOrUpdateRuleTarget(TaskEntity task, PluginEntity plugin,
         String decryptedConfig) {
+        String id = UUID.randomUUID().toString();
         PutTargetsRequest putTargetsRequest = PutTargetsRequest.builder()
             .rule(task.getName())
             .targets(Target.builder()
+                .id(id)
                 .arn(awsProperties.getLambdaArn())
                 .input(generateInput(task, plugin.getUrl(), decryptedConfig))
                 .build())
             .build();
-        eventBridgeClient.putTargets(putTargetsRequest);
+        PutTargetsResponse response = eventBridgeClient.putTargets(putTargetsRequest);
+        log.info("PutTargetsResponse: {}", response);
     }
 
     @Override
     public void deleteRule(String ruleName) {
-        eventBridgeClient.deleteRule(DeleteRuleRequest.builder().name(ruleName).build());
+        DeleteRuleResponse response = eventBridgeClient.deleteRule(
+            DeleteRuleRequest.builder().name(ruleName).build());
+        log.info("DeleteRuleResponse: {}", response);
     }
 
     private String generateInput(TaskEntity task, String pluginUrl, String decryptedConfig) {
