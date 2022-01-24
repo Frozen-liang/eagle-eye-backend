@@ -10,9 +10,9 @@ import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.request.AwsLambdaInput;
 import io.vavr.control.Try;
-import java.util.UUID;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.eventbridge.model.DeleteRuleRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutRuleRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutRuleResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutTargetsRequest;
@@ -50,19 +50,21 @@ public class AwsOperationImpl implements AwsOperation {
     }
 
     @Override
-    public String createRuleTargetAndReturnId(TaskEntity task, PluginEntity plugin,
+    public void createOrUpdateRuleTarget(TaskEntity task, PluginEntity plugin,
         String decryptedConfig) {
-        String id = UUID.randomUUID().toString();
         PutTargetsRequest putTargetsRequest = PutTargetsRequest.builder()
             .rule(task.getName())
             .targets(Target.builder()
-                .id(id)
                 .arn(awsProperties.getLambdaArn())
                 .input(generateInput(task, plugin.getUrl(), decryptedConfig))
                 .build())
             .build();
         eventBridgeClient.putTargets(putTargetsRequest);
-        return id;
+    }
+
+    @Override
+    public void deleteRule(String ruleName) {
+        eventBridgeClient.deleteRule(DeleteRuleRequest.builder().name(ruleName).build());
     }
 
     private String generateInput(TaskEntity task, String pluginUrl, String decryptedConfig) {
@@ -74,6 +76,7 @@ public class AwsOperationImpl implements AwsOperation {
             .interval(minuteInterval)
             .pluginUrl(pluginUrl)
             .webhookUrl(awsProperties.getWebhookUrl())
+            .updateUrl(awsProperties.getUpdateUrl())
             .decryptKey(aesEncryptor.getSecretKey())
             .payload(aesEncryptor.encrypt(decryptedConfig))
             .build();
