@@ -25,7 +25,8 @@ public enum ErrorCode {
     PASSWORD_KEY_HAS_ALREADY_EXIST("", ""),
     PASSWORD_KEY_IS_NOT_EXIST("", ""),
     GROUP_NAME_HAS_ALREADY_EXIST("", "Group name already exists, please set to other"),
-    REMOVE_CHILD_BEFORE_DELETE_GROUP("", "Please delete sub-Groups first");
+    REMOVE_CHILD_BEFORE_DELETE_GROUP("", "Please delete sub-Groups first"),
+    DATE_FORMAT_ERROR("", "Please enter the correct date format: yy-MM-dd");
 
     private final String code;
     private final String message;

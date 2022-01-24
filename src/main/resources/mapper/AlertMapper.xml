@@ -9,7 +9,7 @@
                alert.task_name,
                alert.project,
                alert.description,
-               plugin.name pluginName,
+               plugin.name          pluginName,
                alert.utc_alert_time alert_time
         from alert
                  left join task on alert.task_id = task.id
@@ -24,5 +24,20 @@
             </if>
         </where>
         order by alert.utc_alert_time desc
+    </select>
+    <select id="getResponseList" resultType="com.sms.eagle.eye.backend.response.alert.AlertResponse">
+        select alert.id,
+               alert.task_name,
+               alert.project,
+               alert.description,
+               plugin.name          pluginName,
+               alert.utc_alert_time alert_time
+        from alert
+                 left join task on alert.task_id = task.id
+                 left join plugin on task.plugin_id = plugin.id
+        where alert.is_deleted = false
+          and alert.utc_alert_time
+              between to_date(#{from}, #{format})
+              and to_date(#{to}, #{format})
     </select>
 </mapper>

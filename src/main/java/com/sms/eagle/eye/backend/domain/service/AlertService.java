@@ -7,10 +7,14 @@ import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.request.alert.AlertQueryRequest;
 import com.sms.eagle.eye.backend.request.alert.WebHookRequest;
 import com.sms.eagle.eye.backend.response.alert.AlertResponse;
+import java.time.LocalDate;
+import java.util.List;
 
 public interface AlertService extends IService<AlertEntity> {
 
     IPage<AlertResponse> getPage(AlertQueryRequest request);
 
     void saveAlert(TaskEntity task, WebHookRequest request);
+
+    List<AlertResponse> getResponseList(LocalDate from, LocalDate to);
 }
