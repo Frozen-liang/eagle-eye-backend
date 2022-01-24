@@ -42,7 +42,7 @@ public class AlertController {
 
     @GetMapping("/list")
     public Response<List<AlertResponse>> list(AlertListRequest request) {
-        return null;
+        return Response.ok(alertApplicationService.list(request));
     }
 
 }
