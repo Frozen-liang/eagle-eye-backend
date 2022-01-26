@@ -3,22 +3,30 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sms.eagle.eye.backend.domain.mapper.TaskGroupMapper">
-    <update id="moveGroupBack">
+
+    <update id="putAllGroupDown">
         update task_group
         set index = index + #{step}
         where is_deleted = false
-          and parent_id = #{parentId}
-          and index &gt; #{fromIndex}
+        and parent_id = #{parentId}
+        <if test="fromIndex != null">
+            and index &gt; #{fromIndex}
+        </if>
         <if test="toIndex != null">
             and index &lt; #{toIndex}
         </if>
     </update>
-    <update id="moveGroupForward">
+    <update id="putAllGroupUp">
         update task_group
         set index = index - #{step}
         where is_deleted = false
-        and parent_id = #{parentId}
-        and index &gt; #{fromIndex}
+          and parent_id = #{parentId}
+        <if test="fromIndex != null">
+            and index &gt; #{fromIndex}
+        </if>
+        <if test="toIndex != null">
+            and index &lt; #{toIndex}
+        </if>
     </update>
 
     <select id="selectCountByName" resultType="java.lang.Integer">

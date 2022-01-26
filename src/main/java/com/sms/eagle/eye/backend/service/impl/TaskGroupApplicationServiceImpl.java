@@ -44,17 +44,51 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
         return true;
     }
 
+    /**
+     * 情况一：
+     *  从同组下方移动到上方
+     * 情况二：
+     *  从同组上方移动到下方
+     * 情况三：
+     *  移动到其他组.
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateGroup(TaskGroupRequest request) {
         TaskGroupEntity entity = taskGroupService.getEntityById(request.getId());
-        if (Objects.equals(entity.getParentId(), request.getParentId())) {
-            taskGroupService.moveGroupBack(request.getParentId(), request.getPreIndex(), entity.getIndex());
+        Integer index = 0;
+        if (inSameLevel(request, entity)) {
+            if (isMoveUp(request, entity)) {
+                // 大于 preIndex，小于 node index 的所有节点向下移.
+                taskGroupService.putAllGroupDown(request.getParentId(), request.getPreIndex(), entity.getIndex());
+                index = request.getPreIndex() + INDEX_STEP;
+            } else if (isMoveDown(request, entity)){
+                // 大于 node index，小于 preIndex + INDEX_STEP 的所有节点向上移.
+                taskGroupService.putAllGroupUp(
+                    request.getParentId(), entity.getIndex(),request.getPreIndex() + INDEX_STEP);
+                index = request.getPreIndex();
+            }
         } else {
-            taskGroupService.moveGroupBack(request.getParentId(), request.getPreIndex(), null);
+            // 原先层级大于node index的节点向上移.
+            taskGroupService.putAllGroupUp(entity.getParentId(), entity.getIndex(), null);
+            // 新层级大于preIndex的所有节点向下移.
+            taskGroupService.putAllGroupDown(request.getParentId(), request.getPreIndex(), null);
+            index = request.getPreIndex() + INDEX_STEP;
         }
-        taskGroupService.updateFromRequest(request, request.getPreIndex() + INDEX_STEP);
+        taskGroupService.updateFromRequest(request, index);
         return true;
+    }
+
+    private boolean inSameLevel(TaskGroupRequest request, TaskGroupEntity entity) {
+        return Objects.equals(request.getParentId(), entity.getParentId());
+    }
+
+    private boolean isMoveUp(TaskGroupRequest request, TaskGroupEntity entity) {
+        return entity.getIndex().compareTo(request.getPreIndex() + INDEX_STEP) > 0;
+    }
+
+    private boolean isMoveDown(TaskGroupRequest request, TaskGroupEntity entity) {
+        return entity.getIndex().compareTo(request.getPreIndex() + INDEX_STEP) < 0;
     }
 
     /**
@@ -68,7 +102,7 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
             throw new EagleEyeException(REMOVE_CHILD_BEFORE_DELETE_GROUP);
         }
         taskGroupService.deleteGroup(id);
-        taskGroupService.moveGroupForward(entity.getParentId(), entity.getIndex());
+        taskGroupService.putAllGroupUp(entity.getParentId(), entity.getIndex(), null);
         return true;
     }
 }
