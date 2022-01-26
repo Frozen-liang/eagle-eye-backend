@@ -62,10 +62,10 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
                 // 大于 preIndex，小于 node index 的所有节点向下移.
                 taskGroupService.putAllGroupDown(request.getParentId(), request.getPreIndex(), entity.getIndex());
                 index = request.getPreIndex() + INDEX_STEP;
-            } else if (isMoveDown(request, entity)){
+            } else if (isMoveDown(request, entity)) {
                 // 大于 node index，小于 preIndex + INDEX_STEP 的所有节点向上移.
                 taskGroupService.putAllGroupUp(
-                    request.getParentId(), entity.getIndex(),request.getPreIndex() + INDEX_STEP);
+                    request.getParentId(), entity.getIndex(), request.getPreIndex() + INDEX_STEP);
                 index = request.getPreIndex();
             }
         } else {
