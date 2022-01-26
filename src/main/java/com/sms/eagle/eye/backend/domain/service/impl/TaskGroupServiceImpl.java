@@ -70,13 +70,13 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
     }
 
     @Override
-    public void moveGroupBack(Long parentId, Integer fromIndex, Integer toIndex) {
-        getBaseMapper().moveGroupBack(parentId, fromIndex, toIndex, INDEX_STEP);
+    public void putAllGroupDown(Long parentId, Integer fromIndex, Integer toIndex) {
+        getBaseMapper().putAllGroupDown(parentId, fromIndex, toIndex, INDEX_STEP);
     }
 
     @Override
-    public void moveGroupForward(Long parentId, Integer fromIndex) {
-        getBaseMapper().moveGroupForward(parentId, fromIndex, INDEX_STEP);
+    public void putAllGroupUp(Long parentId, Integer fromIndex, Integer toIndex) {
+        getBaseMapper().putAllGroupUp(parentId, fromIndex, toIndex, INDEX_STEP);
     }
 
     @Override

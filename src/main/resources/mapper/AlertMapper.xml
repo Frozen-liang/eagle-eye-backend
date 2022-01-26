@@ -12,8 +12,8 @@
                plugin.name          pluginName,
                alert.utc_alert_time alert_time
         from alert
-                 left join task on alert.task_id = task.id
-                 left join plugin on task.plugin_id = plugin.id
+            inner join task on alert.task_id = task.id
+            inner join plugin on task.plugin_id = plugin.id
         <where>
             alert.is_deleted = false
             <if test="request.taskName != null">
@@ -33,8 +33,8 @@
                plugin.name          pluginName,
                alert.utc_alert_time alert_time
         from alert
-                 left join task on alert.task_id = task.id
-                 left join plugin on task.plugin_id = plugin.id
+            inner join task on alert.task_id = task.id
+            inner join plugin on task.plugin_id = plugin.id
         where alert.is_deleted = false
           and alert.utc_alert_time
               between to_date(#{from}, #{format})
