@@ -8,12 +8,15 @@ import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.event.TaskConfigUpdateEvent;
 import com.sms.eagle.eye.backend.event.TaskInvokeFailedEvent;
 import com.sms.eagle.eye.backend.event.TaskInvokeSuccessEvent;
+import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.service.TaskApplicationService;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class TaskEventListener {
 
     private final TaskService taskService;
@@ -45,11 +48,15 @@ public class TaskEventListener {
 
     @EventListener
     public void invokeFailed(TaskInvokeFailedEvent event) {
-        invokeErrorRecordService.addErrorRecord(event.getTaskId(), event.getErrMsg());
-        taskApplicationService.stopByTaskId(event.getTaskId());
-        taskService.updateTaskEntity(TaskEntity.builder()
-            .id(event.getTaskId())
-            .status(TaskStatus.ERROR.getValue())
-            .build());
+        try {
+            invokeErrorRecordService.addErrorRecord(event.getTaskId(), event.getErrMsg());
+            taskApplicationService.stopByTaskId(event.getTaskId());
+            taskService.updateTaskEntity(TaskEntity.builder()
+                .id(event.getTaskId())
+                .status(TaskStatus.ERROR.getValue())
+                .build());
+        } catch (EagleEyeException eee) {
+            log.warn(eee.getMessage());
+        }
     }
 }
