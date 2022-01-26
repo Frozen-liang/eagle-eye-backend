@@ -18,9 +18,9 @@ public interface TaskGroupService extends IService<TaskGroupEntity> {
 
     Integer getNextIndexByParentId(Long parentId);
 
-    void moveGroupBack(Long parentId, Integer fromIndex, Integer toIndex);
+    void putAllGroupDown(Long parentId, Integer fromIndex, Integer toIndex);
 
-    void moveGroupForward(Long parentId, Integer fromIndex);
+    void putAllGroupUp(Long parentId, Integer fromIndex, Integer toIndex);
 
     TaskGroupEntity getEntityById(Long id);
 

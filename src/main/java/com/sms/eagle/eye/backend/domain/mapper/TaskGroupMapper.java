@@ -15,11 +15,11 @@ public interface TaskGroupMapper extends BaseMapper<TaskGroupEntity> {
 
     Optional<Integer> selectMaxIndexByParentId(@Param("parentId") Long parentId);
 
-    Integer moveGroupBack(@Param("parentId") Long parentId, @Param("fromIndex") Integer fromIndex,
+    Integer putAllGroupDown(@Param("parentId") Long parentId, @Param("fromIndex") Integer fromIndex,
         @Param("toIndex") Integer toIndex, @Param("step") Integer step);
 
-    Integer moveGroupForward(@Param("parentId") Long parentId, @Param("fromIndex") Integer fromIndex,
-        @Param("step") Integer step);
+    Integer putAllGroupUp(@Param("parentId") Long parentId, @Param("fromIndex") Integer fromIndex,
+        @Param("toIndex") Integer toIndex, @Param("step") Integer step);
 }
 
 
