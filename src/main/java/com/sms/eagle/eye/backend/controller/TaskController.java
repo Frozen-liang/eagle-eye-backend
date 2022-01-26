@@ -4,7 +4,6 @@ import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.model.Response;
-import com.sms.eagle.eye.backend.request.alert.LambdaInvokeResult;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
@@ -107,12 +106,6 @@ public class TaskController {
     @DeleteMapping("/{id}")
     public Response<Boolean> delete(@PathVariable Long id) {
         return Response.ok(taskApplicationService.removeTask(id));
-    }
-
-    @PostMapping("/invoke-result")
-    public Response<Boolean> resolveInvokeResult(@Validated @RequestBody LambdaInvokeResult request) {
-        log.info("Lambda invoke result, {}", request);
-        return Response.ok(taskApplicationService.resolveInvokeResult(request));
     }
 
 }

@@ -12,7 +12,7 @@ import lombok.Getter;
 
 @Getter
 public enum TaskStatus {
-    AWAITING(1, "Awaiting", Boolean.FALSE),
+    AWAITING(1, "Pending", Boolean.FALSE),
     RUNNING(2, "Running", Boolean.TRUE),
     ERROR(3, "Error", Boolean.FALSE);
 

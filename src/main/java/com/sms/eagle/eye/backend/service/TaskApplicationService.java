@@ -1,7 +1,6 @@
 package com.sms.eagle.eye.backend.service;
 
 import com.sms.eagle.eye.backend.model.CustomPage;
-import com.sms.eagle.eye.backend.request.alert.LambdaInvokeResult;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
@@ -28,7 +27,5 @@ public interface TaskApplicationService {
     boolean stopByTaskId(Long taskId);
 
     boolean removeTask(Long taskId);
-
-    boolean resolveInvokeResult(LambdaInvokeResult request);
 
 }

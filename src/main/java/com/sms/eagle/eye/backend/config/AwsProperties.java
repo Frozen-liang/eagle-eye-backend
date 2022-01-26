@@ -9,6 +9,7 @@ public class AwsProperties {
 
     private String region;
     private String lambdaArn;
-    private String updateUrl;
-    private String webhookUrl;
+
+    private String queueName;
+    private String queueUrl;
 }

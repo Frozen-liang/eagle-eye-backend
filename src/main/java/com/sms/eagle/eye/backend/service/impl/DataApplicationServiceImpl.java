@@ -8,6 +8,7 @@ import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.model.IdNameResponse;
 import com.sms.eagle.eye.backend.service.DataApplicationService;
+import io.vavr.control.Try;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -62,9 +63,18 @@ public class DataApplicationServiceImpl implements DataApplicationService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * 如果 thirdPartyMapping 不存在
+     * 尝试直接当作 任务id 返回.
+     */
     @Override
     public Optional<Long> getTaskByMappingId(String uniqueValue) {
-        return thirdPartyMappingService.getTaskIdByPluginSystemUnionId(uniqueValue);
+        Optional<Long> optional = thirdPartyMappingService.getTaskIdByPluginSystemUnionId(uniqueValue);
+        if (optional.isPresent()) {
+            return optional;
+        } else {
+            return Optional.ofNullable(Try.of(() -> Long.parseLong(uniqueValue)).getOrNull());
+        }
     }
 
     @Override

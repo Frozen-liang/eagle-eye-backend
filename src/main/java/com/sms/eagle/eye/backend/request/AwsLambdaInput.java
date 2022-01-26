@@ -18,6 +18,5 @@ public class AwsLambdaInput {
     private String payload;
     private Integer interval;
     private String pluginUrl;
-    private String updateUrl;
-    private String webhookUrl;
+    private String queueUrl;
 }

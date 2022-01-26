@@ -13,7 +13,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 
 group = "com.sms.eagle.eye"
-version = "1.1.1"
+version = "1.1.2"
 description = "backend"
 
 val checkstyleVersion by extra("8.42")
@@ -89,6 +89,7 @@ dependencyManagement {
 
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
+        mavenBom("io.awspring.cloud:spring-cloud-aws-dependencies:2.3.0")
     }
 }
 
@@ -113,14 +114,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-undertow")
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-//    implementation("org.springframework.security.oauth:spring-security-oauth2")
     implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:$jasyptVersion")
     implementation(platform("software.amazon.awssdk:bom:2.17.100"))
     implementation("software.amazon.awssdk:auth")
     implementation("software.amazon.awssdk:regions")
-    implementation("software.amazon.awssdk:lambda")
+//    implementation("software.amazon.awssdk:lambda")
     implementation("software.amazon.awssdk:cloudwatchlogs")
     implementation("software.amazon.awssdk:eventbridge")
+    implementation("io.awspring.cloud:spring-cloud-starter-aws-messaging")
+//    implementation("software.amazon.awssdk:sqs")
+//    implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.0.4")
     implementation("com.baomidou:mybatis-plus-boot-starter:$mybatisPlusVersion")
     compileOnly("org.projectlombok:lombok:$versionLombok")
     annotationProcessor("org.mapstruct:mapstruct-processor:$versionMapstruct")
