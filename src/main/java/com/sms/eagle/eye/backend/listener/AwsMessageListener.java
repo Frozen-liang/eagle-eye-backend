@@ -18,7 +18,7 @@ public class AwsMessageListener  {
         this.messageResolver = messageResolver;
     }
 
-    @SqsListener(value = "Monitor.fifo", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    @SqsListener(value = {"${eagle.aws.queue-name}"}, deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
     public void receiveMessage(String payload, @Header("MessageGroupId") String messageGroup) {
         log.info("MessageGroupId: {}, Payload: {}", messageGroup, payload);
         messageResolver.resolve(payload, messageGroup);
