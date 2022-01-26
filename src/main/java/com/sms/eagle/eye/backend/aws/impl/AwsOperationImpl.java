@@ -86,8 +86,7 @@ public class AwsOperationImpl implements AwsOperation {
             .description(task.getDescription())
             .interval(minuteInterval)
             .pluginUrl(pluginUrl)
-            .webhookUrl(awsProperties.getWebhookUrl())
-            .updateUrl(awsProperties.getUpdateUrl())
+            .queueUrl(awsProperties.getQueueUrl())
             .decryptKey(aesEncryptor.getSecretKey())
             .payload(aesEncryptor.encrypt(decryptedConfig))
             .build();

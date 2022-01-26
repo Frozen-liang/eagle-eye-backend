@@ -11,7 +11,6 @@ import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.domain.entity.PluginConfigFieldEntity;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
-import com.sms.eagle.eye.backend.domain.service.InvokeErrorRecordService;
 import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
@@ -19,11 +18,9 @@ import com.sms.eagle.eye.backend.domain.service.TaskGroupMappingService;
 import com.sms.eagle.eye.backend.domain.service.TaskGroupService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.TaskTagMappingService;
-import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.handler.TaskHandler;
 import com.sms.eagle.eye.backend.model.CustomPage;
-import com.sms.eagle.eye.backend.request.alert.LambdaInvokeResult;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
@@ -54,8 +51,6 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     private final TaskTagMappingService taskTagMappingService;
     private final TaskGroupService taskGroupService;
     private final TaskGroupMappingService taskGroupMappingService;
-    private final InvokeErrorRecordService invokeErrorRecordService;
-    private final ThirdPartyMappingService thirdPartyMappingService;
 
     public TaskApplicationServiceImpl(@Qualifier(TASK_HANDLER_PROXY) TaskHandler taskHandler,
         PluginConfigResolver pluginConfigResolver, TaskService taskService,
@@ -64,9 +59,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         PluginSelectOptionService pluginSelectOptionService,
         TaskTagMappingService taskTagMappingService,
         TaskGroupService taskGroupService,
-        TaskGroupMappingService taskGroupMappingService,
-        InvokeErrorRecordService invokeErrorRecordService,
-        ThirdPartyMappingService thirdPartyMappingService) {
+        TaskGroupMappingService taskGroupMappingService) {
         this.taskHandler = taskHandler;
         this.pluginConfigResolver = pluginConfigResolver;
         this.taskService = taskService;
@@ -76,8 +69,6 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         this.taskTagMappingService = taskTagMappingService;
         this.taskGroupService = taskGroupService;
         this.taskGroupMappingService = taskGroupMappingService;
-        this.invokeErrorRecordService = invokeErrorRecordService;
-        this.thirdPartyMappingService = thirdPartyMappingService;
     }
 
     @Override
@@ -215,23 +206,6 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
             throw new EagleEyeException(TASK_IS_RUNNING_AND_DELETE_ERROR);
         }
         taskService.deleteTaskById(taskId);
-        return true;
-    }
-
-    // TODO Refactor
-    @Override
-    public boolean resolveInvokeResult(LambdaInvokeResult request) {
-        if (Objects.equals(request.getSuccess(), Boolean.FALSE)) {
-            invokeErrorRecordService.addErrorRecord(request.getTaskId(), request.getErrorMsg());
-            taskService.updateTaskEntity(TaskEntity.builder()
-                .id(request.getTaskId())
-                .status(TaskStatus.ERROR.getValue())
-                .build());
-        } else {
-            if (!Objects.equals(request.getTaskId().toString(), request.getMappingId())) {
-                thirdPartyMappingService.addPluginSystemUnionIdMapping(request.getTaskId(), request.getMappingId());
-            }
-        }
         return true;
     }
 
