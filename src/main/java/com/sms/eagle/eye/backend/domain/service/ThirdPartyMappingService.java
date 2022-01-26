@@ -2,6 +2,7 @@ package com.sms.eagle.eye.backend.domain.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sms.eagle.eye.backend.domain.entity.ThirdPartyMappingEntity;
+import java.util.List;
 import java.util.Optional;
 
 public interface ThirdPartyMappingService extends IService<ThirdPartyMappingEntity> {
@@ -15,4 +16,11 @@ public interface ThirdPartyMappingService extends IService<ThirdPartyMappingEnti
     Optional<String> getAwsRuleArnByTaskId(Long taskId);
 
     void addAwsRuleMapping(Long taskId, String awsRule);
+
+    void addAwsRuleTargetMapping(Long taskId, String awsRuleTargetId);
+
+    void removeAwsRuleTargetMapping(Long taskId);
+
+    List<String> getAwsRuleTargetList(Long taskId);
+
 }

@@ -5,7 +5,8 @@ import lombok.Getter;
 @Getter
 public enum ThirdPartyType {
     AWS_EVENT_BRIDGE_RULE(1, "AWS EventBridge Rule"),
-    PLUGIN_SYSTEM_UNION_ID(2, "");
+    PLUGIN_SYSTEM_UNION_ID(2, ""),
+    AWS_EVENT_BRIDGE_RULE_TARGET(3, "");
 
     private final Integer value;
     private final String description;
