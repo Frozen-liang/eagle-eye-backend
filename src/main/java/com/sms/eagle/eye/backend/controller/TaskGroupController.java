@@ -3,6 +3,7 @@ package com.sms.eagle.eye.backend.controller;
 import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.group.TaskGroupRequest;
 import com.sms.eagle.eye.backend.response.task.TaskGroupResponse;
+import com.sms.eagle.eye.backend.response.task.TaskGroupTreeResponse;
 import com.sms.eagle.eye.backend.service.TaskGroupApplicationService;
 import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,8 +26,13 @@ public class TaskGroupController {
     }
 
     @GetMapping("/list")
-    public Response<List<TaskGroupResponse>> list() {
-        return Response.ok(taskGroupApplicationService.getTreeList());
+    public Response<List<TaskGroupResponse>> list(Long parentId) {
+        return Response.ok(taskGroupApplicationService.getGroupListByParentId(parentId));
+    }
+
+    @GetMapping("/tree-list")
+    public Response<List<TaskGroupTreeResponse>> getTreeList() {
+        return Response.ok(taskGroupApplicationService.getTaskGroupTreeList());
     }
 
     @PostMapping

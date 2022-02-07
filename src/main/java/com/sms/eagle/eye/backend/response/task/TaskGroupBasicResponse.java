@@ -1,17 +1,19 @@
 package com.sms.eagle.eye.backend.response.task;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskGroupResponse extends TaskGroupBasicResponse {
+public class TaskGroupBasicResponse {
 
-    private Boolean isLeaf;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Long id;
+    private String name;
+    private Integer index;
 }

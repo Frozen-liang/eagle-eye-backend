@@ -10,10 +10,7 @@ import com.sms.eagle.eye.backend.domain.mapper.TaskGroupMapper;
 import com.sms.eagle.eye.backend.domain.service.TaskGroupService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.request.group.TaskGroupRequest;
-import com.sms.eagle.eye.backend.response.task.TaskGroupResponse;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,10 +31,9 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
     public static final Integer INDEX_STEP = 1;
 
     @Override
-    public List<TaskGroupResponse> getTreeList() {
-        Map<Long, List<TaskGroupEntity>> parentGroupMap = list().stream()
-            .collect(Collectors.groupingBy(TaskGroupEntity::getParentId));
-        return getChildList(ROOT_ID, parentGroupMap);
+    public List<TaskGroupEntity> getEntityList(List<Long> parentIds) {
+        return list(Wrappers.<TaskGroupEntity>lambdaQuery()
+            .in(CollectionUtils.isNotEmpty(parentIds), TaskGroupEntity::getParentId, parentIds));
     }
 
     @Override
@@ -101,17 +97,6 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
         return getChildIdList(id, parentGroupMap);
     }
 
-    private List<TaskGroupResponse> getChildList(Long id, Map<Long, List<TaskGroupEntity>> map) {
-        List<TaskGroupEntity> entities = map.get(id);
-        if (CollectionUtils.isEmpty(entities)) {
-            return Collections.emptyList();
-        }
-        return entities.stream()
-            .sorted(Comparator.comparing(TaskGroupEntity::getIndex))
-            .map(entity -> toResponse(entity, map))
-            .collect(Collectors.toList());
-    }
-
     private List<Long> getChildIdList(Long id, Map<Long, List<TaskGroupEntity>> map) {
         List<TaskGroupEntity> entities = map.get(id);
         if (CollectionUtils.isEmpty(entities)) {
@@ -120,14 +105,6 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
         return entities.stream().map(TaskGroupEntity::getId).collect(Collectors.toList());
     }
 
-    private TaskGroupResponse toResponse(TaskGroupEntity entity, Map<Long, List<TaskGroupEntity>> map) {
-        return TaskGroupResponse.builder()
-            .id(entity.getId())
-            .name(entity.getName())
-            .index(entity.getIndex())
-            .child(getChildList(entity.getId(), map))
-            .build();
-    }
 }
 
 
