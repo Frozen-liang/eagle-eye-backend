@@ -3,12 +3,11 @@ package com.sms.eagle.eye.backend.domain.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.sms.eagle.eye.backend.domain.entity.TaskGroupEntity;
 import com.sms.eagle.eye.backend.request.group.TaskGroupRequest;
-import com.sms.eagle.eye.backend.response.task.TaskGroupResponse;
 import java.util.List;
 
 public interface TaskGroupService extends IService<TaskGroupEntity> {
 
-    List<TaskGroupResponse> getTreeList();
+    List<TaskGroupEntity> getEntityList(List<Long> parentIds);
 
     Integer countByName(String name);
 

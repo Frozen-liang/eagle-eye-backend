@@ -1,5 +1,6 @@
 package com.sms.eagle.eye.backend.response.task;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskGroupResponse extends TaskGroupBasicResponse {
+public class TaskGroupTreeResponse extends TaskGroupBasicResponse {
 
-    private Boolean isLeaf;
+    private List<TaskGroupTreeResponse> child;
 }
