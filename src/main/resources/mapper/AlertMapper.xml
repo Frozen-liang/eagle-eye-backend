@@ -36,7 +36,7 @@
             inner join task on alert.task_id = task.id
             inner join plugin on task.plugin_id = plugin.id
         where alert.is_deleted = false
-          and alert.utc_alert_time
+          and alert.utc_alert_time::DATE
               between to_date(#{from}, #{format})
               and to_date(#{to}, #{format})
     </select>
