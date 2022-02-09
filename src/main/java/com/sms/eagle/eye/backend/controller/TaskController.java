@@ -8,9 +8,11 @@ import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
+import com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import com.sms.eagle.eye.backend.service.TaskApplicationService;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -106,6 +109,11 @@ public class TaskController {
     @DeleteMapping("/{id}")
     public Response<Boolean> delete(@PathVariable Long id) {
         return Response.ok(taskApplicationService.removeTask(id));
+    }
+
+    @GetMapping("/invoke-error")
+    public Response<List<InvokeErrorRecordResponse>> getErrorRecord(@RequestParam Long taskId) {
+        return Response.ok(taskApplicationService.getErrorRecord(taskId));
     }
 
 }

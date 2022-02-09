@@ -2,6 +2,7 @@ package com.sms.eagle.eye.backend.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -24,5 +25,8 @@ public class InvokeErrorRecordEntity implements Serializable {
     private Long taskId;
     private String errMessage;
     private LocalDateTime utcCreateTime;
+    @TableLogic
+    @TableField("is_deleted")
+    private Boolean deleted;
 
 }
