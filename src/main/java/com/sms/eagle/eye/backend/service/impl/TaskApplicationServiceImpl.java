@@ -11,6 +11,7 @@ import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.domain.entity.PluginConfigFieldEntity;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
+import com.sms.eagle.eye.backend.domain.service.InvokeErrorRecordService;
 import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
@@ -27,6 +28,7 @@ import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
 import com.sms.eagle.eye.backend.resolver.PluginConfigResolver;
+import com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import com.sms.eagle.eye.backend.service.TaskApplicationService;
@@ -46,6 +48,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     private final PluginConfigResolver pluginConfigResolver;
     private final TaskService taskService;
     private final PluginService pluginService;
+    private final InvokeErrorRecordService invokeErrorRecordService;
     private final PluginConfigFieldService pluginConfigFieldService;
     private final PluginSelectOptionService pluginSelectOptionService;
     private final TaskTagMappingService taskTagMappingService;
@@ -55,6 +58,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     public TaskApplicationServiceImpl(@Qualifier(TASK_HANDLER_PROXY) TaskHandler taskHandler,
         PluginConfigResolver pluginConfigResolver, TaskService taskService,
         PluginService pluginService,
+        InvokeErrorRecordService invokeErrorRecordService,
         PluginConfigFieldService pluginConfigFieldService,
         PluginSelectOptionService pluginSelectOptionService,
         TaskTagMappingService taskTagMappingService,
@@ -64,6 +68,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         this.pluginConfigResolver = pluginConfigResolver;
         this.taskService = taskService;
         this.pluginService = pluginService;
+        this.invokeErrorRecordService = invokeErrorRecordService;
         this.pluginConfigFieldService = pluginConfigFieldService;
         this.pluginSelectOptionService = pluginSelectOptionService;
         this.taskTagMappingService = taskTagMappingService;
@@ -207,6 +212,11 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         }
         taskService.deleteTaskById(taskId);
         return true;
+    }
+
+    @Override
+    public List<InvokeErrorRecordResponse> getErrorRecord(Long taskId) {
+        return invokeErrorRecordService.getErrorRecords(taskId);
     }
 
     private TaskOperationRequest getOperationRequest(Long taskId) {

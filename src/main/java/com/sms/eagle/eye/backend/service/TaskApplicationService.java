@@ -5,8 +5,10 @@ import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
+import com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
+import java.util.List;
 
 public interface TaskApplicationService {
 
@@ -27,5 +29,7 @@ public interface TaskApplicationService {
     boolean stopByTaskId(Long taskId);
 
     boolean removeTask(Long taskId);
+
+    List<InvokeErrorRecordResponse> getErrorRecord(Long taskId);
 
 }
