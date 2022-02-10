@@ -21,11 +21,11 @@ val versionLombok by extra("1.18.22")
 val versionMapstruct by extra("1.4.2.Final")
 val springCloudVersion by extra("2021.0.0")
 val guavaVersion by extra("31.0.1-jre")
-val grpcVersion by extra("1.42.1")
-val protocVersion by extra("3.19.1")
+val grpcVersion by extra("1.44.0")
+val protocVersion by extra("3.19.4")
 val grpcMapStructVersion by extra("1.21")
-val mybatisPlusVersion by extra("3.4.3.4")
-val transmittableThreadVersion by extra("2.12.3")
+val mybatisPlusVersion by extra("3.5.1")
+val transmittableThreadVersion by extra("2.12.4")
 val jasyptVersion by extra("3.0.4")
 val powermockVersion by extra("2.0.2")
 
@@ -35,7 +35,7 @@ plugins {
     jacoco
     idea
     id("com.github.spotbugs") version "4.7.1"
-    id("org.springframework.boot") version "2.6.1"
+    id("org.springframework.boot") version "2.6.3"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("com.google.protobuf") version "0.8.18"
 
@@ -43,7 +43,7 @@ plugins {
 
 spotbugs {
     ignoreFailures.set(false)
-    toolVersion.set("4.5.2")
+    toolVersion.set("4.5.3")
     showProgress.set(true)
     effort.set(com.github.spotbugs.snom.Effort.MAX)
     reportLevel.set(com.github.spotbugs.snom.Confidence.MEDIUM)
@@ -132,7 +132,7 @@ dependencies {
     annotationProcessor("no.entur.mapstruct.spi:protobuf-spi-impl:$grpcMapStructVersion")
     compileOnly("org.mapstruct:mapstruct:$versionMapstruct")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.3")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.5")
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("commons-io:commons-io:2.11.0")
@@ -145,7 +145,7 @@ dependencies {
     spotbugs("com.github.spotbugs:spotbugs:${spotbugs.toolVersion.get()}")
     implementation("net.logstash.logback:logstash-logback-encoder:7.0.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.mockito:mockito-inline:4.2.0")
+    testImplementation("org.mockito:mockito-inline:4.3.1")
 
 }
 
@@ -184,7 +184,7 @@ tasks.spotbugsMain {
 
 
 tasks.jacocoTestReport {
-    getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"));
+    executionData.setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
     classDirectories.setFrom(sourceSets.main.get().output.asFileTree.matching {
         exclude(
             "com/sms/eagle/eye/backend/aspect",
