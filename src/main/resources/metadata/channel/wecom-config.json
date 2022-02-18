@@ -1,0 +1,20 @@
+[
+  {
+    "key": "username",
+    "labelName": "Username",
+    "required": true,
+    "encrypted": false,
+    "defaultValue": "",
+    "order": 1,
+    "type": 1
+  },
+  {
+    "key": "password",
+    "labelName": "Password",
+    "required": true,
+    "encrypted": true,
+    "defaultValue": "",
+    "order": 1,
+    "type": 1
+  }
+]

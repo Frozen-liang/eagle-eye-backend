@@ -11,27 +11,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName(value = "task")
+@TableName(value = "notification_channel")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskEntity implements Serializable {
+public class NotificationChannelEntity implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
     @TableId
     private Long id;
     private String name;
-    private String description;
+    private Integer type;
+    private String config;
     private String creator;
-    private String project;
-    private Long pluginId;
-    private Integer scheduleInterval;
-    private Integer scheduleUnit;
-    private String pluginConfig;
-    private Integer status;
-    private Integer alarmLevel;
     private LocalDateTime utcCreateTime;
     @TableLogic
     @TableField("is_deleted")

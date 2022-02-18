@@ -44,6 +44,7 @@ public class TaskResponse {
     private Integer scheduleInterval;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Integer status;
+    private Integer alarmLevel;
     /**
      * 任务间隔单位.
      */
