@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 通道模块
+ * 通道模块.
  */
 @Slf4j
 @RestController

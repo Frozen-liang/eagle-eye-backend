@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChannelFieldWithValueResponse extends ChannelFieldResponse{
+public class ChannelFieldWithValueResponse extends ChannelFieldResponse {
 
     public static final String DEFAULT_VALUE = "";
 
