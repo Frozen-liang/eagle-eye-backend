@@ -1,5 +1,6 @@
 package com.sms.eagle.eye.backend.service.impl;
 
+import com.sms.eagle.eye.backend.common.enums.AlarmLevel;
 import com.sms.eagle.eye.backend.common.enums.TaskScheduleUnit;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
@@ -7,6 +8,7 @@ import com.sms.eagle.eye.backend.domain.service.TagService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.model.IdNameResponse;
+import com.sms.eagle.eye.backend.response.task.AlarmLevelResponse;
 import com.sms.eagle.eye.backend.service.DataApplicationService;
 import io.vavr.control.Try;
 import java.util.Arrays;
@@ -59,6 +61,18 @@ public class DataApplicationServiceImpl implements DataApplicationService {
             .map(taskStatus -> IdNameResponse.<Integer>builder()
                 .id(taskStatus.getValue())
                 .name(taskStatus.getName())
+                .build())
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AlarmLevelResponse> getAlarmLevelResponse() {
+        return Arrays.stream(AlarmLevel.values())
+            .map(alarmLevel -> AlarmLevelResponse.builder()
+                .name(alarmLevel.getName())
+                .value(alarmLevel.getValue())
+                .isAlarm(alarmLevel.getIsAlarm())
+                .color(alarmLevel.getColor())
                 .build())
             .collect(Collectors.toList());
     }

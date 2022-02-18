@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sms.eagle.eye.backend.domain.mapper.NotificationChannelMapper">
+
+    <select id="getPage" resultType="com.sms.eagle.eye.backend.domain.entity.NotificationChannelEntity">
+        select id, name, creator, type, config, utc_create_time createTime
+        from notification_channel
+        <where>
+            is_deleted = false
+            <if test="request.name != null">
+                and name ilike ('%' || #{request.name} || '%')
+            </if>
+            <if test="request.creator != null">
+                and creator ilike ('%' || #{request.creator} || '%')
+            </if>
+        </where>
+        order by utc_create_time desc
+    </select>
+</mapper>

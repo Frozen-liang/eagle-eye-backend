@@ -108,6 +108,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(module = "spring-boot-starter-tomcat")
     }
+    implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework.cloud:spring-cloud-starter-consul-config:")
     implementation("org.springframework.cloud:spring-cloud-starter-vault-config")
