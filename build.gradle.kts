@@ -142,6 +142,8 @@ dependencies {
     implementation("com.hubspot.jackson:jackson-datatype-protobuf:0.9.12")
     implementation("com.alibaba:transmittable-thread-local:$transmittableThreadVersion")
     implementation("org.codehaus.groovy:groovy:3.0.8")
+    implementation("org.thymeleaf:thymeleaf-spring5")
+    implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
     compileOnly("com.github.spotbugs:spotbugs-annotations:${spotbugs.toolVersion.get()}")
     spotbugs("com.github.spotbugs:spotbugs:${spotbugs.toolVersion.get()}")
     implementation("net.logstash.logback:logstash-logback-encoder:7.0.1")

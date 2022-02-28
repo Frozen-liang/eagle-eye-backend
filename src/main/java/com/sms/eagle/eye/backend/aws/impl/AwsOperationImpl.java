@@ -8,6 +8,7 @@ import com.sms.eagle.eye.backend.common.encrypt.AesEncryptor;
 import com.sms.eagle.eye.backend.config.AwsProperties;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
+import com.sms.eagle.eye.backend.model.TaskAlertRule;
 import com.sms.eagle.eye.backend.request.AwsLambdaInput;
 import io.vavr.control.Try;
 import java.util.List;
@@ -31,6 +32,7 @@ public class AwsOperationImpl implements AwsOperation {
 
     private static final String DEFAULT_INPUT = "{}";
     private static final String EXPRESSION_TEMPLATE = "rate(%s minutes)";
+    private static final String RULE_NAME_FORMAT = "%s-%s";
 
     private final ObjectMapper objectMapper;
     private final AwsProperties awsProperties;
@@ -45,11 +47,15 @@ public class AwsOperationImpl implements AwsOperation {
         this.eventBridgeClient = eventBridgeClient;
     }
 
+    private String generateRuleName(TaskEntity task, TaskAlertRule taskAlertRule) {
+        return String.format(task.getName(), taskAlertRule.getAlarmLevel());
+    }
+
     @Override
-    public String createRuleAndReturnArn(TaskEntity task) {
-        Integer minuteInterval = getMinuteInterval(task);
+    public String createRuleAndReturnArn(TaskEntity task, TaskAlertRule taskAlertRule) {
+        Integer minuteInterval = getMinuteInterval(taskAlertRule);
         PutRuleRequest putRuleRequest = PutRuleRequest.builder()
-            .name(task.getName())
+            .name(generateRuleName(task, taskAlertRule))
             .scheduleExpression(String.format(EXPRESSION_TEMPLATE, minuteInterval))
             .description(task.getDescription())
             .build();

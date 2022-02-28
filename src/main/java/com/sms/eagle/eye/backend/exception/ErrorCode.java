@@ -14,6 +14,7 @@ public enum ErrorCode {
     CHANNEL_TYPE_IS_NOT_CORRECT("", "Can't find the corresponding channel"),
     CHANNEL_ID_IS_NOT_CORRECT("", "The channel does not exist or has been deleted"),
     TASK_ID_IS_NOT_CORRECT("", "Can't find the corresponding monitoring task"),
+    TASK_ALERT_NOTIFICATION_ID_IS_NOT_CORRECT("", "Can't find the corresponding alert notification"),
     GROUP_ID_IS_NOT_CORRECT("", "Can't find the corresponding group"),
     PLUGIN_ID_IS_NOT_CORRECT("", "Can't find the corresponding plugin"),
     INVALID_TASK_SCHEDULE_UNIT_ID("", ""),
@@ -30,7 +31,8 @@ public enum ErrorCode {
     GROUP_NAME_HAS_ALREADY_EXIST("", "Group name already exists, please set to other"),
     REMOVE_CHILD_BEFORE_DELETE_GROUP("", "Please delete sub-Groups first"),
     DATE_FORMAT_ERROR("", "Please enter the correct date format: yy-MM-dd"),
-    GET_METADATA_ERROR("", "Failed to get metadata");
+    GET_METADATA_ERROR("", "Failed to get metadata"),
+    CHANNEL_CHECK_ERROR("", "%s can not be empty");
 
     private final String code;
     private final String message;

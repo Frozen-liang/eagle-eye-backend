@@ -6,7 +6,6 @@ import com.google.protobuf.Empty;
 import com.sms.eagle.eye.backend.convert.PluginConfigFieldConverter;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.factory.PluginClientFactory;
-import com.sms.eagle.eye.backend.resolver.PluginConfigResolver;
 import com.sms.eagle.eye.backend.response.plugin.PluginConfigFieldResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginMetadataResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginSelectOptionResponse;
@@ -22,14 +21,11 @@ import org.springframework.stereotype.Service;
 public class PluginRpcServiceImpl implements PluginRpcService {
 
     private final PluginClientFactory factory;
-    private final PluginConfigResolver pluginConfigResolver;
     private final PluginConfigFieldConverter pluginConfigFieldConverter;
 
     public PluginRpcServiceImpl(PluginClientFactory factory,
-        PluginConfigResolver pluginConfigResolver,
         PluginConfigFieldConverter pluginConfigFieldConverter) {
         this.factory = factory;
-        this.pluginConfigResolver = pluginConfigResolver;
         this.pluginConfigFieldConverter = pluginConfigFieldConverter;
     }
 
@@ -51,6 +47,9 @@ public class PluginRpcServiceImpl implements PluginRpcService {
         List<PluginConfigFieldResponse> configFieldList = registerResponse.getFieldsList().stream()
             .map(pluginConfigFieldConverter::rpcToResponse)
             .collect(Collectors.toList());
+        List<PluginConfigFieldResponse> alertFieldList = registerResponse.getAlertsList().stream()
+            .map(pluginConfigFieldConverter::rpcToResponse)
+            .collect(Collectors.toList());
         List<PluginSelectOptionResponse> options = registerResponse.getOptionsList().stream()
             .map(option -> PluginSelectOptionResponse.builder()
                 .key(option.getKey())
@@ -65,6 +64,7 @@ public class PluginRpcServiceImpl implements PluginRpcService {
             .description(registerResponse.getDescription())
             .version(registerResponse.getVersion())
             .fields(configFieldList)
+            .alerts(alertFieldList)
             .options(options)
             .scheduleBySelf(registerResponse.getScheduleBySelf())
             .build();

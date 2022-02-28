@@ -8,6 +8,7 @@ import com.sms.eagle.eye.backend.request.channel.NotificationChannelRequest;
 import com.sms.eagle.eye.backend.response.channel.ChannelDetailResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelListResponse;
+import com.sms.eagle.eye.backend.response.channel.ChannelPageResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelTypeResponse;
 import com.sms.eagle.eye.backend.service.NotificationChannelApplicationService;
 import java.util.List;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 通道模块.
+ * 消息通道 模块.
  */
 @Slf4j
 @RestController
@@ -40,8 +41,16 @@ public class NotificationChannelController {
     /**
      * 获取通道实例列表.
      */
+    @GetMapping("/list")
+    public Response<List<ChannelListResponse>> getList() {
+        return Response.ok(notificationChannelApplicationService.getList());
+    }
+
+    /**
+     * 分页获取通道实例列表.
+     */
     @GetMapping("/page")
-    public Response<CustomPage<ChannelListResponse>> getPage(NotificationChannelQueryRequest request) {
+    public Response<CustomPage<ChannelPageResponse>> getPage(NotificationChannelQueryRequest request) {
         return Response.ok(notificationChannelApplicationService.getPage(request));
     }
 

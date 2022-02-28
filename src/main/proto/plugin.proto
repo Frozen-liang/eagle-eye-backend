@@ -14,6 +14,7 @@ message RegisterResponse{
   repeated ConfigField fields = 4;
   repeated SelectOption options = 5;
   bool scheduleBySelf = 6;
+  repeated  ConfigField alerts = 7;
 }
 
 enum FieldType{
@@ -62,12 +63,19 @@ message SelectOptionItem {
   int32 value = 2;
 }
 
+message AlertRule {
+  string alarmLevel = 1;
+  string rule = 2;
+  string interval = 3;
+}
+
 message CreateTaskRequest{
   string id = 1;
   string name = 2;
   string description = 3;
   string config = 4;
-  int32 interval = 5;
+  //int32 interval = 5;
+  repeated AlertRule rules = 6;
 }
 
 message CreateTaskResponse{

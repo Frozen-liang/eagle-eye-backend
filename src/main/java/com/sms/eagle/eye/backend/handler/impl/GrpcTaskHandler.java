@@ -46,7 +46,7 @@ public class GrpcTaskHandler implements TaskHandler {
             .setId(request.getTask().getId().toString())
             .setName(request.getTask().getName())
             .setDescription(request.getTask().getDescription())
-            .setInterval(minuteInterval)
+//            .setInterval(minuteInterval)
             .setConfig(request.getDecryptedConfig())
             .build();
         try {
