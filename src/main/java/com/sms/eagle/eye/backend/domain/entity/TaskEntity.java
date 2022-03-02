@@ -27,10 +27,14 @@ public class TaskEntity implements Serializable {
     private String creator;
     private String project;
     private Long pluginId;
-    private Integer scheduleInterval;
-    private Integer scheduleUnit;
+
+    // TODO Refactor
+//    private Integer scheduleInterval;
+//    private Integer scheduleUnit;
+
     private String pluginConfig;
     private Integer status;
+    private Integer alarmLevel;
     private LocalDateTime utcCreateTime;
     @TableLogic
     @TableField("is_deleted")

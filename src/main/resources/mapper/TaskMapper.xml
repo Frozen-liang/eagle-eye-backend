@@ -14,6 +14,7 @@
                task.schedule_interval,
                task.schedule_unit,
                task.status,
+               task.alarm_level,
                task.plugin_config,
                task.utc_create_time createTime
         from task
@@ -30,7 +31,7 @@
                 and task.project ilike ('%' || #{request.project} || '%')
             </if>
             <if test="request.pluginId != null">
-                and task.pluginId = #{request.pluginId}
+                and task.plugin_id = #{request.pluginId}
             </if>
             <if test="groups != null and groups.size() &gt; 0">
                 and task.id in (

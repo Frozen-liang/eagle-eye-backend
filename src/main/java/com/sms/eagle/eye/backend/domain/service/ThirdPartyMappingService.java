@@ -13,11 +13,11 @@ public interface ThirdPartyMappingService extends IService<ThirdPartyMappingEnti
 
     Optional<Long> getTaskIdByPluginSystemUnionId(String mappingId);
 
-    Optional<String> getAwsRuleArnByTaskId(Long taskId);
+    Optional<String> getAwsRuleArnByTaskAlertRuleId(Long taskAlertRuleId);
 
-    void addAwsRuleMapping(Long taskId, String awsRule);
+    void addAwsRuleMapping(Long taskAlertRuleId, String awsRule);
 
-    void addAwsRuleTargetMapping(Long taskId, String awsRuleTargetId);
+    void addAwsRuleTargetMapping(Long taskAlertRuleId, String awsRuleTargetId);
 
     void removeAwsRuleTargetMapping(Long taskId);
 

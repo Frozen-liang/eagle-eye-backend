@@ -32,5 +32,6 @@ public class PluginMetadataResponse {
      * 选择数据.
      */
     private List<PluginSelectOptionResponse> options;
+    private List<PluginConfigFieldResponse> alerts;
     private Boolean scheduleBySelf;
 }

@@ -1,5 +1,7 @@
 package com.sms.eagle.eye.backend.service.impl;
 
+import com.sms.eagle.eye.backend.common.enums.AlarmLevel;
+import com.sms.eagle.eye.backend.common.enums.NotificationTemplateType;
 import com.sms.eagle.eye.backend.common.enums.TaskScheduleUnit;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
@@ -7,6 +9,7 @@ import com.sms.eagle.eye.backend.domain.service.TagService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.model.IdNameResponse;
+import com.sms.eagle.eye.backend.response.task.AlarmLevelResponse;
 import com.sms.eagle.eye.backend.service.DataApplicationService;
 import io.vavr.control.Try;
 import java.util.Arrays;
@@ -63,9 +66,30 @@ public class DataApplicationServiceImpl implements DataApplicationService {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public List<AlarmLevelResponse> getAlarmLevelResponse() {
+        return Arrays.stream(AlarmLevel.values())
+            .map(alarmLevel -> AlarmLevelResponse.builder()
+                .name(alarmLevel.getName())
+                .value(alarmLevel.getValue())
+                .isAlarm(alarmLevel.getIsAlarm())
+                .color(alarmLevel.getColor())
+                .build())
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IdNameResponse<Integer>> getTemplateType() {
+        return Arrays.stream(NotificationTemplateType.values())
+            .map(notificationTemplateType -> IdNameResponse.<Integer>builder()
+                .id(notificationTemplateType.getValue())
+                .name(notificationTemplateType.getName())
+                .build())
+            .collect(Collectors.toList());
+    }
+
     /**
-     * 如果 thirdPartyMapping 不存在
-     * 尝试直接当作 任务id 返回.
+     * 如果 thirdPartyMapping 不存在 尝试直接当作 任务id 返回.
      */
     @Override
     public Optional<Long> getTaskByMappingId(String uniqueValue) {

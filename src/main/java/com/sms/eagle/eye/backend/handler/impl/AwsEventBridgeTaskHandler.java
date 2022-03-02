@@ -1,9 +1,11 @@
 package com.sms.eagle.eye.backend.handler.impl;
 
 import com.sms.eagle.eye.backend.aws.AwsOperation;
+import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.handler.TaskHandler;
+import com.sms.eagle.eye.backend.model.TaskAlertRule;
 import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
 import java.util.List;
 import java.util.Optional;
@@ -24,26 +26,40 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
         this.thirdPartyMappingService = thirdPartyMappingService;
     }
 
+    /**
+     * 每一条任务 可能含 多条告警规则（对应不同告警规则）
+     * 需要为 每一条告警规则，在 EventBridge 中创建 rule.
+     */
     @Override
     public void startTask(TaskOperationRequest request) {
-        String ruleArn = awsOperation.createRuleAndReturnArn(request.getTask());
-        generalOperation(ruleArn, request);
+        request.getAlertRules().forEach(taskAlertRule -> {
+            String ruleArn = awsOperation.createRuleAndReturnArn(request.getTask(), taskAlertRule);
+            generalOperation(ruleArn, request.getTask(),
+                request.getPlugin(), request.getDecryptedConfig(), taskAlertRule);
+        });
     }
 
     @Override
     public void stopTask(TaskOperationRequest request) {
-        Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(request.getTask().getId());
-        awsRuleOptional.ifPresentOrElse(ruleArn -> {
-            removeRuleTargetIfPresent(request.getTask());
-            awsOperation.deleteRule(request.getTask().getName());
-            log.info("delete event bridge, {}", ruleArn);
-        }, () -> log.info("delete error"));
+        request.getAlertRules().forEach(taskAlertRule -> {
+            Optional<String> awsRuleOptional = thirdPartyMappingService
+                .getAwsRuleArnByTaskAlertRuleId(taskAlertRule.getRuleId());
+            awsRuleOptional.ifPresentOrElse(ruleArn -> {
+                removeRuleTargetIfPresent(request.getTask(), taskAlertRule);
+                awsOperation.deleteRule(request.getTask(), taskAlertRule);
+                log.info("delete event bridge, {}", ruleArn);
+            }, () -> log.info("delete error"));
+        });
     }
 
     @Override
     public void updateTask(TaskOperationRequest request) {
-        Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(request.getTask().getId());
-        awsRuleOptional.ifPresent(ruleArn -> generalOperation(ruleArn, request));
+        request.getAlertRules().forEach(taskAlertRule -> {
+            Optional<String> awsRuleOptional =
+                thirdPartyMappingService.getAwsRuleArnByTaskAlertRuleId(taskAlertRule.getRuleId());
+            awsRuleOptional.ifPresent(ruleArn -> generalOperation(
+                ruleArn, request.getTask(), request.getPlugin(), request.getDecryptedConfig(), taskAlertRule));
+        });
     }
 
     @Override
@@ -51,16 +67,19 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
         return Boolean.FALSE;
     }
 
-    private void generalOperation(String ruleArn, TaskOperationRequest request) {
-        removeRuleTargetIfPresent(request.getTask());
-        String targetId = awsOperation.createOrUpdateRuleTarget(
-            request.getTask(), request.getPlugin(), request.getDecryptedConfig());
-        thirdPartyMappingService.addAwsRuleMapping(request.getTask().getId(), ruleArn);
-        thirdPartyMappingService.addAwsRuleTargetMapping(request.getTask().getId(), targetId);
+    /**
+     * 记录与 ruleArn 与 TaskAlertRule 的对应关系，并将 lambda 绑定至 ruleTarget.
+     */
+    private void generalOperation(String ruleArn, TaskEntity task,
+        PluginEntity plugin, String decryptedConfig, TaskAlertRule taskAlertRule) {
+        removeRuleTargetIfPresent(task, taskAlertRule);
+        String targetId = awsOperation.createOrUpdateRuleTarget(task, taskAlertRule, plugin, decryptedConfig);
+        thirdPartyMappingService.addAwsRuleMapping(taskAlertRule.getRuleId(), ruleArn);
+        thirdPartyMappingService.addAwsRuleTargetMapping(taskAlertRule.getRuleId(), targetId);
     }
 
-    private void removeRuleTargetIfPresent(TaskEntity task) {
-        List<String> ruleTargetList = thirdPartyMappingService.getAwsRuleTargetList(task.getId());
+    private void removeRuleTargetIfPresent(TaskEntity task, TaskAlertRule taskAlertRule) {
+        List<String> ruleTargetList = thirdPartyMappingService.getAwsRuleTargetList(taskAlertRule.getRuleId());
         if (CollectionUtils.isNotEmpty(ruleTargetList)) {
             awsOperation.removeTarget(task.getName(), ruleTargetList);
             thirdPartyMappingService.removeAwsRuleTargetMapping(task.getId());
