@@ -31,7 +31,7 @@
                 and task.project ilike ('%' || #{request.project} || '%')
             </if>
             <if test="request.pluginId != null">
-                and task.pluginId = #{request.pluginId}
+                and task.plugin_id = #{request.pluginId}
             </if>
             <if test="groups != null and groups.size() &gt; 0">
                 and task.id in (

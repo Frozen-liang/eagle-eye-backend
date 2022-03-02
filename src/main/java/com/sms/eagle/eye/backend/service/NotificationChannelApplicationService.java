@@ -6,11 +6,14 @@ import com.sms.eagle.eye.backend.request.channel.NotificationChannelRequest;
 import com.sms.eagle.eye.backend.response.channel.ChannelDetailResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelListResponse;
+import com.sms.eagle.eye.backend.response.channel.ChannelPageResponse;
 import java.util.List;
 
 public interface NotificationChannelApplicationService {
 
-    CustomPage<ChannelListResponse> getPage(NotificationChannelQueryRequest request);
+    List<ChannelListResponse> getList();
+
+    CustomPage<ChannelPageResponse> getPage(NotificationChannelQueryRequest request);
 
     List<ChannelFieldResponse> getConfigFieldsByType(Integer type);
 

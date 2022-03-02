@@ -8,34 +8,46 @@ import static com.sms.eagle.eye.backend.handler.impl.TaskHandlerProxy.TASK_HANDL
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
-import com.sms.eagle.eye.backend.domain.entity.PluginConfigFieldEntity;
+import com.sms.eagle.eye.backend.convert.ConfigMetadataConverter;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
+import com.sms.eagle.eye.backend.domain.entity.TaskAlertRuleEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.domain.service.InvokeErrorRecordService;
+import com.sms.eagle.eye.backend.domain.service.PluginAlertFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
+import com.sms.eagle.eye.backend.domain.service.TaskAlertRuleService;
 import com.sms.eagle.eye.backend.domain.service.TaskGroupMappingService;
 import com.sms.eagle.eye.backend.domain.service.TaskGroupService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.TaskTagMappingService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.handler.TaskHandler;
+import com.sms.eagle.eye.backend.model.ConfigMetadata;
 import com.sms.eagle.eye.backend.model.CustomPage;
+import com.sms.eagle.eye.backend.request.task.TaskAlertRuleRequest;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
-import com.sms.eagle.eye.backend.resolver.PluginConfigResolver;
+import com.sms.eagle.eye.backend.resolver.ConfigMetadataResolver;
 import com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse;
+import com.sms.eagle.eye.backend.response.task.PluginConfigFieldWithValueResponse;
+import com.sms.eagle.eye.backend.response.task.PluginConfigRuleWithValueResponse;
+import com.sms.eagle.eye.backend.response.task.TaskAlertRuleResponse;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import com.sms.eagle.eye.backend.service.TaskApplicationService;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,35 +57,44 @@ import org.springframework.transaction.annotation.Transactional;
 public class TaskApplicationServiceImpl implements TaskApplicationService {
 
     private final TaskHandler taskHandler;
-    private final PluginConfigResolver pluginConfigResolver;
+    private final ConfigMetadataConverter configMetadataConverter;
+    private final ConfigMetadataResolver configMetadataResolver;
     private final TaskService taskService;
     private final PluginService pluginService;
     private final InvokeErrorRecordService invokeErrorRecordService;
     private final PluginConfigFieldService pluginConfigFieldService;
+    private final PluginAlertFieldService pluginAlertFieldService;
     private final PluginSelectOptionService pluginSelectOptionService;
     private final TaskTagMappingService taskTagMappingService;
     private final TaskGroupService taskGroupService;
     private final TaskGroupMappingService taskGroupMappingService;
+    private final TaskAlertRuleService taskAlertRuleService;
 
     public TaskApplicationServiceImpl(@Qualifier(TASK_HANDLER_PROXY) TaskHandler taskHandler,
-        PluginConfigResolver pluginConfigResolver, TaskService taskService,
+        ConfigMetadataConverter configMetadataConverter,
+        ConfigMetadataResolver configMetadataResolver, TaskService taskService,
         PluginService pluginService,
         InvokeErrorRecordService invokeErrorRecordService,
         PluginConfigFieldService pluginConfigFieldService,
+        PluginAlertFieldService pluginAlertFieldService,
         PluginSelectOptionService pluginSelectOptionService,
         TaskTagMappingService taskTagMappingService,
         TaskGroupService taskGroupService,
-        TaskGroupMappingService taskGroupMappingService) {
+        TaskGroupMappingService taskGroupMappingService,
+        TaskAlertRuleService taskAlertRuleService) {
         this.taskHandler = taskHandler;
-        this.pluginConfigResolver = pluginConfigResolver;
+        this.configMetadataConverter = configMetadataConverter;
+        this.configMetadataResolver = configMetadataResolver;
         this.taskService = taskService;
         this.pluginService = pluginService;
         this.invokeErrorRecordService = invokeErrorRecordService;
         this.pluginConfigFieldService = pluginConfigFieldService;
+        this.pluginAlertFieldService = pluginAlertFieldService;
         this.pluginSelectOptionService = pluginSelectOptionService;
         this.taskTagMappingService = taskTagMappingService;
         this.taskGroupService = taskGroupService;
         this.taskGroupMappingService = taskGroupMappingService;
+        this.taskAlertRuleService = taskAlertRuleService;
     }
 
     @Override
@@ -91,7 +112,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         if (Objects.nonNull(request.getGroupId())) {
             List<Long> groups = taskGroupService.getChildGroupById(request.getGroupId());
             groups.add(request.getGroupId());
-            return  groups;
+            return groups;
         }
         return Collections.emptyList();
     }
@@ -124,10 +145,18 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Override
     public TaskPluginConfigResponse getPluginConfigByTaskId(Long taskId) {
         TaskEntity taskEntity = taskService.getEntityById(taskId);
-        List<PluginConfigFieldEntity> configFieldList = pluginConfigFieldService
-            .getListByPluginId(taskEntity.getPluginId());
+        Map<String, String> configMap = configMetadataResolver.convertConfigToMap(taskEntity.getPluginConfig());
+        List<PluginConfigFieldWithValueResponse> configFieldList = pluginConfigFieldService
+            .getListByPluginId(taskEntity.getPluginId()).stream().map(pluginConfigField -> {
+
+                PluginConfigFieldWithValueResponse response = PluginConfigFieldWithValueResponse.builder().build();
+                BeanUtils.copyProperties(pluginConfigField, response);
+                response.setValue(configMetadataResolver.decryptToFrontendValue(
+                    configMetadataConverter.fromConfigField(pluginConfigField), configMap));
+                return response;
+            }).collect(Collectors.toList());
         return TaskPluginConfigResponse.builder()
-            .fields(pluginConfigResolver.decryptToResponse(configFieldList, taskEntity.getPluginConfig()))
+            .fields(configFieldList)
             .options(pluginSelectOptionService.getResponseByPluginId(taskEntity.getPluginId()))
             .build();
     }
@@ -138,9 +167,10 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Override
     public boolean updatePluginConfig(TaskPluginConfigRequest request) {
         TaskEntity taskEntity = taskService.getEntityById(request.getId());
-        List<PluginConfigFieldEntity> configFieldList = pluginConfigFieldService
-            .getListByPluginId(taskEntity.getPluginId());
-        taskEntity.setPluginConfig(pluginConfigResolver
+        List<ConfigMetadata> configFieldList = pluginConfigFieldService
+            .getListByPluginId(taskEntity.getPluginId()).stream()
+            .map(configMetadataConverter::fromConfigField).collect(Collectors.toList());
+        taskEntity.setPluginConfig(configMetadataResolver
             .checkAndEncrypt(configFieldList, request.getPluginConfig(), taskEntity.getPluginConfig()));
         taskService.updateTaskEntity(taskEntity);
         updateTaskIfIsRunning(request.getId(), TaskStatus.resolve(taskEntity.getStatus()));
@@ -148,14 +178,15 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
+     * TODO remove
      * 更新数据库中的任务执行频率信息 如果任务正在运行中，则通知任务更新其执行频率.
      */
     @Override
     public boolean updateSchedule(TaskScheduleRequest request) {
         taskService.updateTaskEntity(TaskEntity.builder()
             .id(request.getId())
-            .scheduleUnit(request.getScheduleUnit())
-            .scheduleInterval(request.getScheduleInterval())
+//            .scheduleUnit(request.getScheduleUnit())
+//            .scheduleInterval(request.getScheduleInterval())
             .build());
         updateTaskIfIsRunning(request.getId(), taskService.getTaskStatusById(request.getId()));
         return true;
@@ -219,11 +250,56 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         return invokeErrorRecordService.getErrorRecords(taskId);
     }
 
+    /**
+     * 根据 任务id、告警级别 获取 告警规则
+     */
+    @Override
+    public TaskAlertRuleResponse getAlertRule(Long taskId, Integer alarmLevel) {
+        TaskEntity taskEntity = taskService.getEntityById(taskId);
+        Optional<TaskAlertRuleEntity> alertRuleOptional = taskAlertRuleService
+            .getByTaskIdAndAlertLevel(taskId, alarmLevel);
+        String alertRule = alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null);
+        Map<String, String> ruleMap = configMetadataResolver.convertConfigToMap(alertRule);
+
+        List<PluginConfigRuleWithValueResponse> rules = pluginAlertFieldService
+            .getListByPluginId(taskEntity.getPluginId()).stream()
+            .map(pluginAlertFieldEntity -> {
+                PluginConfigRuleWithValueResponse response = PluginConfigRuleWithValueResponse.builder().build();
+                BeanUtils.copyProperties(pluginAlertFieldEntity, response);
+                ConfigMetadata configMetadata = configMetadataConverter.fromAlertField(pluginAlertFieldEntity);
+                response.setValue(configMetadataResolver.decryptToFrontendValue(configMetadata, ruleMap));
+                return response;
+            }).collect(Collectors.toList());
+
+        return TaskAlertRuleResponse.builder()
+            .alertRules(rules)
+            .options(pluginSelectOptionService.getResponseByPluginId(taskEntity.getPluginId()))
+            .scheduleInterval(alertRuleOptional.map(TaskAlertRuleEntity::getScheduleInterval).orElse(null))
+            .scheduleUnit(alertRuleOptional.map(TaskAlertRuleEntity::getScheduleUnit).orElse(null))
+            .build();
+    }
+
+    @Override
+    public boolean updateAlertRule(TaskAlertRuleRequest request) {
+        TaskEntity taskEntity = taskService.getEntityById(request.getTaskId());
+        Optional<TaskAlertRuleEntity> alertRuleOptional = taskAlertRuleService
+            .getByTaskIdAndAlertLevel(request.getTaskId(), request.getAlarmLevel());
+        List<ConfigMetadata> configMetadata = pluginAlertFieldService
+            .getListByPluginId(taskEntity.getPluginId()).stream()
+            .map(configMetadataConverter::fromAlertField).collect(Collectors.toList());
+        String encryptValue = configMetadataResolver.checkAndEncrypt(configMetadata,
+            request.getAlertRules(), alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null));
+        request.setAlertRules(encryptValue);
+        taskAlertRuleService.updateByRequest(request);
+        return true;
+    }
+
     private TaskOperationRequest getOperationRequest(Long taskId) {
         TaskEntity task = taskService.getEntityById(taskId);
         PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
-        List<PluginConfigFieldEntity> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId());
-        String config = pluginConfigResolver.decryptToString(configFields, task.getPluginConfig());
+        List<ConfigMetadata> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId()).stream()
+            .map(configMetadataConverter::fromConfigField).collect(Collectors.toList());
+        String config = configMetadataResolver.decryptToString(configFields, task.getPluginConfig());
         return TaskOperationRequest.builder()
             .task(task)
             .plugin(plugin)

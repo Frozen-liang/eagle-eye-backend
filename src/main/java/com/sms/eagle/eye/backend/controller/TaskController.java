@@ -4,11 +4,13 @@ import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.model.Response;
+import com.sms.eagle.eye.backend.request.task.TaskAlertRuleRequest;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
 import com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse;
+import com.sms.eagle.eye.backend.response.task.TaskAlertRuleResponse;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import com.sms.eagle.eye.backend.service.TaskApplicationService;
@@ -80,6 +82,22 @@ public class TaskController {
     }
 
     /**
+     * 根据 任务id和告警级别 查询任务的 告警规则和执行频率.
+     */
+    @GetMapping("/alert-rule/{taskId}")
+    public Response<TaskAlertRuleResponse> getAlertRule(@PathVariable Long taskId, @RequestParam Integer alarmLevel) {
+        return Response.ok(taskApplicationService.getAlertRule(taskId, alarmLevel));
+    }
+
+    /**
+     * 修改任务告警规则
+     */
+    @PutMapping("/alert-rule")
+    public Response<Boolean> updateAlertRule(@RequestBody TaskAlertRuleRequest request) {
+        return Response.ok(taskApplicationService.updateAlertRule(request));
+    }
+
+    /**
      * 修改监控任务的定时计划.
      */
     @PutMapping("/schedule")
@@ -114,6 +132,14 @@ public class TaskController {
     @GetMapping("/invoke-error")
     public Response<List<InvokeErrorRecordResponse>> getErrorRecord(@RequestParam Long taskId) {
         return Response.ok(taskApplicationService.getErrorRecord(taskId));
+    }
+
+    /**
+     * 告警处理.
+     */
+    @PostMapping("/alarm-level/reset")
+    public Response<Boolean> resetAlarmLevel(@RequestParam Long taskId) {
+        return Response.ok(Boolean.TRUE);
     }
 
 }

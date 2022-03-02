@@ -2,6 +2,7 @@ package com.sms.eagle.eye.backend.notification.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sms.eagle.eye.backend.common.enums.NotificationChannelType;
+import com.sms.eagle.eye.backend.model.NotificationEvent;
 import com.sms.eagle.eye.backend.notification.Channel;
 import com.sms.eagle.eye.backend.notification.Notification;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
@@ -34,7 +35,7 @@ public class WeComChannel implements Channel {
     }
 
     @Override
-    public boolean send(Integer type, String config, String input) {
+    public boolean notify(NotificationEvent event) {
         return false;
     }
 }

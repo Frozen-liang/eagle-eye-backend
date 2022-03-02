@@ -15,6 +15,7 @@ import com.sms.eagle.eye.backend.response.channel.ChannelDetailResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldWithValueResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelListResponse;
+import com.sms.eagle.eye.backend.response.channel.ChannelPageResponse;
 import com.sms.eagle.eye.backend.service.NotificationChannelApplicationService;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +45,13 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
     }
 
     @Override
-    public CustomPage<ChannelListResponse> getPage(NotificationChannelQueryRequest request) {
-        IPage<ChannelListResponse> page = notificationChannelService.getPage(request).convert(converter::toResponse);
+    public List<ChannelListResponse> getList() {
+        return notificationChannelService.getList();
+    }
+
+    @Override
+    public CustomPage<ChannelPageResponse> getPage(NotificationChannelQueryRequest request) {
+        IPage<ChannelPageResponse> page = notificationChannelService.getPage(request).convert(converter::toResponse);
         return new CustomPage<>(page);
     }
 

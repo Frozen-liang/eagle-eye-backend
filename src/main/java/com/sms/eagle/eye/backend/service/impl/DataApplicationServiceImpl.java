@@ -1,6 +1,7 @@
 package com.sms.eagle.eye.backend.service.impl;
 
 import com.sms.eagle.eye.backend.common.enums.AlarmLevel;
+import com.sms.eagle.eye.backend.common.enums.NotificationTemplateType;
 import com.sms.eagle.eye.backend.common.enums.TaskScheduleUnit;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
@@ -77,9 +78,18 @@ public class DataApplicationServiceImpl implements DataApplicationService {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public List<IdNameResponse<Integer>> getTemplateType() {
+        return Arrays.stream(NotificationTemplateType.values())
+            .map(notificationTemplateType -> IdNameResponse.<Integer>builder()
+                .id(notificationTemplateType.getValue())
+                .name(notificationTemplateType.getName())
+                .build())
+            .collect(Collectors.toList());
+    }
+
     /**
-     * 如果 thirdPartyMapping 不存在
-     * 尝试直接当作 任务id 返回.
+     * 如果 thirdPartyMapping 不存在 尝试直接当作 任务id 返回.
      */
     @Override
     public Optional<Long> getTaskByMappingId(String uniqueValue) {

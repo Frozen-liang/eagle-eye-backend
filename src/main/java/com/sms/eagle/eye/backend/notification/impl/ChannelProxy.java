@@ -3,6 +3,7 @@ package com.sms.eagle.eye.backend.notification.impl;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.CHANNEL_TYPE_IS_NOT_CORRECT;
 
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
+import com.sms.eagle.eye.backend.model.NotificationEvent;
 import com.sms.eagle.eye.backend.notification.Channel;
 import com.sms.eagle.eye.backend.notification.Notification;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
@@ -49,10 +50,10 @@ public class ChannelProxy implements Channel, ApplicationContextAware, Initializ
     }
 
     @Override
-    public boolean send(Integer type, String config, String input) {
-        Optional<Channel> channelOptional = Optional.ofNullable(channelMap.get(type));
+    public boolean notify(NotificationEvent event) {
+        Optional<Channel> channelOptional = Optional.ofNullable(channelMap.get(event.getChannelType()));
         if (channelOptional.isPresent()) {
-            return channelOptional.get().send(type, config, input);
+            return channelOptional.get().notify(event);
         }
         throw new EagleEyeException(CHANNEL_TYPE_IS_NOT_CORRECT);
     }

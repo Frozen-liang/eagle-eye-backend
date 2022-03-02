@@ -1,11 +1,13 @@
 package com.sms.eagle.eye.backend.service;
 
 import com.sms.eagle.eye.backend.model.CustomPage;
+import com.sms.eagle.eye.backend.request.task.TaskAlertRuleRequest;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
 import com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse;
+import com.sms.eagle.eye.backend.response.task.TaskAlertRuleResponse;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import java.util.List;
@@ -31,5 +33,9 @@ public interface TaskApplicationService {
     boolean removeTask(Long taskId);
 
     List<InvokeErrorRecordResponse> getErrorRecord(Long taskId);
+
+    TaskAlertRuleResponse getAlertRule(Long taskId, Integer alarmLevel);
+
+    boolean updateAlertRule(TaskAlertRuleRequest request);
 
 }

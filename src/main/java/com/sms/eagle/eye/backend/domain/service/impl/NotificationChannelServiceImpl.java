@@ -11,8 +11,11 @@ import com.sms.eagle.eye.backend.domain.service.NotificationChannelService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.request.channel.NotificationChannelQueryRequest;
 import com.sms.eagle.eye.backend.request.channel.NotificationChannelRequest;
+import com.sms.eagle.eye.backend.response.channel.ChannelListResponse;
 import com.sms.eagle.eye.backend.utils.SecurityUtil;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,15 @@ import org.springframework.stereotype.Service;
 @DomainServiceAdvice
 public class NotificationChannelServiceImpl extends ServiceImpl<NotificationChannelMapper, NotificationChannelEntity>
     implements NotificationChannelService {
+
+    @Override
+    public List<ChannelListResponse> getList() {
+        return list().stream().map(entity -> {
+            ChannelListResponse response = ChannelListResponse.builder().build();
+            BeanUtils.copyProperties(entity, response);
+            return response;
+        }).collect(Collectors.toList());
+    }
 
     @Override
     public IPage<NotificationChannelEntity> getPage(NotificationChannelQueryRequest request) {

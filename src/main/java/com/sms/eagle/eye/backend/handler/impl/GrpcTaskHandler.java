@@ -10,13 +10,16 @@ import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.factory.PluginClientFactory;
 import com.sms.eagle.eye.backend.handler.TaskHandler;
 import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
+import com.sms.eagle.eye.plugin.v1.AlertRule;
 import com.sms.eagle.eye.plugin.v1.CreateTaskRequest;
 import com.sms.eagle.eye.plugin.v1.CreateTaskResponse;
 import com.sms.eagle.eye.plugin.v1.DeleteTaskRequest;
 import com.sms.eagle.eye.plugin.v1.GeneralResponse;
 import com.sms.eagle.eye.plugin.v1.UpdateTaskRequest;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -41,13 +44,17 @@ public class GrpcTaskHandler implements TaskHandler {
 
     @Override
     public void startTask(TaskOperationRequest request) {
-        Integer minuteInterval = getMinuteInterval(request.getTask());
+        List<AlertRule> rules = request.getAlertRules().stream().map(taskAlertRule -> AlertRule.newBuilder()
+            .setAlarmLevel(taskAlertRule.getAlarmLevel())
+            .setRule(taskAlertRule.getDecryptedAlertRule())
+            .setInterval(getMinuteInterval(taskAlertRule))
+            .build()).collect(Collectors.toList());
         CreateTaskRequest grpcRequest = CreateTaskRequest.newBuilder()
             .setId(request.getTask().getId().toString())
             .setName(request.getTask().getName())
             .setDescription(request.getTask().getDescription())
-            .setInterval(minuteInterval)
             .setConfig(request.getDecryptedConfig())
+            .addAllRules(rules)
             .build();
         try {
             CreateTaskResponse response = factory.getClient(request.getPlugin().getUrl())
@@ -91,12 +98,16 @@ public class GrpcTaskHandler implements TaskHandler {
         Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(request.getTask().getId());
         mappingIdOptional.ifPresent(mappingId -> {
             try {
-                Integer minuteInterval = getMinuteInterval(request.getTask());
+                List<AlertRule> rules = request.getAlertRules().stream().map(taskAlertRule -> AlertRule.newBuilder()
+                    .setAlarmLevel(taskAlertRule.getAlarmLevel())
+                    .setRule(taskAlertRule.getDecryptedAlertRule())
+                    .setInterval(getMinuteInterval(taskAlertRule))
+                    .build()).collect(Collectors.toList());
                 UpdateTaskRequest grpcRequest = UpdateTaskRequest.newBuilder()
                     .setMappingId(mappingId)
                     .setName(request.getTask().getName())
                     .setDescription(request.getTask().getDescription())
-                    .setInterval(minuteInterval)
+                    .addAllRules(rules)
                     .setConfig(request.getDecryptedConfig())
                     .build();
                 GeneralResponse response = factory.getClient(request.getPlugin().getUrl())

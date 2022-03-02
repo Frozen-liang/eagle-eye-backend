@@ -7,5 +7,23 @@
     "defaultValue": "",
     "order": 1,
     "type": 1
+  },
+  {
+    "key": "receiver",
+    "labelName": "Receiver",
+    "required": true,
+    "encrypted": false,
+    "defaultValue": "",
+    "order": 1,
+    "type": 1
+  },
+  {
+    "key": "copyTo",
+    "labelName": "Copy to",
+    "required": false,
+    "encrypted": false,
+    "defaultValue": "",
+    "order": 1,
+    "type": 1
   }
 ]
