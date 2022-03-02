@@ -9,6 +9,7 @@ import com.sms.eagle.eye.backend.domain.service.PluginAlarmLevelMappingService;
 import com.sms.eagle.eye.backend.request.plugin.AlarmLevelMappingRequest;
 import com.sms.eagle.eye.backend.response.plugin.AlarmLevelMappingResponse;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,14 @@ public class PluginAlarmLevelMappingServiceImpl extends
                 .mappingLevel(entity.getMappingLevel())
                 .build())
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<String> getMappingLevelByPluginIdAndSystemLevel(Long pluginId, Integer systemLevel) {
+        return Optional.ofNullable(getOne(Wrappers.<PluginAlarmLevelMappingEntity>lambdaQuery()
+            .eq(PluginAlarmLevelMappingEntity::getPluginId, pluginId)
+            .eq(PluginAlarmLevelMappingEntity::getSystemLevel, systemLevel)))
+            .map(PluginAlarmLevelMappingEntity::getMappingLevel);
     }
 }
 
