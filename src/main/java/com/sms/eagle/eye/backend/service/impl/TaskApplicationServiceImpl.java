@@ -258,10 +258,11 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         TaskEntity taskEntity = taskService.getEntityById(taskId);
         Optional<TaskAlertRuleEntity> alertRuleOptional = taskAlertRuleService
             .getByTaskIdAndAlertLevel(taskId, alarmLevel);
-        String alertRule = alertRuleOptional.map(TaskAlertRuleEntity::getAlertRule).orElse(null);
+        String alertRule = alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null);
         Map<String, String> ruleMap = configMetadataResolver.convertConfigToMap(alertRule);
 
-        List<PluginConfigRuleWithValueResponse> rules = pluginAlertFieldService.getListByPluginId(taskId).stream()
+        List<PluginConfigRuleWithValueResponse> rules = pluginAlertFieldService
+            .getListByPluginId(taskEntity.getPluginId()).stream()
             .map(pluginAlertFieldEntity -> {
                 PluginConfigRuleWithValueResponse response = PluginConfigRuleWithValueResponse.builder().build();
                 BeanUtils.copyProperties(pluginAlertFieldEntity, response);
@@ -287,8 +288,8 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
             .getListByPluginId(taskEntity.getPluginId()).stream()
             .map(configMetadataConverter::fromAlertField).collect(Collectors.toList());
         String encryptValue = configMetadataResolver.checkAndEncrypt(configMetadata,
-            alertRuleOptional.map(TaskAlertRuleEntity::getAlertRule).orElse(null), request.getAlertRule());
-        request.setAlertRule(encryptValue);
+            request.getAlertRules(), alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null));
+        request.setAlertRules(encryptValue);
         taskAlertRuleService.updateByRequest(request);
         return true;
     }

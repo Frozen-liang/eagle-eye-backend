@@ -23,7 +23,7 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
      */
     @Override
     public Optional<NotificationTemplateEntity> getByChannelAndTemplateType(Integer channelType, Integer templateType) {
-        return Optional.of(getOne(Wrappers.<NotificationTemplateEntity>lambdaQuery()
+        return Optional.ofNullable(getOne(Wrappers.<NotificationTemplateEntity>lambdaQuery()
             .eq(NotificationTemplateEntity::getChannelType, channelType)
             .eq(NotificationTemplateEntity::getTemplateType, templateType)));
     }

@@ -75,7 +75,7 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
     @Override
     public PluginDetailResponse getPluginDetailById(Long id) {
         PluginEntity entity = pluginService.getEntityById(id);
-        Map<String, List<PluginAlertRuleEntity>> alertRuleMap = pluginAlertRuleService.getListByPluginId(id)
+        Map<Integer, List<PluginAlertRuleEntity>> alertRuleMap = pluginAlertRuleService.getListByPluginId(id)
             .stream().collect(Collectors.groupingBy(PluginAlertRuleEntity::getAlarmLevel));
         Map<String, List<PluginConfigRuleResponse>> alertFieldMap = pluginAlertFieldService.getResponseByPluginId(id)
             .stream().collect(Collectors.groupingBy(PluginConfigRuleResponse::getKey));
@@ -92,12 +92,12 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
             .build();
     }
 
-    private List<AlertRuleResponse> generateAlertRuleResponse(Map<String, List<PluginAlertRuleEntity>> alertRuleMap,
+    private List<AlertRuleResponse> generateAlertRuleResponse(Map<Integer, List<PluginAlertRuleEntity>> alertRuleMap,
         Map<String, List<PluginConfigRuleResponse>> alertFieldMap) {
         List<AlertRuleResponse> list = new ArrayList<>();
-        Iterator<Map.Entry<String, List<PluginAlertRuleEntity>>> iterator = alertRuleMap.entrySet().iterator();
+        Iterator<Map.Entry<Integer, List<PluginAlertRuleEntity>>> iterator = alertRuleMap.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<String, List<PluginAlertRuleEntity>> next = iterator.next();
+            Map.Entry<Integer, List<PluginAlertRuleEntity>> next = iterator.next();
             List<String> ruleKeys = next.getValue().stream().map(PluginAlertRuleEntity::getAlertKey)
                 .collect(Collectors.toList());
             list.add(AlertRuleResponse.builder()

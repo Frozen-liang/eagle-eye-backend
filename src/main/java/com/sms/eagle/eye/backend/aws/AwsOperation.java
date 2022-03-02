@@ -9,9 +9,10 @@ public interface AwsOperation {
 
     String createRuleAndReturnArn(TaskEntity task, TaskAlertRule taskAlertRule);
 
-    String createOrUpdateRuleTarget(TaskEntity task, PluginEntity plugin, String decryptedConfig);
+    String createOrUpdateRuleTarget(TaskEntity task, TaskAlertRule taskAlertRule, PluginEntity plugin,
+        String decryptedConfig);
 
-    void deleteRule(String ruleName);
+    void deleteRule(TaskEntity task, TaskAlertRule taskAlertRule);
 
     void removeTarget(String ruleName, List<String> targets);
 

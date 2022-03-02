@@ -17,6 +17,8 @@ public interface DataApplicationService {
 
     List<AlarmLevelResponse> getAlarmLevelResponse();
 
+    List<IdNameResponse<Integer>> getTemplateType();
+
     Optional<Long> getTaskByMappingId(String uniqueValue);
 
     Optional<Long> getTaskIdByTaskName(String uniqueValue);

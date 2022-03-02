@@ -19,6 +19,7 @@ public enum ErrorCode {
     PLUGIN_ID_IS_NOT_CORRECT("", "Can't find the corresponding plugin"),
     INVALID_TASK_SCHEDULE_UNIT_ID("", ""),
     INVALID_ALERT_FIELD_KEY("", ""),
+    INVALID_ALARM_LEVEL("", ""),
     TASK_HANDLER_IS_NOT_EXIST("", ""),
     PLUGIN_CLIENT_SHUTDOWN_ERROR("", ""),
     TASK_IS_RUNNING_AND_DELETE_ERROR("", "Task is running, please stop first"),

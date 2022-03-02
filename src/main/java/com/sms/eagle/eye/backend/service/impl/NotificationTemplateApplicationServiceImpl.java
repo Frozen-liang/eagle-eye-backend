@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationTemplateApplicationServiceImpl implements NotificationTemplateApplicationService {
 
+    private static final String DEFAULT_TEMPLATE = "";
+
     private final NotificationTemplateService notificationTemplateService;
 
     public NotificationTemplateApplicationServiceImpl(
@@ -40,7 +42,7 @@ public class NotificationTemplateApplicationServiceImpl implements NotificationT
         Optional<NotificationTemplateEntity> entityOptional = notificationTemplateService
             .getByChannelAndTemplateType(channelType, notificationTemplateType.getValue());
         return NotificationTemplateDetailResponse.builder()
-            .template(entityOptional.map(NotificationTemplateEntity::getTemplate).orElse(null))
+            .template(entityOptional.map(NotificationTemplateEntity::getTemplate).orElse(DEFAULT_TEMPLATE))
             .fieldList(notificationTemplateType.getFieldList())
             .build();
     }

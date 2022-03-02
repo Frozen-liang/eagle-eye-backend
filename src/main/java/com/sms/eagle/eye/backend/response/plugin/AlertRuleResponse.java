@@ -18,7 +18,7 @@ public class AlertRuleResponse {
      * 系统告警级别.
      */
     @NotBlank
-    private String alarmLevel;
+    private Integer alarmLevel;
     /**
      * 插件metadata 提供的告警规则的 key列表.
      */

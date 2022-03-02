@@ -134,4 +134,12 @@ public class TaskController {
         return Response.ok(taskApplicationService.getErrorRecord(taskId));
     }
 
+    /**
+     * 告警处理.
+     */
+    @PostMapping("/alarm-level/reset")
+    public Response<Boolean> resetAlarmLevel(@RequestParam Long taskId) {
+        return Response.ok(Boolean.TRUE);
+    }
+
 }

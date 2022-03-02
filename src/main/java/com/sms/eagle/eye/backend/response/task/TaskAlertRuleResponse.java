@@ -1,5 +1,6 @@
 package com.sms.eagle.eye.backend.response.task;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sms.eagle.eye.backend.response.plugin.PluginSelectOptionResponse;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -20,5 +21,6 @@ public class TaskAlertRuleResponse {
     private List<PluginSelectOptionResponse> options;
 
     private Integer scheduleInterval;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Integer scheduleUnit;
 }

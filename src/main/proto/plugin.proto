@@ -25,6 +25,7 @@ enum FieldType{
   LOG_EDITOR = 4;
   RULE_EDITOR = 5;
   RULE_SINGLE_EDITOR = 6;
+  EMAIL_INPUT = 7;
 }
 
 //enum ThresholdType{
@@ -34,13 +35,6 @@ enum FieldType{
 //  LESS_THAN_OR_EQUAL = 3; //Less than or equal to the configured threshold.
 //  GREATER_THAN_OR_EQUAL = 4; //Greater than or equal to the configured threshold. ThresholdType value is not applicable for MissingData and ResolvedMissingData triggerTypes and will be ignored if specified.
 //}
-
-enum ScheduleUnit{
-  MINUTE = 0;
-  HOUR = 1;
-  DAY = 2;
-  MONTH = 3;
-}
 
 message ConfigField{
   string key = 1;
@@ -66,7 +60,7 @@ message SelectOptionItem {
 message AlertRule {
   string alarmLevel = 1;
   string rule = 2;
-  string interval = 3;
+  int32 interval = 3;
 }
 
 message CreateTaskRequest{
@@ -74,8 +68,7 @@ message CreateTaskRequest{
   string name = 2;
   string description = 3;
   string config = 4;
-  //int32 interval = 5;
-  repeated AlertRule rules = 6;
+  repeated AlertRule rules = 5;
 }
 
 message CreateTaskResponse{
@@ -100,7 +93,7 @@ message UpdateTaskRequest{
   string name = 2;
   string description = 3;
   string config = 4;
-  int32 interval = 5;
+  repeated AlertRule rules = 5;
 }
 
 

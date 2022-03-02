@@ -34,28 +34,32 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     public void startTask(TaskOperationRequest request) {
         request.getAlertRules().forEach(taskAlertRule -> {
             String ruleArn = awsOperation.createRuleAndReturnArn(request.getTask(), taskAlertRule);
+            generalOperation(ruleArn, request.getTask(),
+                request.getPlugin(), request.getDecryptedConfig(), taskAlertRule);
         });
-
-        generalOperation(ruleArn, request);
     }
 
-    /**
-     *
-     */
     @Override
     public void stopTask(TaskOperationRequest request) {
-        Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(request.getTask().getId());
-        awsRuleOptional.ifPresentOrElse(ruleArn -> {
-            removeRuleTargetIfPresent(request.getTask());
-            awsOperation.deleteRule(request.getTask().getName());
-            log.info("delete event bridge, {}", ruleArn);
-        }, () -> log.info("delete error"));
+        request.getAlertRules().forEach(taskAlertRule -> {
+            Optional<String> awsRuleOptional = thirdPartyMappingService
+                .getAwsRuleArnByTaskAlertRuleId(taskAlertRule.getRuleId());
+            awsRuleOptional.ifPresentOrElse(ruleArn -> {
+                removeRuleTargetIfPresent(request.getTask(), taskAlertRule);
+                awsOperation.deleteRule(request.getTask(), taskAlertRule);
+                log.info("delete event bridge, {}", ruleArn);
+            }, () -> log.info("delete error"));
+        });
     }
 
     @Override
     public void updateTask(TaskOperationRequest request) {
-        Optional<String> awsRuleOptional = thirdPartyMappingService.getAwsRuleArnByTaskId(request.getTask().getId());
-        awsRuleOptional.ifPresent(ruleArn -> generalOperation(ruleArn, request));
+        request.getAlertRules().forEach(taskAlertRule -> {
+            Optional<String> awsRuleOptional =
+                thirdPartyMappingService.getAwsRuleArnByTaskAlertRuleId(taskAlertRule.getRuleId());
+            awsRuleOptional.ifPresent(ruleArn -> generalOperation(
+                ruleArn, request.getTask(), request.getPlugin(), request.getDecryptedConfig(), taskAlertRule));
+        });
     }
 
     @Override
@@ -63,20 +67,19 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
         return Boolean.FALSE;
     }
 
-    // 记录与 ruleArn 与 TaskAlertRule 的对应关系，并将 lambda 绑定至 ruleTarget.
+    /**
+     * 记录与 ruleArn 与 TaskAlertRule 的对应关系，并将 lambda 绑定至 ruleTarget.
+     */
     private void generalOperation(String ruleArn, TaskEntity task,
         PluginEntity plugin, String decryptedConfig, TaskAlertRule taskAlertRule) {
-
-        removeRuleTargetIfPresent(request.getTask());
-        String targetId = awsOperation.createOrUpdateRuleTarget(
-            request.getTask(), request.getPlugin(), request.getDecryptedConfig());
-
+        removeRuleTargetIfPresent(task, taskAlertRule);
+        String targetId = awsOperation.createOrUpdateRuleTarget(task, taskAlertRule, plugin, decryptedConfig);
         thirdPartyMappingService.addAwsRuleMapping(taskAlertRule.getRuleId(), ruleArn);
-        thirdPartyMappingService.addAwsRuleTargetMapping(request.getTask().getId(), targetId);
+        thirdPartyMappingService.addAwsRuleTargetMapping(taskAlertRule.getRuleId(), targetId);
     }
 
     private void removeRuleTargetIfPresent(TaskEntity task, TaskAlertRule taskAlertRule) {
-        List<String> ruleTargetList = thirdPartyMappingService.getAwsRuleTargetList(task.getId());
+        List<String> ruleTargetList = thirdPartyMappingService.getAwsRuleTargetList(taskAlertRule.getRuleId());
         if (CollectionUtils.isNotEmpty(ruleTargetList)) {
             awsOperation.removeTarget(task.getName(), ruleTargetList);
             thirdPartyMappingService.removeAwsRuleTargetMapping(task.getId());

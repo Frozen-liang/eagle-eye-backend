@@ -22,7 +22,7 @@ public class PluginAlarmLevelMappingEntity implements Serializable {
     @TableId
     private Long id;
     private Long pluginId;
-    private String systemLevel;
+    private Integer systemLevel;
     private String mappingLevel;
 
     private LocalDateTime utcCreateTime;

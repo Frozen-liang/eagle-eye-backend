@@ -24,7 +24,7 @@ public class TaskAlertRuleEntity implements Serializable {
     private Long id;
     private Long taskId;
     private Integer alarmLevel;
-    private String alertRule;
+    private String alertRules;
 
     // TODO Refactor
     private Integer scheduleInterval;

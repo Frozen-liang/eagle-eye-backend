@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AlarmLevelMappingResponse {
 
-    private String systemLevel;
+    private Integer systemLevel;
     private String mappingLevel;
 }

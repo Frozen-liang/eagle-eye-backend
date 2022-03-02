@@ -31,7 +31,7 @@ public class TaskAlertRuleRequest {
      */
     @NotNull
     @JsonDeserialize(using = KeepAsJsonDeserializer.class)
-    private String alertRule;
+    private String alertRules;
     /**
      * 任务间隔数值.
      */
