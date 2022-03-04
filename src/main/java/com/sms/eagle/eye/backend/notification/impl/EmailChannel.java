@@ -60,7 +60,7 @@ public class EmailChannel implements Channel {
     }
 
     /**
-     * 从 channelInput 获取 subject、receiver、copyTo
+     * 从 channelInput 获取 subject、receiver、copyTo.
      */
     @Override
     public boolean notify(NotificationEvent event) {

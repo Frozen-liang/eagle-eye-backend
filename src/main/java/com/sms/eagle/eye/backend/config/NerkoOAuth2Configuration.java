@@ -15,20 +15,12 @@ public class NerkoOAuth2Configuration {
 
     public static final String ACCESS_TOKEN = "accessToken";
 
-    private final NerkoOAuth2Properties nerkoOAuth2Properties;
-
-    public NerkoOAuth2Configuration(NerkoOAuth2Properties nerkoOAuth2Properties) {
-        this.nerkoOAuth2Properties = nerkoOAuth2Properties;
-    }
-
     @Bean
     @Qualifier(ACCESS_TOKEN)
     public RestTemplate accessTokenRestTemplate() {
         return new RestTemplateBuilder()
             .setConnectTimeout(Duration.ofSeconds(15))
             .setReadTimeout(Duration.ofSeconds(5))
-            .additionalInterceptors(new BasicAuthenticationInterceptor(
-                nerkoOAuth2Properties.getClientId(), nerkoOAuth2Properties.getClientSecret()))
             .build();
     }
 
