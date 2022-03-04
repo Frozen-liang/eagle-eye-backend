@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sms.eagle.eye.backend.domain.mapper.PermissionGroupMapper">
+
+
+    <select id="page" resultMap="pageMap">
+        select
+        pg.id,
+        pg.name,
+        p.id permissionId,
+        p.name permissionName
+        from permission_group pg
+        left join permission_group_conn pgc on pg.id = pgc.group_id
+        left join permission p on pgc.permission_id = p.id
+        <where>
+            pg.is_deleted = false
+            <if test="request != null">
+                <if test="request.name != null and request.name != ''">
+                    and pg.name ilike ('%' || #{request.name} || '%')
+                </if>
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="pageMap" type="com.sms.eagle.eye.backend.response.permission.PermissionGroupResponse">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <collection property="permissions"
+            ofType="com.sms.eagle.eye.backend.response.permission.PermissionResponse">
+            <id property="id" column="permissionId"/>
+            <result property="name" column="permissionName"/>
+        </collection>
+    </resultMap>
+
+</mapper>

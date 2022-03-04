@@ -178,15 +178,14 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
-     * TODO remove
-     * 更新数据库中的任务执行频率信息 如果任务正在运行中，则通知任务更新其执行频率.
+     * TODO remove 更新数据库中的任务执行频率信息 如果任务正在运行中，则通知任务更新其执行频率.
      */
     @Override
     public boolean updateSchedule(TaskScheduleRequest request) {
         taskService.updateTaskEntity(TaskEntity.builder()
             .id(request.getId())
-//            .scheduleUnit(request.getScheduleUnit())
-//            .scheduleInterval(request.getScheduleInterval())
+            //.scheduleUnit(request.getScheduleUnit())
+            //.scheduleInterval(request.getScheduleInterval())
             .build());
         updateTaskIfIsRunning(request.getId(), taskService.getTaskStatusById(request.getId()));
         return true;
@@ -251,7 +250,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
-     * 根据 任务id、告警级别 获取 告警规则
+     * 根据 任务id、告警级别 获取 告警规则.
      */
     @Override
     public TaskAlertRuleResponse getAlertRule(Long taskId, Integer alarmLevel) {
