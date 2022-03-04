@@ -7,12 +7,14 @@ import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_NAME_HAS_ALREAD
 import static com.sms.eagle.eye.backend.handler.impl.TaskHandlerProxy.TASK_HANDLER_PROXY;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.sms.eagle.eye.backend.common.enums.AlarmLevel;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.convert.ConfigMetadataConverter;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskAlertRuleEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.domain.service.InvokeErrorRecordService;
+import com.sms.eagle.eye.backend.domain.service.PluginAlarmLevelMappingService;
 import com.sms.eagle.eye.backend.domain.service.PluginAlertFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
@@ -26,6 +28,7 @@ import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.handler.TaskHandler;
 import com.sms.eagle.eye.backend.model.ConfigMetadata;
 import com.sms.eagle.eye.backend.model.CustomPage;
+import com.sms.eagle.eye.backend.model.TaskAlertRule;
 import com.sms.eagle.eye.backend.request.task.TaskAlertRuleRequest;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
@@ -69,6 +72,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     private final TaskGroupService taskGroupService;
     private final TaskGroupMappingService taskGroupMappingService;
     private final TaskAlertRuleService taskAlertRuleService;
+    private final PluginAlarmLevelMappingService pluginAlarmLevelMappingService;
 
     public TaskApplicationServiceImpl(@Qualifier(TASK_HANDLER_PROXY) TaskHandler taskHandler,
         ConfigMetadataConverter configMetadataConverter,
@@ -81,7 +85,8 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         TaskTagMappingService taskTagMappingService,
         TaskGroupService taskGroupService,
         TaskGroupMappingService taskGroupMappingService,
-        TaskAlertRuleService taskAlertRuleService) {
+        TaskAlertRuleService taskAlertRuleService,
+        PluginAlarmLevelMappingService pluginAlarmLevelMappingService) {
         this.taskHandler = taskHandler;
         this.configMetadataConverter = configMetadataConverter;
         this.configMetadataResolver = configMetadataResolver;
@@ -95,6 +100,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         this.taskGroupService = taskGroupService;
         this.taskGroupMappingService = taskGroupMappingService;
         this.taskAlertRuleService = taskAlertRuleService;
+        this.pluginAlarmLevelMappingService = pluginAlarmLevelMappingService;
     }
 
     @Override
@@ -145,7 +151,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Override
     public TaskPluginConfigResponse getPluginConfigByTaskId(Long taskId) {
         TaskEntity taskEntity = taskService.getEntityById(taskId);
-        Map<String, String> configMap = configMetadataResolver.convertConfigToMap(taskEntity.getPluginConfig());
+        Map<String, Object> configMap = configMetadataResolver.convertConfigToMap(taskEntity.getPluginConfig());
         List<PluginConfigFieldWithValueResponse> configFieldList = pluginConfigFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream().map(pluginConfigField -> {
 
@@ -171,7 +177,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
             .getListByPluginId(taskEntity.getPluginId()).stream()
             .map(configMetadataConverter::fromConfigField).collect(Collectors.toList());
         taskEntity.setPluginConfig(configMetadataResolver
-            .checkAndEncrypt(configFieldList, request.getPluginConfig(), taskEntity.getPluginConfig()));
+            .checkAndEncrypt(configFieldList, request.getPluginConfig()));
         taskService.updateTaskEntity(taskEntity);
         updateTaskIfIsRunning(request.getId(), TaskStatus.resolve(taskEntity.getStatus()));
         return true;
@@ -258,7 +264,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         Optional<TaskAlertRuleEntity> alertRuleOptional = taskAlertRuleService
             .getByTaskIdAndAlertLevel(taskId, alarmLevel);
         String alertRule = alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null);
-        Map<String, String> ruleMap = configMetadataResolver.convertConfigToMap(alertRule);
+        Map<String, Object> ruleMap = configMetadataResolver.convertConfigToMap(alertRule);
 
         List<PluginConfigRuleWithValueResponse> rules = pluginAlertFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream()
@@ -281,13 +287,11 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Override
     public boolean updateAlertRule(TaskAlertRuleRequest request) {
         TaskEntity taskEntity = taskService.getEntityById(request.getTaskId());
-        Optional<TaskAlertRuleEntity> alertRuleOptional = taskAlertRuleService
-            .getByTaskIdAndAlertLevel(request.getTaskId(), request.getAlarmLevel());
+
         List<ConfigMetadata> configMetadata = pluginAlertFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream()
             .map(configMetadataConverter::fromAlertField).collect(Collectors.toList());
-        String encryptValue = configMetadataResolver.checkAndEncrypt(configMetadata,
-            request.getAlertRules(), alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null));
+        String encryptValue = configMetadataResolver.checkAndEncrypt(configMetadata, request.getAlertRules());
         request.setAlertRules(encryptValue);
         taskAlertRuleService.updateByRequest(request);
         return true;
@@ -299,10 +303,29 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         List<ConfigMetadata> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId()).stream()
             .map(configMetadataConverter::fromConfigField).collect(Collectors.toList());
         String config = configMetadataResolver.decryptToString(configFields, task.getPluginConfig());
+
+        List<ConfigMetadata> ruleFields = pluginAlertFieldService.getListByPluginId(task.getPluginId()).stream()
+            .map(configMetadataConverter::fromAlertField).collect(Collectors.toList());
+        List<TaskAlertRuleEntity> taskAlertRuleList = taskAlertRuleService.getByTaskId(taskId);
+        List<TaskAlertRule> taskAlertRules = taskAlertRuleList.stream().map(taskAlertRuleEntity -> {
+            String alarmLevel = pluginAlarmLevelMappingService.getMappingLevelByPluginIdAndSystemLevel(
+                    task.getPluginId(), taskAlertRuleEntity.getAlarmLevel())
+                .orElse(AlarmLevel.resolve(taskAlertRuleEntity.getAlarmLevel()).getName());
+            return TaskAlertRule.builder()
+                .ruleId(taskAlertRuleEntity.getId())
+                .alarmLevel(alarmLevel)
+                .decryptedAlertRule(configMetadataResolver
+                    .decryptToString(ruleFields, taskAlertRuleEntity.getAlertRules()))
+                .scheduleInterval(taskAlertRuleEntity.getScheduleInterval())
+                .scheduleUnit(taskAlertRuleEntity.getScheduleUnit())
+                .build();
+        }).collect(Collectors.toList());
+
         return TaskOperationRequest.builder()
             .task(task)
             .plugin(plugin)
             .decryptedConfig(config)
+            .alertRules(taskAlertRules)
             .build();
     }
 }

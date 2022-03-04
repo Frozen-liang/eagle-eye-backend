@@ -7,6 +7,7 @@ import com.sms.eagle.eye.backend.domain.entity.TaskAlertRuleEntity;
 import com.sms.eagle.eye.backend.domain.mapper.TaskAlertRuleMapper;
 import com.sms.eagle.eye.backend.domain.service.TaskAlertRuleService;
 import com.sms.eagle.eye.backend.request.task.TaskAlertRuleRequest;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,11 @@ public class TaskAlertRuleServiceImpl extends ServiceImpl<TaskAlertRuleMapper, T
             request.getTaskId(), request.getAlarmLevel());
         entityOptional.ifPresent(taskAlertRuleEntity -> entity.setId(taskAlertRuleEntity.getId()));
         saveOrUpdate(entity);
+    }
+
+    @Override
+    public List<TaskAlertRuleEntity> getByTaskId(Long taskId) {
+        return list(Wrappers.<TaskAlertRuleEntity>lambdaQuery().eq(TaskAlertRuleEntity::getTaskId, taskId));
     }
 }
 

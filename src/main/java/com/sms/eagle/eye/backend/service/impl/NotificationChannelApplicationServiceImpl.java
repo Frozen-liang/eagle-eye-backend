@@ -69,11 +69,11 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
     public ChannelDetailResponse getByChannelId(Long channelId) {
         NotificationChannelEntity entity = notificationChannelService.getEntityById(channelId);
         List<ChannelFieldResponse> fields = getConfigFieldsByType(entity.getType());
-        Map<String, String> map = configMetadataResolver.convertConfigToMap(entity.getConfig());
+        Map<String, Object> map = configMetadataResolver.convertConfigToMap(entity.getConfig());
         List<ChannelFieldWithValueResponse> config = fields.stream().map(field -> {
             ConfigMetadata metadata = ConfigMetadata.builder().build();
             BeanUtils.copyProperties(field, metadata);
-            String value = configMetadataResolver.decryptToFrontendValue(metadata, map);
+            Object value = configMetadataResolver.decryptToFrontendValue(metadata, map);
             ChannelFieldWithValueResponse response = ChannelFieldWithValueResponse.builder().build();
             BeanUtils.copyProperties(field, response);
             response.setValue(value);
@@ -95,7 +95,7 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
                 return metadata;
             })
             .collect(Collectors.toList());
-        String config = configMetadataResolver.checkAndEncrypt(metadataList, request.getConfig(), DEFAULT_VALUE);
+        String config = configMetadataResolver.checkAndEncrypt(metadataList, request.getConfig());
         request.setConfig(config);
         notificationChannelService.saveFromRequest(request);
         return true;
@@ -111,7 +111,7 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
                 return metadata;
             })
             .collect(Collectors.toList());
-        String config = configMetadataResolver.checkAndEncrypt(metadataList, request.getConfig(), entity.getConfig());
+        String config = configMetadataResolver.checkAndEncrypt(metadataList, request.getConfig());
         request.setConfig(config);
         notificationChannelService.updateFromRequest(request);
         return true;
