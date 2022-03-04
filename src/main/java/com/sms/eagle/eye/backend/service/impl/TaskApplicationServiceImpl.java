@@ -190,8 +190,6 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     public boolean updateSchedule(TaskScheduleRequest request) {
         taskService.updateTaskEntity(TaskEntity.builder()
             .id(request.getId())
-            //.scheduleUnit(request.getScheduleUnit())
-            //.scheduleInterval(request.getScheduleInterval())
             .build());
         updateTaskIfIsRunning(request.getId(), taskService.getTaskStatusById(request.getId()));
         return true;

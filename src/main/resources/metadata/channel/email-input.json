@@ -14,8 +14,8 @@
     "required": true,
     "encrypted": false,
     "defaultValue": "",
-    "order": 1,
-    "type": 1
+    "order": 2,
+    "type": 7
   },
   {
     "key": "copyTo",
@@ -23,7 +23,7 @@
     "required": false,
     "encrypted": false,
     "defaultValue": "",
-    "order": 1,
-    "type": 1
+    "order": 3,
+    "type": 7
   }
 ]
