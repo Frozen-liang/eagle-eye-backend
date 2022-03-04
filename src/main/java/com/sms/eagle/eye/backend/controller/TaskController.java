@@ -90,7 +90,7 @@ public class TaskController {
     }
 
     /**
-     * 修改任务告警规则
+     * 修改任务告警规则.
      */
     @PutMapping("/alert-rule")
     public Response<Boolean> updateAlertRule(@RequestBody TaskAlertRuleRequest request) {

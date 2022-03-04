@@ -185,8 +185,6 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     public boolean updateSchedule(TaskScheduleRequest request) {
         taskService.updateTaskEntity(TaskEntity.builder()
             .id(request.getId())
-//            .scheduleUnit(request.getScheduleUnit())
-//            .scheduleInterval(request.getScheduleInterval())
             .build());
         updateTaskIfIsRunning(request.getId(), taskService.getTaskStatusById(request.getId()));
         return true;
@@ -251,7 +249,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
-     * 根据 任务id、告警级别 获取 告警规则
+     * 根据 任务id、告警级别 获取 告警规则.
      */
     @Override
     public TaskAlertRuleResponse getAlertRule(Long taskId, Integer alarmLevel) {

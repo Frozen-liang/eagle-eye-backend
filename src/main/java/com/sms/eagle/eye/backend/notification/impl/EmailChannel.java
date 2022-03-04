@@ -1,6 +1,5 @@
 package com.sms.eagle.eye.backend.notification.impl;
 
-import static com.sms.eagle.eye.backend.exception.ErrorCode.CHANNEL_CHECK_ERROR;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.UN_SUPPORT_OPERATION;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,12 +9,10 @@ import com.sms.eagle.eye.backend.model.NotificationEvent;
 import com.sms.eagle.eye.backend.notification.Channel;
 import com.sms.eagle.eye.backend.notification.Notification;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
-import io.vavr.control.Try;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import javax.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,23 +57,18 @@ public class EmailChannel implements Channel {
     }
 
     /**
-     * 从 channelInput 获取 subject、receiver、copyTo
+     * 从 channelInput 获取 subject、receiver、copyTo.
      */
     @Override
     public boolean notify(NotificationEvent event) {
         String content = engine.process(event.getContentTemplate(),
             getTemplateContext(event.getVariableKey(), event.getVariable()));
 
-        Map<String, String> inputMap = convertToMap(objectMapper, event.getChannelInput());
+        Map<String, Object> inputMap = convertToMap(objectMapper, event.getChannelInput());
 
-        Optional<String> subjectOptional = Optional.ofNullable(inputMap.get(SUBJECT_KEY));
-        Optional<String> receiverOptional = Optional.ofNullable(inputMap.get(RECEIVER_KEY));
-        Optional<String> copyToOptional = Optional.ofNullable(inputMap.get(COPY_TO_KEY));
-
-        String subject = subjectOptional.orElseThrow(() -> new EagleEyeException(CHANNEL_CHECK_ERROR, "Subject"));
-        List<String> to = receiverOptional.map(this::toArray)
-            .orElseThrow(() -> new EagleEyeException(CHANNEL_CHECK_ERROR, "Receiver"));
-        List<String> cc = copyToOptional.map(this::toArray).orElse(Collections.emptyList());
+        String subject = getValueFromMap(inputMap, SUBJECT_KEY, String.class, true, null);
+        List<String> receiver = getValueFromMap(inputMap, RECEIVER_KEY, List.class, true, null);
+        List<String> copyTo = getValueFromMap(inputMap, COPY_TO_KEY, List.class, false, Collections.emptyList());
 
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
@@ -84,8 +76,8 @@ public class EmailChannel implements Channel {
                 MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                 StandardCharsets.UTF_8.name());
 
-            helper.setTo(to.toArray(new String[]{}));
-            helper.setCc(cc.toArray(new String[]{}));
+            helper.setTo(receiver.toArray(new String[]{}));
+            helper.setCc(copyTo.toArray(new String[]{}));
             helper.setText(content, true);
             helper.setSubject(subject);
             helper.setFrom(mailProperties.getUsername());
@@ -94,10 +86,6 @@ public class EmailChannel implements Channel {
             exception.printStackTrace();
         }
         return false;
-    }
-
-    private List<String> toArray(String email) {
-        return Try.of(() -> objectMapper.readValue(email, List.class)).getOrElse(Collections.emptyList());
     }
 
 }

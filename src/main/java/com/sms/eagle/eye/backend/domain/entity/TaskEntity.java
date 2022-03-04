@@ -28,10 +28,6 @@ public class TaskEntity implements Serializable {
     private String project;
     private Long pluginId;
 
-    // TODO Refactor
-//    private Integer scheduleInterval;
-//    private Integer scheduleUnit;
-
     private String pluginConfig;
     private Integer status;
     private Integer alarmLevel;

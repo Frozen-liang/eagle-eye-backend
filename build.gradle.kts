@@ -116,6 +116,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:$jasyptVersion")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    implementation("io.github.openfeign:feign-jackson")
     implementation(platform("software.amazon.awssdk:bom:2.17.100"))
     implementation("software.amazon.awssdk:auth")
     implementation("software.amazon.awssdk:regions")

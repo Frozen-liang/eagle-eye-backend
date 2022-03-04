@@ -1,7 +1,7 @@
 [
   {
-    "key": "username",
-    "labelName": "Username",
+    "key": "corp_id",
+    "labelName": "corp id",
     "required": true,
     "encrypted": false,
     "defaultValue": "",
@@ -9,12 +9,21 @@
     "type": 1
   },
   {
-    "key": "password",
-    "labelName": "Password",
+    "key": "corp_secret",
+    "labelName": "corp secret",
     "required": true,
     "encrypted": true,
     "defaultValue": "",
-    "order": 1,
+    "order": 2,
+    "type": 1
+  },
+  {
+    "key": "agent_id",
+    "labelName": "Agent Id",
+    "required": true,
+    "encrypted": false,
+    "defaultValue": "",
+    "order": 3,
     "type": 1
   }
 ]
