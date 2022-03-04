@@ -1,5 +1,6 @@
 package com.sms.eagle.eye.backend.controller;
 
+import com.sms.eagle.eye.backend.model.NotificationEvent;
 import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.task.TaskAlertNotificationAddRequest;
 import com.sms.eagle.eye.backend.request.task.TaskAlertNotificationUpdateRequest;
@@ -53,10 +54,9 @@ public class TaskNotificationController {
         return Response.ok(taskNotificationApplicationService.deleteAlertNotification(alertNotificationId));
     }
 
-    @GetMapping("/test")
-    public Response<Boolean> test() {
-        taskNotificationApplicationService.test();
+    @PostMapping("/test")
+    public Response<Boolean> test(@RequestBody NotificationEvent event) {
+        taskNotificationApplicationService.test(event);
         return Response.ok(Boolean.TRUE);
     }
-
 }

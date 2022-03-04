@@ -1,8 +1,10 @@
 package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.model.Response;
-import com.sms.eagle.eye.backend.response.UserResponse;
+import com.sms.eagle.eye.backend.response.user.UserPermissionGroupResponse;
+import com.sms.eagle.eye.backend.response.user.UserResponse;
 import com.sms.eagle.eye.backend.service.OAuth2ApplicationService;
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,4 +27,10 @@ public class OAuth2Controller {
     public Response<UserResponse> getUserInfo() {
         return Response.ok(oauth2ApplicationService.getUserInfo());
     }
+
+    @GetMapping("/users")
+    public Response<List<UserPermissionGroupResponse>> getUsers() {
+        return Response.ok(oauth2ApplicationService.getUsers());
+    }
+
 }
