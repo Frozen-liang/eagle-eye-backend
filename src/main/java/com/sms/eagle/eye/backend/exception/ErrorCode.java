@@ -17,6 +17,7 @@ public enum ErrorCode {
     TASK_ALERT_NOTIFICATION_ID_IS_NOT_CORRECT("", "Can't find the corresponding alert notification"),
     GROUP_ID_IS_NOT_CORRECT("", "Can't find the corresponding group"),
     PLUGIN_ID_IS_NOT_CORRECT("", "Can't find the corresponding plugin"),
+    MUST_USE_PASSWORD_VAULT("", "You need to use the passwords in the password vault"),
     INVALID_TASK_SCHEDULE_UNIT_ID("", ""),
     INVALID_ALERT_FIELD_KEY("", ""),
     INVALID_ALARM_LEVEL("", ""),
@@ -33,7 +34,8 @@ public enum ErrorCode {
     REMOVE_CHILD_BEFORE_DELETE_GROUP("", "Please delete sub-Groups first"),
     DATE_FORMAT_ERROR("", "Please enter the correct date format: yy-MM-dd"),
     GET_METADATA_ERROR("", "Failed to get metadata"),
-    CHANNEL_CHECK_ERROR("", "%s can not be empty");
+    CHANNEL_CHECK_ERROR("", "%s can not be empty"),
+    WECOM_ERROR("", "Failed to send WeCom message: %s");
 
     private final String code;
     private final String message;

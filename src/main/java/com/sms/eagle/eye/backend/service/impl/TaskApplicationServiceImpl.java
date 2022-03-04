@@ -151,7 +151,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Override
     public TaskPluginConfigResponse getPluginConfigByTaskId(Long taskId) {
         TaskEntity taskEntity = taskService.getEntityById(taskId);
-        Map<String, String> configMap = configMetadataResolver.convertConfigToMap(taskEntity.getPluginConfig());
+        Map<String, Object> configMap = configMetadataResolver.convertConfigToMap(taskEntity.getPluginConfig());
         List<PluginConfigFieldWithValueResponse> configFieldList = pluginConfigFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream().map(pluginConfigField -> {
 
@@ -177,7 +177,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
             .getListByPluginId(taskEntity.getPluginId()).stream()
             .map(configMetadataConverter::fromConfigField).collect(Collectors.toList());
         taskEntity.setPluginConfig(configMetadataResolver
-            .checkAndEncrypt(configFieldList, request.getPluginConfig(), taskEntity.getPluginConfig()));
+            .checkAndEncrypt(configFieldList, request.getPluginConfig()));
         taskService.updateTaskEntity(taskEntity);
         updateTaskIfIsRunning(request.getId(), TaskStatus.resolve(taskEntity.getStatus()));
         return true;
@@ -265,7 +265,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         Optional<TaskAlertRuleEntity> alertRuleOptional = taskAlertRuleService
             .getByTaskIdAndAlertLevel(taskId, alarmLevel);
         String alertRule = alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null);
-        Map<String, String> ruleMap = configMetadataResolver.convertConfigToMap(alertRule);
+        Map<String, Object> ruleMap = configMetadataResolver.convertConfigToMap(alertRule);
 
         List<PluginConfigRuleWithValueResponse> rules = pluginAlertFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream()
@@ -288,13 +288,11 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Override
     public boolean updateAlertRule(TaskAlertRuleRequest request) {
         TaskEntity taskEntity = taskService.getEntityById(request.getTaskId());
-        Optional<TaskAlertRuleEntity> alertRuleOptional = taskAlertRuleService
-            .getByTaskIdAndAlertLevel(request.getTaskId(), request.getAlarmLevel());
+
         List<ConfigMetadata> configMetadata = pluginAlertFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream()
             .map(configMetadataConverter::fromAlertField).collect(Collectors.toList());
-        String encryptValue = configMetadataResolver.checkAndEncrypt(configMetadata,
-            request.getAlertRules(), alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null));
+        String encryptValue = configMetadataResolver.checkAndEncrypt(configMetadata, request.getAlertRules());
         request.setAlertRules(encryptValue);
         taskAlertRuleService.updateByRequest(request);
         return true;

@@ -30,11 +30,11 @@ import org.springframework.stereotype.Service;
 public class PasswordStoreServiceImpl extends ServiceImpl<PasswordStoreMapper, PasswordStoreEntity>
     implements PasswordStoreService {
 
-    public static final String PASSWORD_REGEX = "\\{\\{(.*?)\\}\\}";
+    public static final String PASSWORD_REGEX = "EAGLE#(.*?)#VAULT";
     public static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX, Pattern.CASE_INSENSITIVE);
     public static final Integer PASSWORD_KEY_GROUP = 1;
 
-    private static final String KEY_FORMAT = "{{%s}}";
+    private static final String KEY_FORMAT = "EAGLE#%s#VAULT";
 
     private final StringEncryptor stringEncryptor;
     private final PasswordStoreConverter passwordStoreConverter;

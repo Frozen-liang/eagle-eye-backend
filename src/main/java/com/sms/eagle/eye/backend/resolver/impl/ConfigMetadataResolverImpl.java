@@ -3,6 +3,7 @@ package com.sms.eagle.eye.backend.resolver.impl;
 import static com.sms.eagle.eye.backend.domain.service.impl.PasswordStoreServiceImpl.PASSWORD_KEY_GROUP;
 import static com.sms.eagle.eye.backend.domain.service.impl.PasswordStoreServiceImpl.PASSWORD_PATTERN;
 import static com.sms.eagle.eye.backend.domain.service.impl.PasswordStoreServiceImpl.PASSWORD_REGEX;
+import static com.sms.eagle.eye.backend.exception.ErrorCode.MUST_USE_PASSWORD_VAULT;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.PLUGIN_CONFIG_FIELD_MISSING_ERROR;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +19,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.StringEncryptor;
 import org.springframework.stereotype.Component;
 
@@ -40,40 +40,38 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
     }
 
     @Override
-    public Map<String, String> convertConfigToMap(String config) {
+    public Map<String, Object> convertConfigToMap(String config) {
         return Try.of(() -> objectMapper.readValue(config, Map.class)).getOrElse(new HashMap<>());
     }
 
+    /**
+     * 检查是否必须
+     * 如 加密 则需引用密码库中的密码.
+     */
     @Override
-    public String checkAndEncrypt(List<ConfigMetadata> metadataList, String config, String oldConfig) {
-        Map<String, String> map = convertConfigToMap(config);
-        Map<String, String> oldMap = convertConfigToMap(oldConfig);
+    public String checkAndEncrypt(List<ConfigMetadata> metadataList, String config) {
+        Map<String, Object> map = convertConfigToMap(config);
         metadataList.forEach(metadata -> {
-            Optional<String> valueOptional = Optional.ofNullable(map.get(metadata.getKey()));
+            Optional<Object> valueOptional = Optional.ofNullable(map.get(metadata.getKey()));
             valueOptional.ifPresentOrElse(value -> {
-                if (isFieldNeedEncrypted(metadata)) {
-                    if (isSensitiveFlag(value)) {
-                        replaceWithPreConfigOrSensitiveFlag(metadata.getKey(), oldMap, map);
-                    } else if (isNoReferencedPassword(value)) {
-                        map.put(metadata.getKey(), stringEncryptor.encrypt(value));
-                    }
+                if (isFieldNeedEncrypted(metadata) && isNoReferencedPassword(value)) {
+                    throw new EagleEyeException(MUST_USE_PASSWORD_VAULT);
                 }
             }, () -> throwExceptionWhileFieldIsRequired(metadata));
         });
-        return Try.of(() -> objectMapper.writeValueAsString(map)).getOrElse(DEFAULT_MAP);
+        return config;
     }
 
     @Override
-    public String decryptToFrontendValue(ConfigMetadata metadata, Map<String, String> configMap) {
-        String value = configMap.get(metadata.getKey());
-        return setSensitiveIfNecessary(value, metadata);
+    public Object decryptToFrontendValue(ConfigMetadata metadata, Map<String, Object> configMap) {
+        return configMap.get(metadata.getKey());
     }
 
     @Override
     public String decryptToString(List<ConfigMetadata> metadataList, String config) {
-        Map<String, String> map = convertConfigToMap(config);
+        Map<String, Object> map = convertConfigToMap(config);
         metadataList.forEach(metadata -> {
-            Optional<String> valueOptional = Optional.ofNullable(map.get(metadata.getKey()));
+            Optional<Object> valueOptional = Optional.ofNullable(map.get(metadata.getKey()));
             valueOptional.ifPresentOrElse(
                 value -> parsingRefOrElseDecrypt(value, map, metadata),
                 () -> throwExceptionWhileFieldIsRequired(metadata));
@@ -89,44 +87,37 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
     }
 
     /**
-     * 判断值是否是敏感值标志.
-     */
-    private boolean isSensitiveFlag(String value) {
-        return Objects.equals(value, SENSITIVE_FLAG);
-    }
-
-    /**
      * 是否引用密钥库.
      */
-    private boolean isNoReferencedPassword(String value) {
-        return !Pattern.matches(PASSWORD_REGEX, value);
+    private boolean isNoReferencedPassword(Object value) {
+        if (value instanceof String) {
+            return !Pattern.matches(PASSWORD_REGEX, (String) value);
+        }
+        return true;
     }
 
     /**
      * 获取引用的 Password Key.
      */
-    private Optional<String> getReferenceKey(String value) {
-        Matcher matcher = PASSWORD_PATTERN.matcher(value);
-        if (matcher.find()) {
-            String group = matcher.group(PASSWORD_KEY_GROUP);
-            return Optional.ofNullable(group);
+    private Optional<String> getReferenceKey(Object value) {
+        if (value instanceof String) {
+            Matcher matcher = PASSWORD_PATTERN.matcher((String) value);
+            if (matcher.find()) {
+                String group = matcher.group(PASSWORD_KEY_GROUP);
+                return Optional.ofNullable(group);
+            }
         }
         return Optional.empty();
     }
 
-    private void replaceWithPreConfigOrSensitiveFlag(String key,
-        Map<String, String> oldConfigMap, Map<String, String> newConfigMap) {
-        Optional.ofNullable(oldConfigMap.get(key))
-            .ifPresentOrElse(oldConfig -> newConfigMap.put(key, oldConfig),
-                () -> newConfigMap.put(key, stringEncryptor.encrypt(SENSITIVE_FLAG)));
-    }
-
-    private void parsingRefOrElseDecrypt(String value, Map<String, String> configMap,
+    private void parsingRefOrElseDecrypt(Object value, Map<String, Object> configMap,
         ConfigMetadata metadata) {
         if (isFieldNeedEncrypted(metadata)) {
             getReferenceKey(value).ifPresentOrElse(
                 referenceKey -> configMap.put(metadata.getKey(), passwordStoreService.getValueByKey(referenceKey)),
-                () -> configMap.put(metadata.getKey(), stringEncryptor.decrypt(value)));
+                () -> {
+                    throw new EagleEyeException(MUST_USE_PASSWORD_VAULT);
+                });
         }
     }
 
@@ -137,17 +128,5 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
         if (Objects.equals(metadata.getRequired(), Boolean.TRUE)) {
             throw new EagleEyeException(PLUGIN_CONFIG_FIELD_MISSING_ERROR, metadata.getLabelName());
         }
-    }
-
-    /**
-     * 如果 - value不为空 - 字段需要加密 - 没有引用密钥库
-     * 则 将value设置为敏感值.
-     */
-    private String setSensitiveIfNecessary(String value, ConfigMetadata metadata) {
-        if (StringUtils.isNotBlank(value)
-            && isFieldNeedEncrypted(metadata) && isNoReferencedPassword(value)) {
-            return SENSITIVE_FLAG;
-        }
-        return value;
     }
 }
