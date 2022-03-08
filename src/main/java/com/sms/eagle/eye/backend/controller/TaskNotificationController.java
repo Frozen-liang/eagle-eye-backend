@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("/v1/task")
+@RequestMapping("/v1/task/alert-notification")
 public class TaskNotificationController {
 
     private final TaskNotificationApplicationService taskNotificationApplicationService;
@@ -33,18 +33,18 @@ public class TaskNotificationController {
         this.taskNotificationApplicationService = taskNotificationApplicationService;
     }
 
-    @GetMapping("/alert-notification/{taskId}")
+    @GetMapping("/{taskId}")
     public Response<List<TaskAlertNotificationResponse>> getAlertNotification(
         @PathVariable Long taskId, @RequestParam Integer alarmLevel) {
         return Response.ok(taskNotificationApplicationService.getAlertNotification(taskId, alarmLevel));
     }
 
-    @PostMapping("/alert-notification")
+    @PostMapping()
     public Response<Boolean> addAlertNotification(@RequestBody TaskAlertNotificationAddRequest request) {
         return Response.ok(taskNotificationApplicationService.addAlertNotification(request));
     }
 
-    @PutMapping("/alert-notification")
+    @PutMapping()
     public Response<Boolean> updateAlertNotification(@RequestBody TaskAlertNotificationUpdateRequest request) {
         return Response.ok(taskNotificationApplicationService.updateAlertNotification(request));
     }

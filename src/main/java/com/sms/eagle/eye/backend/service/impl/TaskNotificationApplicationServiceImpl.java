@@ -51,7 +51,12 @@ public class TaskNotificationApplicationServiceImpl implements TaskNotificationA
                     .convertConfigToMap(taskAlertNotificationEntity.getChannelInput());
 
                 TaskAlertNotificationResponse response = TaskAlertNotificationResponse.builder().build();
-                List<ChannelFieldResponse> channelFields = channel.getTaskInputFields(response.getChannelType());
+                response.setAlertNotificationId(taskAlertNotificationEntity.getId());
+                response.setChannelType(taskAlertNotificationEntity.getChannelType());
+                response.setContent(taskAlertNotificationEntity.getContent());
+
+                List<ChannelFieldResponse> channelFields = channel.getTaskInputFields(
+                    taskAlertNotificationEntity.getChannelType());
                 List<ChannelFieldWithValueResponse> inputFields = channelFields.stream().map(channelFieldResponse -> {
                     ChannelFieldWithValueResponse valueResponse = ChannelFieldWithValueResponse.builder().build();
                     BeanUtils.copyProperties(channelFieldResponse, valueResponse);
