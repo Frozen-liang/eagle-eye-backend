@@ -1,0 +1,29 @@
+[
+  {
+    "key": "corp_id",
+    "labelName": "corp id",
+    "required": true,
+    "encrypted": false,
+    "defaultValue": "",
+    "order": 1,
+    "type": 1
+  },
+  {
+    "key": "corp_secret",
+    "labelName": "corp secret",
+    "required": true,
+    "encrypted": true,
+    "defaultValue": "",
+    "order": 2,
+    "type": 1
+  },
+  {
+    "key": "agent_id",
+    "labelName": "Agent Id",
+    "required": true,
+    "encrypted": false,
+    "defaultValue": "",
+    "order": 3,
+    "type": 1
+  }
+]

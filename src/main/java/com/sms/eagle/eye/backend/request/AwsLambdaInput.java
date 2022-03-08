@@ -19,4 +19,5 @@ public class AwsLambdaInput {
     private Integer interval;
     private String pluginUrl;
     private String queueUrl;
+    private String alertRule;
 }

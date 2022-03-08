@@ -12,6 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PluginDetailResponse {
 
+    private String name;
+    private String description;
+    private Integer version;
+    private Boolean scheduleBySelf;
     /**
      * 配置字段.
      */
@@ -20,4 +24,6 @@ public class PluginDetailResponse {
      * 选择数据.
      */
     private List<PluginSelectOptionResponse> options;
+    private List<AlarmLevelMappingResponse> alarmLevelMapping;
+    private List<AlertRuleResponse> alertRule;
 }

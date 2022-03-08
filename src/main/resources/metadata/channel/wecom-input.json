@@ -1,0 +1,11 @@
+[
+  {
+    "key": "to_user",
+    "labelName": "To User",
+    "required": true,
+    "encrypted": false,
+    "defaultValue": "",
+    "order": 1,
+    "type": 7
+  }
+]

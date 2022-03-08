@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class NerkoOAuth2Properties {
 
     private String tokenEndpoint;
+    private String usersEndpoint;
     private String clientId;
     private String clientSecret;
 

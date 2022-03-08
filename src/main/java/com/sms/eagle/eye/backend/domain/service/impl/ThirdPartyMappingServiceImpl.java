@@ -41,23 +41,23 @@ public class ThirdPartyMappingServiceImpl extends ServiceImpl<ThirdPartyMappingM
     }
 
     @Override
-    public Optional<String> getAwsRuleArnByTaskId(Long taskId) {
-        return getBaseMapper().getMappingIdByTaskId(taskId, ThirdPartyType.AWS_EVENT_BRIDGE_RULE.getValue());
+    public Optional<String> getAwsRuleArnByTaskAlertRuleId(Long taskAlertRuleId) {
+        return getBaseMapper().getMappingIdByTaskId(taskAlertRuleId, ThirdPartyType.AWS_EVENT_BRIDGE_RULE.getValue());
     }
 
     @Override
-    public void addAwsRuleMapping(Long taskId, String awsRule) {
+    public void addAwsRuleMapping(Long taskAlertRuleId, String awsRule) {
         save(ThirdPartyMappingEntity.builder()
-            .taskId(taskId)
+            .taskId(taskAlertRuleId)
             .mappingId(awsRule)
             .type(ThirdPartyType.AWS_EVENT_BRIDGE_RULE.getValue())
             .build());
     }
 
     @Override
-    public void addAwsRuleTargetMapping(Long taskId, String awsRuleTargetId) {
+    public void addAwsRuleTargetMapping(Long taskAlertRuleId, String awsRuleTargetId) {
         save(ThirdPartyMappingEntity.builder()
-            .taskId(taskId)
+            .taskId(taskAlertRuleId)
             .mappingId(awsRuleTargetId)
             .type(ThirdPartyType.AWS_EVENT_BRIDGE_RULE_TARGET.getValue())
             .build());

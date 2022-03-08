@@ -11,7 +11,9 @@ public enum SelectData {
     PLUGIN("plugin", SelectData::getPluginList),
     SCHEDULE_UNIT("scheduleUnit", SelectData::getScheduleUnit),
     TASK_TAG("tag", SelectData::getTagList),
-    TASK_STATUS("taskStatus", SelectData::getTaskStatusList);
+    TASK_STATUS("taskStatus", SelectData::getTaskStatusList),
+    ALARM_LEVEL("alarmLevel", SelectData::getAlarmLevel),
+    TEMPLATE_TYPE("templateType", SelectData::getTemplateType);
 
     private final String key;
     private final Function<DataApplicationService, Object> function;
@@ -36,6 +38,14 @@ public enum SelectData {
 
     private static Object getTaskStatusList(DataApplicationService dataApplicationService) {
         return dataApplicationService.getTaskStatusList();
+    }
+
+    private static Object getAlarmLevel(DataApplicationService dataApplicationService) {
+        return dataApplicationService.getAlarmLevelResponse();
+    }
+
+    private static Object getTemplateType(DataApplicationService dataApplicationService) {
+        return dataApplicationService.getTemplateType();
     }
 
     public static Map<String, Object> getSelectData(DataApplicationService dataApplicationService) {

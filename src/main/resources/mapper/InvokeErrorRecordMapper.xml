@@ -4,4 +4,13 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sms.eagle.eye.backend.domain.mapper.InvokeErrorRecordMapper">
 
+    <select id="getErrorRecords"
+        resultType="com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse">
+        select err_message,
+               utc_create_time createTime
+        from invoke_error_record
+        where is_deleted = false
+          and task_id = #{taskId}
+        order by utc_create_time desc
+    </select>
 </mapper>

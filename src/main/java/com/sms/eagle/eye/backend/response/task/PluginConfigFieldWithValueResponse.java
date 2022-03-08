@@ -15,8 +15,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class PluginConfigFieldWithValueResponse extends PluginConfigFieldResponse {
 
-    public static final String DEFAULT_VALUE = "";
+    public static final Object DEFAULT_VALUE = "";
 
     @Builder.Default
-    private String value = DEFAULT_VALUE;
+    private Object value = DEFAULT_VALUE;
 }
