@@ -2,6 +2,8 @@ package com.sms.eagle.eye.backend.request.channel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.sms.eagle.eye.backend.common.validator.InsertGroup;
+import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.utils.KeepAsJsonDeserializer;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -16,12 +18,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NotificationChannelRequest {
 
+    @NotNull(groups = UpdateGroup.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
-    @NotBlank
+    @NotBlank(groups = {InsertGroup.class, UpdateGroup.class})
     private String name;
+    @NotNull(groups = InsertGroup.class)
     private Integer type;
-    @NotNull
+    @NotNull(groups = {InsertGroup.class, UpdateGroup.class})
     @JsonDeserialize(using = KeepAsJsonDeserializer.class)
     private String config;
 }

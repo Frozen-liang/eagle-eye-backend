@@ -48,6 +48,7 @@ public class TaskAlertNotificationAddRequest {
     /**
      * 消息内容.
      */
+    @NotNull
     private String content;
 
 }

@@ -26,7 +26,7 @@ public class NotificationTemplateApplicationServiceImpl implements NotificationT
     public NotificationTemplateResponse getTemplate(Integer channelType, Integer templateType) {
         return NotificationTemplateResponse.builder()
             .template(notificationTemplateService.getByChannelAndTemplateType(channelType, templateType)
-                .map(NotificationTemplateEntity::getTemplate).orElse(null))
+                .map(NotificationTemplateEntity::getTemplate).orElse(DEFAULT_TEMPLATE))
             .build();
     }
 
