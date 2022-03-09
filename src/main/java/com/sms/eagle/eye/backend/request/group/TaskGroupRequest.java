@@ -24,11 +24,9 @@ public class TaskGroupRequest {
     @NotNull(groups = {InsertGroup.class})
     private String name;
 
-    @NotNull(groups = {UpdateGroup.class})
     @Builder.Default
     private Integer preIndex = 0;
 
-    @NotNull(groups = {UpdateGroup.class})
     @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long parentId = ROOT_ID;

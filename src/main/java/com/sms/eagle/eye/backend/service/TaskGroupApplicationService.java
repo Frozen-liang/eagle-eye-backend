@@ -15,5 +15,7 @@ public interface TaskGroupApplicationService {
 
     boolean updateGroup(TaskGroupRequest request);
 
+    boolean rename(TaskGroupRequest request);
+
     boolean removeGroup(Long id);
 }
