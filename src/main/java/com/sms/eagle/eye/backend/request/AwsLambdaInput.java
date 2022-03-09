@@ -1,5 +1,6 @@
 package com.sms.eagle.eye.backend.request;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,5 +20,6 @@ public class AwsLambdaInput {
     private Integer interval;
     private String pluginUrl;
     private String queueUrl;
-    private String alertRule;
+    // TODO 可以改成单个，lambda也需要改.
+    private List<String> alertRule;
 }

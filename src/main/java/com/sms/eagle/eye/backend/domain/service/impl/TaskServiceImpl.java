@@ -69,8 +69,8 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, TaskEntity>
     }
 
     @Override
-    public Optional<Long> getIdByName(String name) {
-        return getBaseMapper().getIdByName(name.toLowerCase(Locale.ROOT));
+    public Optional<TaskEntity> getEntityByName(String name) {
+        return getBaseMapper().getByName(name.toLowerCase(Locale.ROOT));
     }
 
     @Override

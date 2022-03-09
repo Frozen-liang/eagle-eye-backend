@@ -18,6 +18,7 @@ import org.mapstruct.ReportingPolicy;
 public interface NotificationChannelConverter {
 
     @Mapping(target = "type", qualifiedByName = "getTypeName")
+    @Mapping(target = "createTime", source = "utcCreateTime")
     ChannelPageResponse toResponse(NotificationChannelEntity entity);
 
     @Mapping(target = "config", source = "valueFieldResponse")
