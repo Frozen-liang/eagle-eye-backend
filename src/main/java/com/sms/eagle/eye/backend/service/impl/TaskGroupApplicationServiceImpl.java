@@ -136,6 +136,12 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
         return true;
     }
 
+    @Override
+    public boolean rename(TaskGroupRequest request) {
+        taskGroupService.rename(request.getId(), request.getName());
+        return true;
+    }
+
     private boolean inSameLevel(TaskGroupRequest request, TaskGroupEntity entity) {
         return Objects.equals(request.getParentId(), entity.getParentId());
     }
