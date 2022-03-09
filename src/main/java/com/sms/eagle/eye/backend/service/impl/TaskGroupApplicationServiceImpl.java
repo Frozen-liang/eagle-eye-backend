@@ -112,12 +112,6 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
     @Transactional(rollbackFor = Exception.class)
     @Override
     public synchronized boolean updateGroup(TaskGroupRequest request) {
-        // 不移动层级.
-        if (Objects.isNull(request.getParentId())) {
-            taskGroupService.updateFromRequest(request, null);
-            return true;
-        }
-        // 需要移动层级.
         TaskGroupEntity entity = taskGroupService.getEntityById(request.getId());
         Integer index = 0;
         if (inSameLevel(request, entity)) {
