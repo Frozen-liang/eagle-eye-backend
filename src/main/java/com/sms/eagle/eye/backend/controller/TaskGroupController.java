@@ -48,6 +48,11 @@ public class TaskGroupController {
         return Response.ok(taskGroupApplicationService.updateGroup(request));
     }
 
+    @PutMapping("/name")
+    public Response<Boolean> rename(@Validated(value = UpdateGroup.class) @RequestBody TaskGroupRequest request) {
+        return Response.ok(taskGroupApplicationService.rename(request));
+    }
+
     @DeleteMapping("/{id}")
     public Response<Boolean> delete(@PathVariable Long id) {
         return Response.ok(taskGroupApplicationService.removeGroup(id));
