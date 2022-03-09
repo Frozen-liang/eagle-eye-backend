@@ -17,6 +17,7 @@ public class TaskAlertNotificationResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long alertNotificationId;
     private Integer channelType;
+    private String content;
 
     private List<ChannelFieldWithValueResponse> input;
 }

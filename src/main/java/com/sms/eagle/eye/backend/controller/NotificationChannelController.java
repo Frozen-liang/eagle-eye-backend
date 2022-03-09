@@ -1,6 +1,8 @@
 package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.common.enums.NotificationChannelType;
+import com.sms.eagle.eye.backend.common.validator.InsertGroup;
+import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.channel.NotificationChannelQueryRequest;
@@ -13,6 +15,7 @@ import com.sms.eagle.eye.backend.response.channel.ChannelTypeResponse;
 import com.sms.eagle.eye.backend.service.NotificationChannelApplicationService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -90,7 +93,8 @@ public class NotificationChannelController {
      * 添加通道实例.
      */
     @PostMapping
-    public Response<Boolean> add(@RequestBody NotificationChannelRequest request) {
+    public Response<Boolean> add(
+        @Validated(value = InsertGroup.class) @RequestBody NotificationChannelRequest request) {
         return Response.ok(notificationChannelApplicationService.addChannel(request));
     }
 
@@ -98,7 +102,8 @@ public class NotificationChannelController {
      * 编辑通道实例.
      */
     @PutMapping
-    public Response<Boolean> edit(@RequestBody NotificationChannelRequest request) {
+    public Response<Boolean> edit(
+        @Validated(value = UpdateGroup.class) @RequestBody NotificationChannelRequest request) {
         return Response.ok(notificationChannelApplicationService.updateChannel(request));
     }
 

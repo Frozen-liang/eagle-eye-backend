@@ -5,6 +5,7 @@ import static com.sms.eagle.eye.backend.exception.ErrorCode.CHANNEL_ID_IS_NOT_CO
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sms.eagle.eye.backend.aspect.DomainServiceAdvice;
+import com.sms.eagle.eye.backend.convert.NotificationChannelConverter;
 import com.sms.eagle.eye.backend.domain.entity.NotificationChannelEntity;
 import com.sms.eagle.eye.backend.domain.mapper.NotificationChannelMapper;
 import com.sms.eagle.eye.backend.domain.service.NotificationChannelService;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,13 +26,15 @@ import org.springframework.stereotype.Service;
 public class NotificationChannelServiceImpl extends ServiceImpl<NotificationChannelMapper, NotificationChannelEntity>
     implements NotificationChannelService {
 
+    private final NotificationChannelConverter converter;
+
+    public NotificationChannelServiceImpl(NotificationChannelConverter converter) {
+        this.converter = converter;
+    }
+
     @Override
     public List<ChannelListResponse> getList() {
-        return list().stream().map(entity -> {
-            ChannelListResponse response = ChannelListResponse.builder().build();
-            BeanUtils.copyProperties(entity, response);
-            return response;
-        }).collect(Collectors.toList());
+        return list().stream().map(converter::toListResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -48,17 +50,14 @@ public class NotificationChannelServiceImpl extends ServiceImpl<NotificationChan
 
     @Override
     public void saveFromRequest(NotificationChannelRequest request) {
-        NotificationChannelEntity entity = NotificationChannelEntity.builder().build();
-        BeanUtils.copyProperties(request, entity);
+        NotificationChannelEntity entity = converter.toEntity(request);
         entity.setCreator(SecurityUtil.getCurrentUser().getUsername());
         save(entity);
     }
 
     @Override
     public void updateFromRequest(NotificationChannelRequest request) {
-        NotificationChannelEntity entity = NotificationChannelEntity.builder().build();
-        BeanUtils.copyProperties(request, entity);
-        updateById(entity);
+        updateById(converter.toEntity(request));
     }
 
     @Override

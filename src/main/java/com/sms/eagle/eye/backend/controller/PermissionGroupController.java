@@ -8,8 +8,6 @@ import com.sms.eagle.eye.backend.request.permission.PermissionGroupConnRequest;
 import com.sms.eagle.eye.backend.request.permission.PermissionGroupQueryRequest;
 import com.sms.eagle.eye.backend.request.permission.PermissionGroupRequest;
 import com.sms.eagle.eye.backend.response.permission.PermissionGroupResponse;
-import com.sms.eagle.eye.backend.response.task.TaskGroupResponse;
-import com.sms.eagle.eye.backend.response.task.TaskGroupTreeResponse;
 import com.sms.eagle.eye.backend.service.PermissionGroupApplicationService;
 import java.util.List;
 import org.springframework.validation.annotation.Validated;

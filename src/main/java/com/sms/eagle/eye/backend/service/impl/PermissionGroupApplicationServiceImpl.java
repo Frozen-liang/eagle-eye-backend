@@ -12,7 +12,6 @@ import com.sms.eagle.eye.backend.request.permission.PermissionGroupRequest;
 import com.sms.eagle.eye.backend.response.permission.PermissionGroupResponse;
 import com.sms.eagle.eye.backend.service.PermissionGroupApplicationService;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
