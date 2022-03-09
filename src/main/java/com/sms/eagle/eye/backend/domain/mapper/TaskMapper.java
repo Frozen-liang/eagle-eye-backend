@@ -19,7 +19,7 @@ public interface TaskMapper extends BaseMapper<TaskEntity> {
     IPage<TaskResponse> getPage(Page<?> page, @Param("request") TaskQueryRequest request,
         @Param("groups") List<Long> groups);
 
-    Optional<Long> getIdByName(@Param("name") String name);
+    Optional<TaskEntity> getByName(@Param("name") String name);
 
     Integer selectCountByName(@Param("name") String name);
 

@@ -5,7 +5,7 @@
 <mapper namespace="com.sms.eagle.eye.backend.domain.mapper.NotificationChannelMapper">
 
     <select id="getPage" resultType="com.sms.eagle.eye.backend.domain.entity.NotificationChannelEntity">
-        select id, name, creator, type, config, utc_create_time createTime
+        select id, name, creator, type, config, utc_create_time
         from notification_channel
         <where>
             is_deleted = false

@@ -7,21 +7,25 @@ import lombok.Getter;
 
 @Getter
 public enum NotificationTemplateType {
-    ALERT(1, "Alert", NotificationTemplateType.alertList());
+    ALERT(1, "Alert", "alert", NotificationTemplateType.alertList());
 
     private final int value;
     private final String name;
+    private final String variableKey;
     private final List<TemplateField> fieldList;
 
     private static List<TemplateField> alertList() {
-        return Arrays.asList(TemplateField.builder().name("username").description("Username").build(),
-            TemplateField.builder().name("password").description("Password").build());
+        return Arrays.asList(TemplateField.builder().name("taskName").description("Task Name").build(),
+            TemplateField.builder().name("project").description("Project").build(),
+            TemplateField.builder().name("alarmLevel").description("Alarm Level").build(),
+            TemplateField.builder().name("alarmMessage").description("Alarm Message").build());
     }
 
     NotificationTemplateType(int value, String name,
-        List<TemplateField> fieldList) {
+        String variableKey, List<TemplateField> fieldList) {
         this.value = value;
         this.name = name;
+        this.variableKey = variableKey;
         this.fieldList = fieldList;
     }
 }
