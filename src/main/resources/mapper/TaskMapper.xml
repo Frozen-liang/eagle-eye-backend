@@ -45,8 +45,8 @@
         </where>
         order by task.utc_create_time desc
     </select>
-    <select id="getIdByName" resultType="java.lang.Long">
-        select id
+    <select id="getByName" resultType="com.sms.eagle.eye.backend.domain.entity.TaskEntity">
+        select id, name, plugin_id
         from task
         where lower(name) = #{name} and is_deleted = false
         order by task.utc_create_time desc

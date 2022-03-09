@@ -1,7 +1,5 @@
 package com.sms.eagle.eye.backend.request.group;
 
-import static com.sms.eagle.eye.backend.domain.service.impl.TaskGroupServiceImpl.ROOT_ID;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
@@ -24,12 +22,8 @@ public class TaskGroupRequest {
     @NotNull(groups = {InsertGroup.class})
     private String name;
 
-    @NotNull(groups = {UpdateGroup.class})
-    @Builder.Default
-    private Integer preIndex = 0;
+    private Integer preIndex;
 
-    @NotNull(groups = {UpdateGroup.class})
-    @Builder.Default
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Long parentId = ROOT_ID;
+    private Long parentId;
 }

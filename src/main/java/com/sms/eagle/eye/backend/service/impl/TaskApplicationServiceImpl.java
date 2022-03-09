@@ -292,6 +292,8 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         String encryptValue = configMetadataResolver.checkAndEncrypt(configMetadata, request.getAlertRules());
         request.setAlertRules(encryptValue);
         taskAlertRuleService.updateByRequest(request);
+
+        updateTaskIfIsRunning(request.getTaskId(), taskService.getTaskStatusById(request.getTaskId()));
         return true;
     }
 

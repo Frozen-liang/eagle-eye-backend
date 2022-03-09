@@ -23,6 +23,7 @@ public class AlertEntity implements Serializable {
     @TableId
     private Long id;
     private Long taskId;
+    private Integer alarmLevel;
     private String taskName;
     private String project;
     private String description;

@@ -13,4 +13,7 @@ public interface TaskAlertRuleService extends IService<TaskAlertRuleEntity> {
     void updateByRequest(TaskAlertRuleRequest request);
 
     List<TaskAlertRuleEntity> getByTaskId(Long taskId);
+
+    Optional<TaskAlertRuleEntity> getByTaskAlertRuleId(Long taskAlertRuleId);
+
 }
