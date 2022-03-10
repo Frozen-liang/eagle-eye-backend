@@ -2,6 +2,7 @@ package com.sms.eagle.eye.backend.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sms.eagle.eye.backend.context.UserContextHolder;
+import com.sms.eagle.eye.backend.interceptor.order.InterceptorOrder;
 import com.sms.eagle.eye.backend.model.UserInfo;
 import io.vavr.control.Try;
 import java.util.Base64;
@@ -9,12 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Slf4j
 @Component
-public class UserinfoInterceptor implements HandlerInterceptor {
+public class UserinfoInterceptor implements HandlerInterceptor, Ordered {
 
     private final ObjectMapper objectMapper;
     @Value("${system.security.user-header:UserInfo}")
@@ -34,5 +36,10 @@ public class UserinfoInterceptor implements HandlerInterceptor {
             return true;
         });
         return true;
+    }
+
+    @Override
+    public int getOrder() {
+        return InterceptorOrder.USER_INFO;
     }
 }

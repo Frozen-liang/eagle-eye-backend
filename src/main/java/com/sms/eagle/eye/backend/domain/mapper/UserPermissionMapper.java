@@ -17,5 +17,4 @@ public interface UserPermissionMapper extends BaseMapper<UserPermissionEntity> {
 
     List<String> getPermissionByEmail(String email);
 
-    List<UserPermissionGroupResponse> getAllUserPermissionGroupName();
 }

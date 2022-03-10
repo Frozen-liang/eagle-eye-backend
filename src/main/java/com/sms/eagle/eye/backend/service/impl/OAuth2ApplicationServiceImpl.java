@@ -4,6 +4,7 @@ import static com.sms.eagle.eye.backend.config.NerkoOAuth2Configuration.ACCESS_T
 import static com.sms.eagle.eye.backend.exception.ErrorCode.OAUTH_CODE_ERROR;
 
 import com.sms.eagle.eye.backend.config.NerkoOAuth2Properties;
+import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionEntity;
 import com.sms.eagle.eye.backend.domain.service.PermissionGroupService;
 import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
@@ -81,11 +82,10 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
             .defaultIfBlank(usersAccessToken, getAccessTokenByGrantType(CLIENT_CREDENTIALS, null));
         try {
             List<UserPermissionGroupResponse> users = queryUser(usersAccessToken);
-            Map<String, String> permissionGroupNameMap = userPermissionService
-                .getAllUserPermissionGroupName().stream()
-                .collect(Collectors
-                    .toMap(UserPermissionGroupResponse::getEmail, UserPermissionGroupResponse::getPermissionGroupName));
-            users.forEach(user -> user.setPermissionGroupName(permissionGroupNameMap.get(user.getEmail())));
+            Map<String, Long> permissionGroupNameMap = userPermissionService.list()
+                .stream()
+                .collect(Collectors.toMap(UserPermissionEntity::getEmail, UserPermissionEntity::getPermissionGroupId));
+            users.forEach(user -> user.setPermissionGroupId(permissionGroupNameMap.get(user.getEmail())));
             return users;
         } catch (RestClientException e) {
             log.error("Get nerko users error!", e);
@@ -106,7 +106,7 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
                 .requireNonNullElse(responseEntity.getBody(), new NerkoUserResponse());
             return nerkoUserResponse.getData();
         } catch (Unauthorized e) {
-            log.info("The token expires! refresh token!", e);
+            log.warn("The token expires! refresh token!");
             usersAccessToken = getAccessTokenByGrantType(CLIENT_CREDENTIALS, null);
             return queryUser(usersAccessToken);
         }

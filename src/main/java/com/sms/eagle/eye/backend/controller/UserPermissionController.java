@@ -5,6 +5,7 @@ import com.sms.eagle.eye.backend.request.permission.UserPermissionRequest;
 import com.sms.eagle.eye.backend.service.UserPermissionApplicationService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,7 +21,7 @@ public class UserPermissionController {
     }
 
     @PutMapping
-    public Response<Boolean> addOrUpdate(@Validated UserPermissionRequest request) {
+    public Response<Boolean> addOrUpdate(@Validated @RequestBody UserPermissionRequest request) {
         return Response.ok(userPermissionApplicationService.addOrUpdate(request));
     }
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import com.sms.eagle.eye.backend.config.NerkoOAuth2Properties;
+import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionEntity;
 import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.model.NerkoUserResponse;
@@ -79,8 +80,8 @@ public class OAuth2ApplicationServiceTest {
     void getUsers_test() {
         mock_restTemplate();
         String email = "email@test.com";
-        when(userPermissionService.getAllUserPermissionGroupName()).thenReturn(List.of(
-            UserPermissionGroupResponse.builder().email(email).permissionGroupName("test").build()));
+        when(userPermissionService.list()).thenReturn(List.of(
+            UserPermissionEntity.builder().email(email).permissionGroupId(1L).build()));
         NerkoUserResponse nerkoUserResponse = new NerkoUserResponse();
         nerkoUserResponse
             .setData(Collections.singletonList(UserPermissionGroupResponse.builder().email(email).build()));
@@ -97,8 +98,8 @@ public class OAuth2ApplicationServiceTest {
     void getUsers_exception_test() {
         mock_restTemplate();
         String email = "email@test.com";
-        when(userPermissionService.getAllUserPermissionGroupName()).thenReturn(List.of(
-            UserPermissionGroupResponse.builder().email(email).permissionGroupName("test").build()));
+        when(userPermissionService.list()).thenReturn(List.of(
+            UserPermissionEntity.builder().email(email).permissionGroupId(1L).build()));
         NerkoUserResponse nerkoUserResponse = new NerkoUserResponse();
         nerkoUserResponse
             .setData(Collections.singletonList(UserPermissionGroupResponse.builder().email(email).build()));
