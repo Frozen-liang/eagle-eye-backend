@@ -108,7 +108,7 @@ public class AwsOperationImpl implements AwsOperation {
             .queueUrl(awsProperties.getQueueUrl())
             .decryptKey(aesEncryptor.getSecretKey())
             .payload(aesEncryptor.encrypt(decryptedConfig))
-            .alertRule(List.of(taskAlertRule.getDecryptedAlertRule()))
+            .alertRule(taskAlertRule.getDecryptedAlertRule())
             .build();
         return Try.of(() -> objectMapper.writeValueAsString(input)).getOrElse(DEFAULT_INPUT);
     }
