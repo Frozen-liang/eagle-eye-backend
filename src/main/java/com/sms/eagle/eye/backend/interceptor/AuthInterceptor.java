@@ -34,14 +34,15 @@ public class AuthInterceptor implements HandlerInterceptor, Ordered {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Object bean = handlerMethod.getBean();
             List<String> permissions = null;
-            PreAuth preAuth = AnnotationUtils.findAnnotation(bean.getClass(), PreAuth.class);
-            if (preAuth != null) {
+            PreAuth classPreAuth = AnnotationUtils.findAnnotation(bean.getClass(), PreAuth.class);
+            if (classPreAuth != null) {
                 permissions = getPermissions();
-                verifyPermission(preAuth.value(), permissions);
+                verifyPermission(classPreAuth.value(), permissions);
             }
-            if (handlerMethod.hasMethodAnnotation(PreAuth.class)) {
+            PreAuth methodPreAuth = handlerMethod.getMethodAnnotation(PreAuth.class);
+            if (methodPreAuth != null) {
                 permissions = Objects.requireNonNullElse(permissions, getPermissions());
-                verifyPermission(handlerMethod.getMethodAnnotation(PreAuth.class).value(), permissions);
+                verifyPermission(methodPreAuth.value(), permissions);
             }
         }
         return true;
