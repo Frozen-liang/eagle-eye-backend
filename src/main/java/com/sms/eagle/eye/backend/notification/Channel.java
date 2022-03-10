@@ -14,13 +14,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.Resource;
 import org.thymeleaf.context.Context;
 
 public interface Channel {
 
-    TypeReference<List<ChannelFieldResponse>> CHANNEL_FIELD_TYPE_REF = new TypeReference<>() {};
+    TypeReference<List<ChannelFieldResponse>> CHANNEL_FIELD_TYPE_REF = new TypeReference<>() {
+    };
 
     List<ChannelFieldResponse> getConfigFields(Integer type);
 
@@ -44,7 +47,7 @@ public interface Channel {
     default <T> T getValueFromMap(Map<String, Object> map, String key, Class<T> clazz,
         boolean required, T defaultValue) {
         Object value = map.get(key);
-        if (Objects.isNull(value)) {
+        if (isNull(value)) {
             if (required) {
                 throw new EagleEyeException(CHANNEL_CHECK_ERROR, key);
             }
@@ -54,6 +57,20 @@ public interface Channel {
                 return (T) value;
             }
             throw new EagleEyeException(CHANNEL_CHECK_ERROR, key);
+        }
+    }
+
+    default boolean isNull(Object value) {
+        if (Objects.isNull(value)) {
+            return true;
+        }
+        Class<?> clazz = value.getClass();
+        if (String.class.isAssignableFrom(clazz)) {
+            return StringUtils.isBlank((String) value);
+        } else if (List.class.isAssignableFrom(clazz)) {
+            return CollectionUtils.isEmpty((List) value);
+        } else {
+            return false;
         }
     }
 
