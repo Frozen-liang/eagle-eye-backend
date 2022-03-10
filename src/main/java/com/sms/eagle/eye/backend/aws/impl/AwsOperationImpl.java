@@ -4,13 +4,15 @@ import static com.sms.eagle.eye.backend.utils.TaskScheduleUtil.getMinuteInterval
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sms.eagle.eye.backend.aws.AwsOperation;
+import com.sms.eagle.eye.backend.aws.dto.AwsAlertRuleDto;
+import com.sms.eagle.eye.backend.aws.dto.AwsLambdaInput;
 import com.sms.eagle.eye.backend.common.encrypt.AesEncryptor;
 import com.sms.eagle.eye.backend.config.AwsProperties;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.model.TaskAlertRule;
-import com.sms.eagle.eye.backend.request.AwsLambdaInput;
 import io.vavr.control.Try;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -103,12 +105,14 @@ public class AwsOperationImpl implements AwsOperation {
             .id(taskAlertRule.getRuleId().toString())
             .name(generateRuleName(task, taskAlertRule))
             .description(task.getDescription())
-            .interval(minuteInterval)
+            .alertRule(Collections.singletonList(AwsAlertRuleDto.builder()
+                .interval(minuteInterval)
+                .rule(taskAlertRule.getDecryptedAlertRule())
+                .build()))
             .pluginUrl(pluginUrl)
             .queueUrl(awsProperties.getQueueUrl())
             .decryptKey(aesEncryptor.getSecretKey())
             .payload(aesEncryptor.encrypt(decryptedConfig))
-            .alertRule(taskAlertRule.getDecryptedAlertRule())
             .build();
         return Try.of(() -> objectMapper.writeValueAsString(input)).getOrElse(DEFAULT_INPUT);
     }
