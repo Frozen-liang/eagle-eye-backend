@@ -1,6 +1,8 @@
 package com.sms.eagle.eye.backend.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sms.eagle.eye.backend.convert.ConfigMetadataConverter;
+import com.sms.eagle.eye.backend.convert.MetadataFieldConverter;
 import com.sms.eagle.eye.backend.convert.NotificationChannelConverter;
 import com.sms.eagle.eye.backend.domain.entity.NotificationChannelEntity;
 import com.sms.eagle.eye.backend.domain.service.NotificationChannelService;
@@ -9,6 +11,7 @@ import com.sms.eagle.eye.backend.notification.Channel;
 import com.sms.eagle.eye.backend.request.channel.NotificationChannelQueryRequest;
 import com.sms.eagle.eye.backend.request.channel.NotificationChannelRequest;
 import com.sms.eagle.eye.backend.resolver.ConfigMetadataResolver;
+import com.sms.eagle.eye.backend.response.channel.ChannelDetailResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldWithValueResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelPageResponse;
@@ -22,6 +25,7 @@ import org.springframework.beans.BeanUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -30,11 +34,15 @@ public class NotificationChannelApplicationServiceTest {
 
     private final Channel channel = mock(Channel.class);
     private final NotificationChannelConverter Converter = mock(NotificationChannelConverter.class);
+    private final MetadataFieldConverter metadataFieldConverter = mock(MetadataFieldConverter.class);
     private final ConfigMetadataResolver configMetadataResolver = mock(ConfigMetadataResolver.class);
+    private final ConfigMetadataConverter configMetadataConverter = mock(ConfigMetadataConverter.class);
     private final NotificationChannelService notificationChannelService = mock(NotificationChannelService.class);
+    private final ChannelDetailResponse channelDetailResponse = mock(ChannelDetailResponse.class);
+
     private final NotificationChannelApplicationService notificationChannelApplicationService
-            = spy(new NotificationChannelApplicationServiceImpl(
-                    channel, Converter, configMetadataResolver, notificationChannelService));
+            = spy(new NotificationChannelApplicationServiceImpl(channel, Converter, metadataFieldConverter,
+            configMetadataConverter, configMetadataResolver, notificationChannelService));
     private final NotificationChannelQueryRequest request = mock(NotificationChannelQueryRequest.class);
     private final NotificationChannelRequest channelRequest = mock(NotificationChannelRequest.class);
     private final ConfigMetadata configMetadata = mock(ConfigMetadata.class);
@@ -43,7 +51,6 @@ public class NotificationChannelApplicationServiceTest {
     private static final Integer TYPE = 1;
     private static final Long ID = 1L;
     private static final String CONFIG = "CONFIG";
-    private static final String NAME = "name";
     private static final Object VAULE = Object.class;
     private static final MockedStatic<BeanUtils> BEAN_UTILS_MOCKED_STATIC;
 
@@ -89,16 +96,8 @@ public class NotificationChannelApplicationServiceTest {
     @DisplayName("Test the getByChannelId method in the NotificationChannelApplication Service")
     public void getByChannelId_test() {
         when(notificationChannelService.getEntityById(ID)).thenReturn(notificationChannelEntity);
-        List<ChannelFieldResponse> fields = notificationChannelApplicationService.getConfigFieldsByType(TYPE);
-        fields.add(any());
-        when(notificationChannelApplicationService.getConfigFieldsByType(TYPE)).thenReturn(fields);
-        Map<String, Object> stringObjectMap = configMetadataResolver.convertConfigToMap(CONFIG);
-        when(configMetadataResolver.decryptToFrontendValue(configMetadata, stringObjectMap)).thenReturn(VAULE);
-        ChannelFieldWithValueResponse channelFieldWithValueResponse = mock(ChannelFieldWithValueResponse.class);
-        doNothing().when(channelFieldWithValueResponse).setValue(any());
-        when(configMetadataResolver.convertConfigToMap(CONFIG)).thenReturn(Map.ofEntries());
-        when(notificationChannelEntity.getId()).thenReturn(ID);
-        when(notificationChannelEntity.getName()).thenReturn(NAME);
+        List<ChannelFieldWithValueResponse> config = getFieldValueResponse(notificationChannelEntity);
+        when(Converter.toDetailResponse(notificationChannelEntity, config)).thenReturn(channelDetailResponse);
         assertThat(notificationChannelApplicationService.getByChannelId(ID)).isNotNull();
     }
 
@@ -114,7 +113,6 @@ public class NotificationChannelApplicationServiceTest {
     @Test
     @DisplayName("Test the updateChannel method in the NotificationChannelApplication Service")
     public void updateChannel_test() {
-
         List<ChannelFieldResponse> fields = List.of(ChannelFieldResponse.builder().build());
         when(channelRequest.getId()).thenReturn(ID);
         when(notificationChannelService.getEntityById(ID)).thenReturn(notificationChannelEntity);
@@ -131,5 +129,16 @@ public class NotificationChannelApplicationServiceTest {
     public void removeChannel_test() {
         doNothing().when(notificationChannelService).deleteEntity(ID);
         assertThat(notificationChannelApplicationService.removeChannel(ID)).isTrue();
+    }
+
+    private List<ChannelFieldWithValueResponse> getFieldValueResponse(NotificationChannelEntity entity) {
+        return notificationChannelApplicationService.getConfigFieldsByType(entity.getType()).stream()
+                .map(field -> {
+                    ConfigMetadata metadata = configMetadataConverter.fromChannelField(field);
+                    Map<String, Object> configMap = configMetadataResolver.convertConfigToMap(entity.getConfig());
+                    Object value = configMetadataResolver.decryptToFrontendValue(metadata, configMap);
+                    return metadataFieldConverter.toChannelValueResponse(field, value);
+                })
+                .collect(Collectors.toList());
     }
 }

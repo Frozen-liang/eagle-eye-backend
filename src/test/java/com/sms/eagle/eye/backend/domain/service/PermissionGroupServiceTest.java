@@ -1,6 +1,7 @@
 package com.sms.eagle.eye.backend.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -30,6 +31,8 @@ public class PermissionGroupServiceTest {
         spy(new PermissionGroupServiceImpl(permissionGroupConverter));
     private static final Long ID = 1L;
     private final PermissionGroupRequest request = PermissionGroupRequest.builder().id(ID).name("name").build();
+
+
 
     @Test
     void page_test() {

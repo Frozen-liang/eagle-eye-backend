@@ -48,17 +48,6 @@ public class TaskNotificationApplicationServiceTest {
     private static final String CONFIG = "CONFIG";
     private static final Integer TOTAL_ELEMENTS = 10;
 
-    private static final MockedStatic<CollectionUtils> COLLECTION_UTILS_MOCKED_STATIC;
-
-    static {
-        COLLECTION_UTILS_MOCKED_STATIC = mockStatic(CollectionUtils.class);
-    }
-
-    @AfterAll
-    private static void close() {
-        COLLECTION_UTILS_MOCKED_STATIC.close();
-    }
-
     @Test
     @DisplayName("Test the getAlertNotification method in the Tag Application Service")
     public void getAlertNotification_test() {
@@ -67,7 +56,6 @@ public class TaskNotificationApplicationServiceTest {
             taskAlertNotifications.add(TaskAlertNotificationEntity.builder().build());
         }
         when(taskAlertNotificationService.getByTaskIdAndAlarmLevel(ID, INTEGER)).thenReturn(taskAlertNotifications);
-        when(CollectionUtils.isEmpty(any())).thenReturn(Boolean.TRUE);
         when(taskAlertNotificationEntity.getChannelInput()).thenReturn(VALUE);
         when(configMetadataResolver.convertConfigToMap(CONFIG)).thenReturn(Map.ofEntries());
         when(taskAlertNotificationResponse.getChannelType()).thenReturn(INTEGER);
