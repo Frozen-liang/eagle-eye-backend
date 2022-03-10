@@ -54,9 +54,16 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
     public void updateFromRequest(TaskGroupRequest request, Integer index) {
         updateById(TaskGroupEntity.builder()
             .id(request.getId())
-            .name(request.getName())
             .parentId(request.getParentId())
             .index(index)
+            .build());
+    }
+
+    @Override
+    public void rename(Long id, String name) {
+        updateById(TaskGroupEntity.builder()
+            .id(id)
+            .name(name)
             .build());
     }
 

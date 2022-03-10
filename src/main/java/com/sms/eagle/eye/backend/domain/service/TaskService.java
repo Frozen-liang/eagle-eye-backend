@@ -24,7 +24,7 @@ public interface TaskService extends IService<TaskEntity> {
 
     void deleteTaskById(Long taskId);
 
-    Optional<Long> getIdByName(String name);
+    Optional<TaskEntity> getEntityByName(String name);
 
     Integer countByName(String name);
 

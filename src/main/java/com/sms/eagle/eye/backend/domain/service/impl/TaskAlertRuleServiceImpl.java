@@ -41,6 +41,11 @@ public class TaskAlertRuleServiceImpl extends ServiceImpl<TaskAlertRuleMapper, T
     public List<TaskAlertRuleEntity> getByTaskId(Long taskId) {
         return list(Wrappers.<TaskAlertRuleEntity>lambdaQuery().eq(TaskAlertRuleEntity::getTaskId, taskId));
     }
+
+    @Override
+    public Optional<TaskAlertRuleEntity> getByTaskAlertRuleId(Long taskAlertRuleId) {
+        return Optional.ofNullable(getById(taskAlertRuleId));
+    }
 }
 
 

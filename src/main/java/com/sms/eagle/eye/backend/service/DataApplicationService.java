@@ -1,6 +1,7 @@
 package com.sms.eagle.eye.backend.service;
 
 import com.sms.eagle.eye.backend.model.IdNameResponse;
+import com.sms.eagle.eye.backend.model.TaskAlarmInfo;
 import com.sms.eagle.eye.backend.response.task.AlarmLevelResponse;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ public interface DataApplicationService {
 
     List<IdNameResponse<Integer>> getTemplateType();
 
-    Optional<Long> getTaskByMappingId(String uniqueValue);
+    Optional<TaskAlarmInfo> getTaskByMappingId(String uniqueValue, String mappingLevel);
 
-    Optional<Long> getTaskIdByTaskName(String uniqueValue);
+    Optional<TaskAlarmInfo> getTaskIdByTaskName(String uniqueValue, String mappingLevel);
 }

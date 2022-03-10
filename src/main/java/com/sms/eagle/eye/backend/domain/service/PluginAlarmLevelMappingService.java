@@ -14,4 +14,6 @@ public interface PluginAlarmLevelMappingService extends IService<PluginAlarmLeve
     List<AlarmLevelMappingResponse> getResponseByPluginId(Long pluginId);
 
     Optional<String> getMappingLevelByPluginIdAndSystemLevel(Long pluginId, Integer systemLevel);
+
+    Optional<Integer> getSystemLevelByPluginIdAndMappingLevel(Long pluginId, String mappingLevel);
 }

@@ -30,11 +30,12 @@ public class AlertServiceImpl extends ServiceImpl<AlertMapper, AlertEntity>
     }
 
     @Override
-    public void saveAlert(TaskEntity task, WebHookRequest request) {
+    public void saveAlert(TaskEntity task, WebHookRequest request, Integer alarmLevel) {
         save(AlertEntity.builder()
             .taskId(task.getId())
             .project(task.getProject())
             .taskName(task.getName())
+            .alarmLevel(alarmLevel)
             .description(request.getAlarmMessage())
             .utcAlertTime(request.getAlertTime())
             .build());

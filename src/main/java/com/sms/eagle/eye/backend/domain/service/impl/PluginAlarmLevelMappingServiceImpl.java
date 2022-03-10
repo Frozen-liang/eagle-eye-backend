@@ -48,6 +48,14 @@ public class PluginAlarmLevelMappingServiceImpl extends
             .eq(PluginAlarmLevelMappingEntity::getSystemLevel, systemLevel)))
             .map(PluginAlarmLevelMappingEntity::getMappingLevel);
     }
+
+    @Override
+    public Optional<Integer> getSystemLevelByPluginIdAndMappingLevel(Long pluginId, String mappingLevel) {
+        return Optional.ofNullable(getOne(Wrappers.<PluginAlarmLevelMappingEntity>lambdaQuery()
+                .eq(PluginAlarmLevelMappingEntity::getPluginId, pluginId)
+                .eq(PluginAlarmLevelMappingEntity::getMappingLevel, mappingLevel)))
+            .map(PluginAlarmLevelMappingEntity::getSystemLevel);
+    }
 }
 
 

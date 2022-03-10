@@ -1,5 +1,6 @@
-package com.sms.eagle.eye.backend.request;
+package com.sms.eagle.eye.backend.aws.dto;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,8 +17,7 @@ public class AwsLambdaInput {
     private String description;
     private String decryptKey;
     private String payload;
-    private Integer interval;
     private String pluginUrl;
     private String queueUrl;
-    private String alertRule;
+    private List<AwsAlertRuleDto> alertRule;
 }

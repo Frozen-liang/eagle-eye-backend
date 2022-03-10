@@ -111,7 +111,7 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean updateGroup(TaskGroupRequest request) {
+    public synchronized boolean updateGroup(TaskGroupRequest request) {
         TaskGroupEntity entity = taskGroupService.getEntityById(request.getId());
         Integer index = 0;
         if (inSameLevel(request, entity)) {
@@ -133,6 +133,12 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
             index = request.getPreIndex() + INDEX_STEP;
         }
         taskGroupService.updateFromRequest(request, index);
+        return true;
+    }
+
+    @Override
+    public boolean rename(TaskGroupRequest request) {
+        taskGroupService.rename(request.getId(), request.getName());
         return true;
     }
 
