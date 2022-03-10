@@ -32,10 +32,10 @@ public class PluginRpcServiceImpl implements PluginRpcService {
     @Override
     public RegisterResponse getRegisterResponseByTarget(String target) {
         try {
-            return factory.getClient(target)
+            return factory.getClient(target.trim())
                 .getBlockingStub().fetchMetadata(Empty.newBuilder().build());
         } catch (Exception exception) {
-            factory.removeClient(target);
+            factory.removeClient(target.trim());
             log.error(PLUGIN_SERVER_URL_ERROR.getMessage(), exception);
             throw new EagleEyeException(PLUGIN_SERVER_URL_ERROR);
         }
