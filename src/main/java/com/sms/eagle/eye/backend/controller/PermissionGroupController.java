@@ -1,5 +1,6 @@
 package com.sms.eagle.eye.backend.controller;
 
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.model.CustomPage;
@@ -56,12 +57,12 @@ public class PermissionGroupController {
     }
 
     @PostMapping("/addPermission")
-    public Response<Boolean> addPermission(@Validated PermissionGroupConnRequest request) {
+    public Response<Boolean> addPermission(@Validated @RequestBody PermissionGroupConnRequest request) {
         return Response.ok(permissionGroupApplicationService.addPermission(request));
     }
 
     @PostMapping("/removePermission")
-    public Response<Boolean> removePermission(@Validated PermissionGroupConnRequest request) {
+    public Response<Boolean> removePermission(@Validated @RequestBody PermissionGroupConnRequest request) {
         return Response.ok(permissionGroupApplicationService.removePermission(request));
     }
 

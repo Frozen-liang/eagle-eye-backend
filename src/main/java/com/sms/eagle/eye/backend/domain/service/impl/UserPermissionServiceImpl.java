@@ -22,11 +22,6 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
     }
 
     @Override
-    public List<UserPermissionGroupResponse> getAllUserPermissionGroupName() {
-        return getBaseMapper().getAllUserPermissionGroupName();
-    }
-
-    @Override
     public boolean addOrUpdate(UserPermissionRequest request) {
         LambdaQueryWrapper<UserPermissionEntity> queryWrapper = Wrappers.lambdaQuery(UserPermissionEntity.class)
             .eq(UserPermissionEntity::getEmail, request.getEmail());

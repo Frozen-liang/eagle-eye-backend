@@ -16,6 +16,5 @@ public class PermissionGroupResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
     private String name;
-    private String creator;
     private List<PermissionResponse> permissions;
 }

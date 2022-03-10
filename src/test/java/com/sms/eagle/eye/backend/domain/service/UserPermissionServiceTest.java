@@ -30,7 +30,7 @@ public class UserPermissionServiceTest {
         assertThat(permissions).hasSize(1).anyMatch(permission::equals);
     }
 
-    @Test
+    /*@Test
     void getAllUserPermissionGroupName_test() {
         doReturn(userPermissionMapper).when(userPermissionService).getBaseMapper();
         String permissionGroupName = "permissionGroupName";
@@ -40,7 +40,7 @@ public class UserPermissionServiceTest {
         List<UserPermissionGroupResponse> result = userPermissionService
             .getAllUserPermissionGroupName();
         assertThat(result).hasSize(1).anyMatch(p -> permissionGroupName.equals(p.getPermissionGroupName()));
-    }
+    }*/
 
     @Test
     void addOrUpdate_test() {

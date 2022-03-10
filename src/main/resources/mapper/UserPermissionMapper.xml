@@ -4,7 +4,6 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sms.eagle.eye.backend.domain.mapper.UserPermissionMapper">
 
-
     <select id="getPermissionByEmail" resultType="java.lang.String">
         select p.name
         from user_permission up
@@ -13,13 +12,5 @@
         where up.email = #{email}
 
     </select>
-
-    <select id="getAllUserPermissionGroupName"
-        resultType="com.sms.eagle.eye.backend.response.user.UserPermissionGroupResponse">
-        select up.email, pg.name permissionGroupName
-        from user_permission up join permission_group pg on up.permission_group_id = pg.id
-        where pg.is_deleted = false
-    </select>
-
 
 </mapper>
