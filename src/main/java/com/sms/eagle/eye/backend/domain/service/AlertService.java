@@ -14,7 +14,7 @@ public interface AlertService extends IService<AlertEntity> {
 
     IPage<AlertResponse> getPage(AlertQueryRequest request);
 
-    void saveAlert(TaskEntity task, WebHookRequest request);
+    void saveAlert(TaskEntity task, WebHookRequest request, Integer alarmLevel);
 
     List<AlertResponse> getResponseList(LocalDate from, LocalDate to);
 }

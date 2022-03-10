@@ -15,6 +15,8 @@ public interface TaskGroupService extends IService<TaskGroupEntity> {
 
     void updateFromRequest(TaskGroupRequest request, Integer index);
 
+    void rename(Long id, String name);
+
     Integer getNextIndexByParentId(Long parentId);
 
     void putAllGroupDown(Long parentId, Integer fromIndex, Integer toIndex);

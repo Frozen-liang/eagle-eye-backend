@@ -20,6 +20,7 @@ public class WebHookRequest {
     @NotNull
     private String uniqueValue;
     private String uniqueField;
+    private String alarmLevel;
     private String alarmMessage;
     @Builder.Default
     @JsonFormat(pattern = DATE_TIME_PATTERN)

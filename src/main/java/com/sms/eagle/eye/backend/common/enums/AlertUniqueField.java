@@ -3,8 +3,9 @@ package com.sms.eagle.eye.backend.common.enums;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.INVALID_ALERT_FIELD_KEY;
 
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
+import com.sms.eagle.eye.backend.model.TaskAlarmInfo;
 import com.sms.eagle.eye.backend.service.DataApplicationService;
-import io.vavr.Function2;
+import io.vavr.Function3;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -23,21 +24,23 @@ public enum AlertUniqueField {
         MAP = Arrays.stream(values()).collect(Collectors.toMap(AlertUniqueField::getKey, Function.identity()));
     }
 
-    private static Optional<Long> getTaskIdByMappingId(DataApplicationService service, String value) {
-        return service.getTaskByMappingId(value);
+    private static Optional<TaskAlarmInfo> getTaskIdByMappingId(
+        DataApplicationService service, String value, String mappingLevel) {
+        return service.getTaskByMappingId(value, mappingLevel);
     }
 
-    private static Optional<Long> getTaskIdByTaskName(DataApplicationService service, String value) {
-        return service.getTaskIdByTaskName(value);
+    private static Optional<TaskAlarmInfo> getTaskIdByTaskName(
+        DataApplicationService service, String value, String mappingLevel) {
+        return service.getTaskIdByTaskName(value, mappingLevel);
     }
 
     private final String key;
-    private final Function2<DataApplicationService, String, Optional<Long>> getTaskId;
+    private final Function3<DataApplicationService, String, String, Optional<TaskAlarmInfo>> getTaskAlarmInfoFunction;
 
     AlertUniqueField(String key,
-        Function2<DataApplicationService, String, Optional<Long>> getTaskId) {
+        Function3<DataApplicationService, String, String, Optional<TaskAlarmInfo>> getTaskAlarmInfoFunction) {
         this.key = key;
-        this.getTaskId = getTaskId;
+        this.getTaskAlarmInfoFunction = getTaskAlarmInfoFunction;
     }
 
     public static AlertUniqueField resolve(String key) {
