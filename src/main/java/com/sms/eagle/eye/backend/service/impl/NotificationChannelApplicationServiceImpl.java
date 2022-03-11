@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+
 @Service
 public class NotificationChannelApplicationServiceImpl implements NotificationChannelApplicationService {
 
@@ -36,11 +37,11 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
     private final NotificationChannelService notificationChannelService;
 
     public NotificationChannelApplicationServiceImpl(
-        @Qualifier(ChannelProxy.CHANNEL_PROXY) Channel channel, NotificationChannelConverter converter,
-        MetadataFieldConverter metadataFieldConverter,
-        ConfigMetadataConverter configMetadataConverter,
-        ConfigMetadataResolver configMetadataResolver,
-        NotificationChannelService notificationChannelService) {
+            @Qualifier(ChannelProxy.CHANNEL_PROXY) Channel channel, NotificationChannelConverter converter,
+            MetadataFieldConverter metadataFieldConverter,
+            ConfigMetadataConverter configMetadataConverter,
+            ConfigMetadataResolver configMetadataResolver,
+            NotificationChannelService notificationChannelService) {
         this.channel = channel;
         this.metadataFieldConverter = metadataFieldConverter;
         this.configMetadataConverter = configMetadataConverter;
@@ -79,13 +80,13 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
 
     private List<ChannelFieldWithValueResponse> getFieldValueResponse(NotificationChannelEntity entity) {
         return getConfigFieldsByType(entity.getType()).stream()
-            .map(field -> {
-                ConfigMetadata metadata = configMetadataConverter.fromChannelField(field);
-                Map<String, Object> configMap = configMetadataResolver.convertConfigToMap(entity.getConfig());
-                Object value = configMetadataResolver.decryptToFrontendValue(metadata, configMap);
-                return metadataFieldConverter.toChannelValueResponse(field, value);
-            })
-            .collect(Collectors.toList());
+                .map(field -> {
+                    ConfigMetadata metadata = configMetadataConverter.fromChannelField(field);
+                    Map<String, Object> configMap = configMetadataResolver.convertConfigToMap(entity.getConfig());
+                    Object value = configMetadataResolver.decryptToFrontendValue(metadata, configMap);
+                    return metadataFieldConverter.toChannelValueResponse(field, value);
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -107,7 +108,7 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
 
     private List<ConfigMetadata> getMetadataByType(Integer channelType) {
         return getConfigFieldsByType(channelType).stream().map(configMetadataConverter::fromChannelField)
-            .collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -1,16 +1,16 @@
 package com.sms.eagle.eye.backend.service;
 
+import com.sms.eagle.eye.backend.domain.service.PermissionService;
+import com.sms.eagle.eye.backend.response.permission.PermissionResponse;
+import com.sms.eagle.eye.backend.service.impl.PermissionApplicationServiceImpl;
+import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import com.sms.eagle.eye.backend.domain.service.PermissionService;
-import com.sms.eagle.eye.backend.response.permission.PermissionResponse;
-import com.sms.eagle.eye.backend.service.PermissionApplicationService;
-import com.sms.eagle.eye.backend.service.impl.PermissionApplicationServiceImpl;
-import java.util.Collections;
-import java.util.List;
-import org.junit.jupiter.api.Test;
 
 public class PermissionApplicationServiceTest {
 
