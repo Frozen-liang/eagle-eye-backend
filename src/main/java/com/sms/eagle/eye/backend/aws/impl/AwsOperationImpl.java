@@ -34,7 +34,7 @@ public class AwsOperationImpl implements AwsOperation {
 
     private static final String DEFAULT_INPUT = "{}";
     private static final String EXPRESSION_TEMPLATE = "rate(%s minutes)";
-    private static final String RULE_NAME_FORMAT = "%s-%s";
+    private static final String DEFAULT_EVENT_BUS = "default";
 
     private final ObjectMapper objectMapper;
     private final AwsProperties awsProperties;
@@ -72,6 +72,7 @@ public class AwsOperationImpl implements AwsOperation {
         String id = UUID.randomUUID().toString();
         PutTargetsRequest putTargetsRequest = PutTargetsRequest.builder()
             .rule(generateRuleName(task, taskAlertRule))
+            .eventBusName(DEFAULT_EVENT_BUS)
             .targets(Target.builder()
                 .id(id)
                 .arn(awsProperties.getLambdaArn())
