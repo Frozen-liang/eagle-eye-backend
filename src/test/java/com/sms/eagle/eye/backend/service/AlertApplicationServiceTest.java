@@ -1,102 +1,233 @@
 package com.sms.eagle.eye.backend.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import static com.sms.eagle.eye.backend.exception.ErrorCode.DATE_FORMAT_ERROR;
+import static com.sms.eagle.eye.backend.service.impl.AlertApplicationServiceImpl.DEFAULT_INTERVAL;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.sms.eagle.eye.backend.common.enums.AlertUniqueField;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
 import com.sms.eagle.eye.backend.domain.service.AlertService;
 import com.sms.eagle.eye.backend.domain.service.TaskService;
+import com.sms.eagle.eye.backend.event.TaskAlertEvent;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.model.CustomPage;
+import com.sms.eagle.eye.backend.model.TaskAlarmInfo;
 import com.sms.eagle.eye.backend.request.alert.AlertListRequest;
 import com.sms.eagle.eye.backend.request.alert.AlertQueryRequest;
 import com.sms.eagle.eye.backend.request.alert.WebHookRequest;
 import com.sms.eagle.eye.backend.response.alert.AlertResponse;
 import com.sms.eagle.eye.backend.service.impl.AlertApplicationServiceImpl;
-import io.vavr.Function2;
-import io.vavr.control.Try;
+import io.vavr.Function3;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Optional;
-
-import static com.sms.eagle.eye.backend.exception.ErrorCode.DATE_FORMAT_ERROR;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.springframework.context.ApplicationContext;
 
 public class AlertApplicationServiceTest {
 
-    private final AlertService alertService = mock(AlertService.class);
+    private static final ApplicationContext applicationContext = mock(ApplicationContext.class);
+    private static final AlertService alertService = mock(AlertService.class);
     private static final DataApplicationService dataApplicationService = mock(DataApplicationService.class);
-    private final TaskService taskService = mock(TaskService.class);
-    private final AlertApplicationService alertApplicationService =
-            new AlertApplicationServiceImpl(alertService, dataApplicationService, taskService);
-    private final AlertQueryRequest alertQueryRequest = AlertQueryRequest.builder().build();
-    private final TaskEntity task = TaskEntity.builder().id(ID).build();
-    private final AlertListRequest alertListRequest = mock(AlertListRequest.class);
-    private final WebHookRequest webHookRequest = mock(WebHookRequest.class);
-    private static final AlertUniqueField ALERT_UNIQUE_FIELD = mock(AlertUniqueField.class);
+    private static final TaskService taskService = mock(TaskService.class);
+
+    private static final AlertApplicationServiceImpl alertApplicationService =
+        spy(new AlertApplicationServiceImpl(alertService, dataApplicationService, taskService));
+
     private static final MockedStatic<AlertUniqueField> ALERT_UNIQUE_FIELD_MOCKED_STATIC
-            = mockStatic(AlertUniqueField.class);
+        = mockStatic(AlertUniqueField.class);
 
-    private static final String KEY = "STRING";
-    private static final String STRING = "STRING";
-    private static final String VALUE = "String";
+    private static final String EXCEPTION_CODE = "code";
 
-    private static final Long ID = 4L;
-    private static final Long LONG = 1L;
-    private static final Integer DEFAULT_INTERVAL = 3;
-    private static final String DATA = LocalDate.now().toString();
-
-    static {
-        ALERT_UNIQUE_FIELD_MOCKED_STATIC.when(() -> AlertUniqueField.resolve(KEY)).thenReturn(ALERT_UNIQUE_FIELD);
+    @BeforeAll
+    public static void init() {
+        alertApplicationService.setApplicationContext(applicationContext);
     }
 
+    @AfterAll
+    public static void close() {
+        ALERT_UNIQUE_FIELD_MOCKED_STATIC.close();
+    }
+
+    /**
+     * {@link AlertApplicationServiceImpl#page(AlertQueryRequest)}.
+     *
+     * <p>根据 Query参数 分页获取告警数据
+     */
     @Test
     @DisplayName("Test the page method in the AlertApplication Service")
     public void page_test() {
-        when(alertService.getPage(alertQueryRequest)).thenReturn(new Page<>());
-        CustomPage<AlertResponse> page = alertApplicationService.page(alertQueryRequest);
-        assertThat(page).isNotNull();
+        // 构建请求对象
+        AlertQueryRequest alertQueryRequest = AlertQueryRequest.builder().build();
+        // mock IPage<AlertResponse> 对象
+        IPage<AlertResponse> iPage = mock(IPage.class);
+        List<AlertResponse> list = mock(List.class);
+        doReturn(list).when(iPage).getRecords();
+        // mock alertService.getPage() 方法
+        when(alertService.getPage(alertQueryRequest)).thenReturn(iPage);
+        // 执行
+        CustomPage<AlertResponse> result = alertApplicationService.page(alertQueryRequest);
+        // Assert
+        assertThat(result.getRecords()).isEqualTo(list);
     }
 
+    /**
+     * {@link AlertApplicationServiceImpl#resolveWebHook(WebHookRequest)}.
+     *
+     * <p>解析告警消息，包括第三方webhook过来的事件，
+     * 以及从AWS SQS接收的事件.
+     *
+     * <p>情形1：根据 uniqueField、uniqueValue 和 alarmLevel
+     * 找到了对应的 {@link TaskAlarmInfo}， 然后保存告警消息，并发送收到告警信息的事件
+     */
     @Test
     @DisplayName("Test the resolveWebHook method in the AlertApplication Service")
-    public void resolveWebHook() {
-        Optional<Long> optional = Optional.of(ID);
-        when(webHookRequest.getUniqueField()).thenReturn(STRING);
-        when(webHookRequest.getUniqueValue()).thenReturn(VALUE);
-        Function2<DataApplicationService, String, Optional<Long>> function2 = mock(Function2.class);
-        when(ALERT_UNIQUE_FIELD.getGetTaskId()).thenReturn(function2);
-        when(function2.apply(dataApplicationService, VALUE)).thenReturn(optional);
-        when(taskService.getEntityById(ID)).thenReturn(task);
-        doNothing().when(alertService).saveAlert(any(), any());
+    public void resolveWebHook_1() {
+        // 构造请求对象
+        String uniqueField = "mappingId";
+        String alarmLevel = "alarmLevel";
+        String uniqueValue = "uniqueValue";
+        WebHookRequest webHookRequest = WebHookRequest.builder()
+            .uniqueField(uniqueField)
+            .uniqueValue(uniqueValue)
+            .alarmLevel(alarmLevel)
+            .build();
+        // mock静态方法 AlertUniqueField.resolve
+        AlertUniqueField alertUniqueField = mock(AlertUniqueField.class);
+        ALERT_UNIQUE_FIELD_MOCKED_STATIC.when(() -> AlertUniqueField.resolve(uniqueField.toUpperCase(Locale.ROOT)))
+            .thenReturn(alertUniqueField);
+        // mock alertUniqueField.getGetTaskAlarmInfoFunction() 方法
+        Function3<DataApplicationService, String, String, Optional<TaskAlarmInfo>> function3 = mock(Function3.class);
+        doReturn(function3).when(alertUniqueField).getGetTaskAlarmInfoFunction();
+        // mock apply() 方法
+        Long taskId = 1L;
+        Integer alarm = 1;
+        TaskAlarmInfo taskAlarmInfo = TaskAlarmInfo.builder()
+            .taskId(taskId).alarmLevel(alarm).build();
+        Optional<TaskAlarmInfo> optional = Optional.ofNullable(taskAlarmInfo);
+        doReturn(optional).when(function3).apply(dataApplicationService,
+            webHookRequest.getUniqueValue(), webHookRequest.getAlarmLevel());
+        // mock taskService.getEntityById() 方法
+        TaskEntity taskEntity = mock(TaskEntity.class);
+        doReturn(taskEntity).when(taskService).getEntityById(taskId);
+        // mock alertService.saveAlert() 方法
+        doNothing().when(alertService).saveAlert(taskEntity, webHookRequest, taskAlarmInfo.getAlarmLevel());
+        // mock applicationContext.publishEvent() 方法
+        doNothing().when(applicationContext).publishEvent(any(TaskAlertEvent.class));
+        // 执行
+        alertApplicationService.resolveWebHook(webHookRequest);
+        // Assert
         assertThat(alertApplicationService.resolveWebHook(webHookRequest)).isTrue();
     }
 
+    /**
+     * {@link AlertApplicationServiceImpl#resolveWebHook(WebHookRequest)}.
+     *
+     * <p>情形2：根据 uniqueField、uniqueValue 和 alarmLevel
+     * 没找到对应的 {@link TaskAlarmInfo}，不做任何处理
+     */
     @Test
-    @DisplayName("Test the list method in the AlertApplication Service")
-    public void list_test() {
-        convertToLocalDate(DATA);
-        getDateIfExceedMaxInterval(convertToLocalDate(DATA), convertToLocalDate(DATA));
-        when(alertListRequest.getFromDate()).thenReturn(DATA);
-        when(alertListRequest.getToDate()).thenReturn(DATA);
-        when(alertService.getResponseList(any(), any())).thenReturn(new ArrayList<>());
-        assertThat(alertApplicationService.list(alertListRequest)).isNotNull();
+    public void resolveWebHook_2() {
+        // 构造请求对象
+        String uniqueField = "mappingId";
+        String alarmLevel = "alarmLevel";
+        String uniqueValue = "uniqueValue";
+        WebHookRequest webHookRequest = WebHookRequest.builder()
+            .uniqueField(uniqueField)
+            .uniqueValue(uniqueValue)
+            .alarmLevel(alarmLevel)
+            .build();
+        // mock静态方法 AlertUniqueField.resolve
+        AlertUniqueField alertUniqueField = mock(AlertUniqueField.class);
+        ALERT_UNIQUE_FIELD_MOCKED_STATIC.when(() -> AlertUniqueField.resolve(uniqueField.toUpperCase(Locale.ROOT)))
+            .thenReturn(alertUniqueField);
+        // mock alertUniqueField.getGetTaskAlarmInfoFunction() 方法
+        Function3<DataApplicationService, String, String, Optional<TaskAlarmInfo>> function3 = mock(Function3.class);
+        doReturn(function3).when(alertUniqueField).getGetTaskAlarmInfoFunction();
+        // mock apply() 方法
+        doReturn(Optional.empty()).when(function3).apply(dataApplicationService,
+            webHookRequest.getUniqueValue(), webHookRequest.getAlarmLevel());
+        // 执行
+        alertApplicationService.resolveWebHook(webHookRequest);
+        // Assert
+        assertThat(alertApplicationService.resolveWebHook(webHookRequest)).isTrue();
     }
 
-    private static LocalDate convertToLocalDate(String date) {
-        return Try.of(() -> LocalDate.parse(date)).getOrElseThrow(() -> new EagleEyeException(DATE_FORMAT_ERROR));
+    /**
+     * {@link AlertApplicationServiceImpl#list(AlertListRequest)}
+     *
+     * <p> 根据 {@link AlertListRequest} 获取告警信息列表
+     *
+     * <p> 情形1：请求中的日期格式错误，则抛出异常
+     */
+    @Test
+    public void list_test_1() {
+        // 构造请求对象
+        String fromDate = "fromDate";
+        String toDate = "toDate";
+        AlertListRequest request = AlertListRequest.builder().fromDate(fromDate).toDate(toDate).build();
+        // 验证异常
+        assertThatThrownBy(() -> alertApplicationService.list(request)).isInstanceOf(EagleEyeException.class)
+            .extracting(EXCEPTION_CODE).isEqualTo(DATE_FORMAT_ERROR.getCode());
     }
 
-    private Optional<LocalDate> getDateIfExceedMaxInterval(LocalDate from, LocalDate to) {
-        LocalDate largestInterval = from.plusMonths(DEFAULT_INTERVAL);
-        if (largestInterval.isBefore(to)) {
-            return Optional.of(largestInterval);
-        }
-        return Optional.empty();
+    /**
+     * {@link AlertApplicationServiceImpl#list(AlertListRequest)}
+     *
+     * <P> 情形2：{@link AlertListRequest} 请求中的 fromDate 与 toDate
+     * 间隔超过 {@link AlertApplicationServiceImpl#DEFAULT_INTERVAL} ，
+     * 则按照 [fromDate -> toDate-DEFAULT_INTERVAL] 这个范围进行查询
+     */
+    @Test
+    public void list_test_2() {
+        // 构造请求对象
+        String fromDate = "2022-01-01";
+        String toDate = "2022-05-01";
+        AlertListRequest request = AlertListRequest.builder().fromDate(fromDate).toDate(toDate).build();
+        // mock alertService.getResponseList() 方法
+        List<AlertResponse> list = mock(List.class);
+        doReturn(list).when(alertService).getResponseList(
+            LocalDate.parse(fromDate), LocalDate.parse(fromDate).plusMonths(DEFAULT_INTERVAL));
+        // 执行
+        List<AlertResponse> result = alertApplicationService.list(request);
+        // 验证
+        assertThat(result).isEqualTo(list);
+    }
+
+    /**
+     * {@link AlertApplicationServiceImpl#list(AlertListRequest)}
+     *
+     * <P> 情形3：{@link AlertListRequest} 请求中的 fromDate 与 toDate
+     * 间隔没有超过 {@link AlertApplicationServiceImpl#DEFAULT_INTERVAL} ，
+     * 则按照 [fromDate -> toDate] 这个范围进行查询
+     */
+    @Test
+    public void list_test_3() {
+        // 构造请求对象
+        String fromDate = "2022-01-01";
+        String toDate = "2022-03-01";
+        AlertListRequest request = AlertListRequest.builder().fromDate(fromDate).toDate(toDate).build();
+        // mock alertService.getResponseList() 方法
+        List<AlertResponse> list = mock(List.class);
+        doReturn(list).when(alertService).getResponseList(
+            LocalDate.parse(fromDate), LocalDate.parse(toDate));
+        // 执行
+        List<AlertResponse> result = alertApplicationService.list(request);
+        // 验证
+        assertThat(result).isEqualTo(list);
     }
 }

@@ -28,14 +28,6 @@ enum FieldType{
   EMAIL_INPUT = 7;
 }
 
-//enum ThresholdType{
-//  THRESHOLD_UNKNOWN = 0;
-//  LESS_THAN = 1; //Less than than the configured threshold.
-//  GREATER_THAN = 2; //Greater than the configured threshold.
-//  LESS_THAN_OR_EQUAL = 3; //Less than or equal to the configured threshold.
-//  GREATER_THAN_OR_EQUAL = 4; //Greater than or equal to the configured threshold. ThresholdType value is not applicable for MissingData and ResolvedMissingData triggerTypes and will be ignored if specified.
-//}
-
 message ConfigField{
   string key = 1;
   string labelName = 2;
