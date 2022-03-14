@@ -13,7 +13,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 
 group = "com.sms.eagle.eye"
-version = "1.2.5"
+version = "1.2.6"
 description = "backend"
 
 val checkstyleVersion by extra("8.42")
@@ -118,7 +118,7 @@ dependencies {
     implementation("com.github.ulisesbocchio:jasypt-spring-boot-starter:$jasyptVersion")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("io.github.openfeign:feign-jackson")
-    implementation(platform("software.amazon.awssdk:bom:2.17.100"))
+    implementation(platform("software.amazon.awssdk:bom:2.17.148"))
     implementation("software.amazon.awssdk:auth")
     implementation("software.amazon.awssdk:regions")
 //    implementation("software.amazon.awssdk:lambda")
