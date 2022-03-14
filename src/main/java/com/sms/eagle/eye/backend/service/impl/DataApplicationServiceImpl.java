@@ -100,7 +100,15 @@ public class DataApplicationServiceImpl implements DataApplicationService {
     }
 
     /**
-     * 如果 thirdPartyMapping 不存在 尝试直接当作 告警规则id 返回.
+     * TODO 两种情形分开.
+     *
+     * <p>根据 mappingId 获取 {@link TaskAlarmInfo#getTaskId()},
+     * 再根据 mappingLevel 获取 {@link TaskAlarmInfo#getAlarmLevel()}
+     *
+     * <p>或者根据 taskAlertRuleId 获取 {@link TaskAlarmInfo}
+     *
+     * @param uniqueValue 与任务相关的mappingId，或是taskAlertRuleId
+     * @param mappingLevel 第三方告警级别，uniqueValue 为 mappingId 时该字段必须提供
      */
     @Override
     public Optional<TaskAlarmInfo> getTaskByMappingId(String uniqueValue, String mappingLevel) {
@@ -118,6 +126,13 @@ public class DataApplicationServiceImpl implements DataApplicationService {
         }
     }
 
+    /**
+     * 根据任务名称获取 {@link TaskAlarmInfo#getTaskId()}
+     * 再根据第三方告警级别获取 {@link TaskAlarmInfo#getAlarmLevel()}.
+     *
+     * @param uniqueValue 任务名称
+     * @param mappingLevel 第三方告警级别
+     */
     @Override
     public Optional<TaskAlarmInfo> getTaskIdByTaskName(String uniqueValue, String mappingLevel) {
         Optional<TaskEntity> taskOptional = taskService.getEntityByName(uniqueValue);
