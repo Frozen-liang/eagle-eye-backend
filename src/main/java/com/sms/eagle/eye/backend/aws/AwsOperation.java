@@ -14,8 +14,10 @@ public interface AwsOperation {
 
     void addPermissionToInvokeLambdaFunction(String ruleArn, String ruleTargetId, String taskName, String alarmLevel);
 
+    void removePermissionForInvokeFunction(String taskName, String alarmLevel, String ruleTargetId);
+
     void deleteRule(TaskEntity task, TaskAlertRule taskAlertRule);
 
-    void removeTarget(String ruleName, List<String> targets);
+    void removeTarget(String taskName, String alarmLevel, List<String> targets);
 
 }
