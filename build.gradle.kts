@@ -121,7 +121,7 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.17.148"))
     implementation("software.amazon.awssdk:auth")
     implementation("software.amazon.awssdk:regions")
-//    implementation("software.amazon.awssdk:lambda")
+    implementation("software.amazon.awssdk:lambda")
     implementation("software.amazon.awssdk:cloudwatchlogs")
     implementation("software.amazon.awssdk:eventbridge")
     implementation("io.awspring.cloud:spring-cloud-starter-aws-messaging")

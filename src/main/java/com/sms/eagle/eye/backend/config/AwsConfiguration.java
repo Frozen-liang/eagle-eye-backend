@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.lambda.LambdaClient;
 
 @Configuration
 @EnableConfigurationProperties(AwsProperties.class)
@@ -19,6 +20,13 @@ public class AwsConfiguration {
     @Bean
     public EventBridgeClient eventBridgeClient() {
         return EventBridgeClient.builder()
+            .region(Region.of(awsProperties.getRegion()))
+            .build();
+    }
+
+    @Bean
+    public LambdaClient lambdaClient() {
+        return LambdaClient.builder()
             .region(Region.of(awsProperties.getRegion()))
             .build();
     }
