@@ -82,12 +82,12 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
 
     private void removeRuleTargetIfPresent(TaskEntity task, TaskAlertRule taskAlertRule) {
         List<String> ruleTargetList = thirdPartyMappingService.getAwsRuleTargetList(taskAlertRule.getRuleId());
-        awsOperation.removeTarget(task.getName(), taskAlertRule.getAlarmLevel(), ruleTargetList);
         if (CollectionUtils.isNotEmpty(ruleTargetList)) {
-            for (String ruleTarget: ruleTargetList) {
-                awsOperation.removePermissionForInvokeFunction(
-                    task.getName(), taskAlertRule.getAlarmLevel(), ruleTarget);
-            }
+            awsOperation.removeTarget(task.getName(), taskAlertRule.getAlarmLevel(), ruleTargetList);
+            //            for (String ruleTarget: ruleTargetList) {
+            //                awsOperation.removePermissionForInvokeFunction(
+            //                    task.getName(), taskAlertRule.getAlarmLevel(), ruleTarget);
+            //            }
             thirdPartyMappingService.removeAwsRuleTargetMapping(taskAlertRule.getRuleId());
         }
     }
