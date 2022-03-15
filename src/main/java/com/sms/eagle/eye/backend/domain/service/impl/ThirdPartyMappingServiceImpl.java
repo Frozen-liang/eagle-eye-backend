@@ -64,6 +64,13 @@ public class ThirdPartyMappingServiceImpl extends ServiceImpl<ThirdPartyMappingM
     }
 
     @Override
+    public void removeAwsRuleMapping(Long taskAlertRuleId) {
+        remove(Wrappers.<ThirdPartyMappingEntity>lambdaQuery()
+            .eq(ThirdPartyMappingEntity::getSystemId, taskAlertRuleId)
+            .eq(ThirdPartyMappingEntity::getType, ThirdPartyType.AWS_EVENT_BRIDGE_RULE.getValue()));
+    }
+
+    @Override
     public void removeAwsRuleTargetMapping(Long taskAlertRuleId) {
         remove(Wrappers.<ThirdPartyMappingEntity>lambdaQuery()
             .eq(ThirdPartyMappingEntity::getSystemId, taskAlertRuleId)

@@ -87,6 +87,7 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
                 awsOperation.removePermissionForInvokeFunction(
                     task.getName(), taskAlertRule.getAlarmLevel(), ruleTarget);
             }
+            thirdPartyMappingService.removeAwsRuleMapping(taskAlertRule.getRuleId());
             thirdPartyMappingService.removeAwsRuleTargetMapping(taskAlertRule.getRuleId());
         }
     }
