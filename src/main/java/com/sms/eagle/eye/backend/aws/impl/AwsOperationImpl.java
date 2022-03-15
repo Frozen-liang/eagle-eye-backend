@@ -27,6 +27,9 @@ import software.amazon.awssdk.services.eventbridge.model.PutTargetsResponse;
 import software.amazon.awssdk.services.eventbridge.model.RemoveTargetsRequest;
 import software.amazon.awssdk.services.eventbridge.model.RemoveTargetsResponse;
 import software.amazon.awssdk.services.eventbridge.model.Target;
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.lambda.model.AddPermissionRequest;
+import software.amazon.awssdk.services.lambda.model.AddPermissionResponse;
 
 @Slf4j
 @Component
@@ -35,29 +38,36 @@ public class AwsOperationImpl implements AwsOperation {
     private static final String DEFAULT_INPUT = "{}";
     private static final String EXPRESSION_TEMPLATE = "rate(%s minutes)";
     private static final String DEFAULT_EVENT_BUS = "default";
+    private static final String RULE_NAME_FORMAT = "%s-%s";
+    private static final String STATEMENT_ID_FORMAT = "AWSEvents_%s_%s";
+    public static final String ACTION = "lambda:InvokeFunction";
+    public static final String PRINCIPAL = "events.amazonaws.com";
 
     private final ObjectMapper objectMapper;
     private final AwsProperties awsProperties;
     private final AesEncryptor aesEncryptor;
     private final EventBridgeClient eventBridgeClient;
+    private final LambdaClient lambdaClient;
 
     public AwsOperationImpl(ObjectMapper objectMapper, AwsProperties awsProperties,
-        AesEncryptor aesEncryptor, EventBridgeClient eventBridgeClient) {
+        AesEncryptor aesEncryptor, EventBridgeClient eventBridgeClient,
+        LambdaClient lambdaClient) {
         this.objectMapper = objectMapper;
         this.awsProperties = awsProperties;
         this.aesEncryptor = aesEncryptor;
         this.eventBridgeClient = eventBridgeClient;
+        this.lambdaClient = lambdaClient;
     }
 
-    private String generateRuleName(TaskEntity task, TaskAlertRule taskAlertRule) {
-        return String.format(task.getName(), taskAlertRule.getAlarmLevel());
+    private String generateRuleName(String taskName, String alarmLevel) {
+        return String.format(RULE_NAME_FORMAT, taskName, alarmLevel);
     }
 
     @Override
     public String createRuleAndReturnArn(TaskEntity task, TaskAlertRule taskAlertRule) {
         Integer minuteInterval = getMinuteInterval(taskAlertRule);
         PutRuleRequest putRuleRequest = PutRuleRequest.builder()
-            .name(generateRuleName(task, taskAlertRule))
+            .name(generateRuleName(task.getName(), taskAlertRule.getAlarmLevel()))
             .scheduleExpression(String.format(EXPRESSION_TEMPLATE, minuteInterval))
             .description(task.getDescription())
             .build();
@@ -71,7 +81,7 @@ public class AwsOperationImpl implements AwsOperation {
         String decryptedConfig) {
         String id = UUID.randomUUID().toString();
         PutTargetsRequest putTargetsRequest = PutTargetsRequest.builder()
-            .rule(generateRuleName(task, taskAlertRule))
+            .rule(generateRuleName(task.getName(), taskAlertRule.getAlarmLevel()))
             .eventBusName(DEFAULT_EVENT_BUS)
             .targets(Target.builder()
                 .id(id)
@@ -85,9 +95,23 @@ public class AwsOperationImpl implements AwsOperation {
     }
 
     @Override
+    public void addPermissionToInvokeLambdaFunction(
+        String ruleArn, String ruleTargetId, String taskName, String alarmLevel) {
+        AddPermissionRequest addPermissionRequest = AddPermissionRequest.builder()
+            .action(ACTION)
+            .functionName(awsProperties.getLambdaArn())
+            .principal(PRINCIPAL)
+            .sourceArn(ruleArn)
+            .statementId(String.format(STATEMENT_ID_FORMAT, generateRuleName(taskName, alarmLevel), ruleTargetId))
+            .build();
+        AddPermissionResponse response = lambdaClient.addPermission(addPermissionRequest);
+        log.info("Lambda-addPermission: {}", response);
+    }
+
+    @Override
     public void deleteRule(TaskEntity task, TaskAlertRule taskAlertRule) {
         DeleteRuleResponse response = eventBridgeClient.deleteRule(
-            DeleteRuleRequest.builder().name(generateRuleName(task, taskAlertRule)).build());
+            DeleteRuleRequest.builder().name(generateRuleName(task.getName(), taskAlertRule.getAlarmLevel())).build());
         log.info("DeleteRuleResponse: {}", response);
     }
 
@@ -104,7 +128,7 @@ public class AwsOperationImpl implements AwsOperation {
         Integer minuteInterval = getMinuteInterval(taskAlertRule);
         AwsLambdaInput input = AwsLambdaInput.builder()
             .id(taskAlertRule.getRuleId().toString())
-            .name(generateRuleName(task, taskAlertRule))
+            .name(generateRuleName(task.getName(), taskAlertRule.getAlarmLevel()))
             .description(task.getDescription())
             .alertRule(Collections.singletonList(AwsAlertRuleDto.builder()
                 .interval(minuteInterval)

@@ -12,6 +12,8 @@ public interface AwsOperation {
     String createOrUpdateRuleTarget(TaskEntity task, TaskAlertRule taskAlertRule, PluginEntity plugin,
         String decryptedConfig);
 
+    void addPermissionToInvokeLambdaFunction(String ruleArn, String ruleTargetId, String taskName, String alarmLevel);
+
     void deleteRule(TaskEntity task, TaskAlertRule taskAlertRule);
 
     void removeTarget(String ruleName, List<String> targets);

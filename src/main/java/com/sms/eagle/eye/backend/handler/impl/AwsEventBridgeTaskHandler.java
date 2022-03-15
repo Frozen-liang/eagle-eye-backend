@@ -74,6 +74,8 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
         PluginEntity plugin, String decryptedConfig, TaskAlertRule taskAlertRule) {
         removeRuleTargetIfPresent(task, taskAlertRule);
         String targetId = awsOperation.createOrUpdateRuleTarget(task, taskAlertRule, plugin, decryptedConfig);
+        awsOperation.addPermissionToInvokeLambdaFunction(
+            ruleArn, targetId, task.getName(), taskAlertRule.getAlarmLevel());
         thirdPartyMappingService.addAwsRuleMapping(taskAlertRule.getRuleId(), ruleArn);
         thirdPartyMappingService.addAwsRuleTargetMapping(taskAlertRule.getRuleId(), targetId);
     }
