@@ -4,18 +4,18 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sms.eagle.eye.backend.domain.mapper.ThirdPartyMappingMapper">
 
-    <select id="getTaskIdByMappingId" resultType="java.lang.Long">
-        select task_id
+    <select id="getSystemIdByMappingId" resultType="java.lang.Long">
+        select system_id
         from third_party_mapping
         where mapping_id = #{mappingId}
           and type = #{type}
         order by utc_create_time desc
         limit 1
     </select>
-    <select id="getMappingIdByTaskId" resultType="java.lang.String">
+    <select id="getMappingIdBySystemId" resultType="java.lang.String">
         select mapping_id
         from third_party_mapping
-        where task_id = #{taskId}
+        where system_id = #{systemId}
           and type = #{type}
         order by utc_create_time desc
         limit 1
