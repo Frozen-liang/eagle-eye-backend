@@ -1,21 +1,21 @@
 package com.sms.eagle.eye.backend.domain.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.sms.eagle.eye.backend.domain.entity.ThirdPartyMappingEntity;
 import com.sms.eagle.eye.backend.domain.mapper.ThirdPartyMappingMapper;
 import com.sms.eagle.eye.backend.domain.service.impl.ThirdPartyMappingServiceImpl;
-import org.apache.commons.collections4.CollectionUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-
 import java.util.List;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 public class ThirdPartyMappingServiceTest {
 
@@ -42,7 +42,7 @@ public class ThirdPartyMappingServiceTest {
     @DisplayName("Test the getPluginSystemUnionId method in the Task Task Group Service")
     public void getPluginSystemUnionId_test() {
         doReturn(thirdPartyMapping).when(service).getBaseMapper();
-        when(thirdPartyMapping.getTaskIdByMappingId(MAPPINGID,INTEGER)).thenReturn(Optional.ofNullable(LONG));
+        when(thirdPartyMapping.getSystemIdByMappingId(MAPPINGID,INTEGER)).thenReturn(Optional.ofNullable(LONG));
         assertThat(service.getPluginSystemUnionId(ID)).isNotNull();
     }
 
@@ -50,7 +50,7 @@ public class ThirdPartyMappingServiceTest {
     @DisplayName("Test the getTaskIdByPluginSystemUnionId method in the Task Task Group Service")
     public void getTaskIdByPluginSystemUnionId_test() {
         doReturn(thirdPartyMapping).when(service).getBaseMapper();
-        when(thirdPartyMapping.getTaskIdByMappingId(MAPPINGID,INTEGER)).thenReturn(Optional.ofNullable(LONG));
+        when(thirdPartyMapping.getSystemIdByMappingId(MAPPINGID,INTEGER)).thenReturn(Optional.ofNullable(LONG));
         assertThat(service.getPluginSystemUnionId(ID)).isNotNull();
     }
 
@@ -58,7 +58,7 @@ public class ThirdPartyMappingServiceTest {
     @DisplayName("Test the getAwsRuleArnByTaskAlertRuleId method in the Task Task Group Service")
     public void getAwsRuleArnByTaskAlertRuleId_test() {
         doReturn(thirdPartyMapping).when(service).getBaseMapper();
-        when(thirdPartyMapping.getTaskIdByMappingId(MAPPINGID,INTEGER)).thenReturn(Optional.ofNullable(LONG));
+        when(thirdPartyMapping.getSystemIdByMappingId(MAPPINGID,INTEGER)).thenReturn(Optional.ofNullable(LONG));
         assertThat(service.getAwsRuleArnByTaskAlertRuleId(ID)).isNotNull();
     }
 

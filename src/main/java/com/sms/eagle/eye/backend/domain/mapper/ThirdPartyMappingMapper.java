@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ThirdPartyMappingMapper extends BaseMapper<ThirdPartyMappingEntity> {
 
-    Optional<Long> getTaskIdByMappingId(@Param("mappingId") String mappingId, @Param("type") Integer type);
+    Optional<Long> getSystemIdByMappingId(@Param("mappingId") String mappingId, @Param("type") Integer type);
 
-    Optional<String> getMappingIdByTaskId(@Param("taskId") Long taskId, @Param("type") Integer type);
+    Optional<String> getMappingIdBySystemId(@Param("systemId") Long systemId, @Param("type") Integer type);
 }
