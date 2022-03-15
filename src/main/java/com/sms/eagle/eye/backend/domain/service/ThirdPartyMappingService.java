@@ -19,8 +19,8 @@ public interface ThirdPartyMappingService extends IService<ThirdPartyMappingEnti
 
     void addAwsRuleTargetMapping(Long taskAlertRuleId, String awsRuleTargetId);
 
-    void removeAwsRuleTargetMapping(Long taskId);
+    void removeAwsRuleTargetMapping(Long taskAlertRuleId);
 
-    List<String> getAwsRuleTargetList(Long taskId);
+    List<String> getAwsRuleTargetList(Long taskAlertRuleId);
 
 }

@@ -24,7 +24,7 @@ public class ThirdPartyMappingServiceImpl extends ServiceImpl<ThirdPartyMappingM
     @Override
     public void addPluginSystemUnionIdMapping(Long taskId, String mappingId) {
         save(ThirdPartyMappingEntity.builder()
-            .taskId(taskId)
+            .systemId(taskId)
             .mappingId(mappingId)
             .type(ThirdPartyType.PLUGIN_SYSTEM_UNION_ID.getValue())
             .build());
@@ -48,7 +48,7 @@ public class ThirdPartyMappingServiceImpl extends ServiceImpl<ThirdPartyMappingM
     @Override
     public void addAwsRuleMapping(Long taskAlertRuleId, String awsRule) {
         save(ThirdPartyMappingEntity.builder()
-            .taskId(taskAlertRuleId)
+            .systemId(taskAlertRuleId)
             .mappingId(awsRule)
             .type(ThirdPartyType.AWS_EVENT_BRIDGE_RULE.getValue())
             .build());
@@ -57,23 +57,23 @@ public class ThirdPartyMappingServiceImpl extends ServiceImpl<ThirdPartyMappingM
     @Override
     public void addAwsRuleTargetMapping(Long taskAlertRuleId, String awsRuleTargetId) {
         save(ThirdPartyMappingEntity.builder()
-            .taskId(taskAlertRuleId)
+            .systemId(taskAlertRuleId)
             .mappingId(awsRuleTargetId)
             .type(ThirdPartyType.AWS_EVENT_BRIDGE_RULE_TARGET.getValue())
             .build());
     }
 
     @Override
-    public void removeAwsRuleTargetMapping(Long taskId) {
+    public void removeAwsRuleTargetMapping(Long taskAlertRuleId) {
         remove(Wrappers.<ThirdPartyMappingEntity>lambdaQuery()
-            .eq(ThirdPartyMappingEntity::getTaskId, taskId)
+            .eq(ThirdPartyMappingEntity::getSystemId, taskAlertRuleId)
             .eq(ThirdPartyMappingEntity::getType, ThirdPartyType.AWS_EVENT_BRIDGE_RULE_TARGET.getValue()));
     }
 
     @Override
-    public List<String> getAwsRuleTargetList(Long taskId) {
+    public List<String> getAwsRuleTargetList(Long taskAlertRuleId) {
         List<ThirdPartyMappingEntity> list = list(Wrappers.<ThirdPartyMappingEntity>lambdaQuery()
-            .eq(ThirdPartyMappingEntity::getTaskId, taskId)
+            .eq(ThirdPartyMappingEntity::getSystemId, taskAlertRuleId)
             .eq(ThirdPartyMappingEntity::getType, ThirdPartyType.AWS_EVENT_BRIDGE_RULE_TARGET.getValue()));
         return CollectionUtils.isEmpty(list) ? Collections.emptyList()
             : list.stream().map(ThirdPartyMappingEntity::getMappingId).collect(Collectors.toList());

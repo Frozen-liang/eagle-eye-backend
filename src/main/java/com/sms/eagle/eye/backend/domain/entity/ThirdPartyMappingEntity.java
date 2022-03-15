@@ -21,7 +21,7 @@ public class ThirdPartyMappingEntity implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
     private Long id;
-    private Long taskId;
+    private Long systemId;
     private String mappingId;
     private Integer type;
     private LocalDateTime utcCreateTime;

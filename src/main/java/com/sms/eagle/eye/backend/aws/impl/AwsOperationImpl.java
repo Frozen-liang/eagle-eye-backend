@@ -30,6 +30,8 @@ import software.amazon.awssdk.services.eventbridge.model.Target;
 import software.amazon.awssdk.services.lambda.LambdaClient;
 import software.amazon.awssdk.services.lambda.model.AddPermissionRequest;
 import software.amazon.awssdk.services.lambda.model.AddPermissionResponse;
+import software.amazon.awssdk.services.lambda.model.RemovePermissionRequest;
+import software.amazon.awssdk.services.lambda.model.RemovePermissionResponse;
 
 @Slf4j
 @Component
@@ -109,6 +111,16 @@ public class AwsOperationImpl implements AwsOperation {
     }
 
     @Override
+    public void removePermissionForInvokeFunction(String taskName, String alarmLevel, String ruleTargetId) {
+        RemovePermissionRequest request = RemovePermissionRequest.builder()
+            .functionName(awsProperties.getLambdaArn())
+            .statementId(String.format(STATEMENT_ID_FORMAT, generateRuleName(taskName, alarmLevel), ruleTargetId))
+            .build();
+        RemovePermissionResponse response = lambdaClient.removePermission(request);
+        log.info("Lambda-removePermission: {}", response);
+    }
+
+    @Override
     public void deleteRule(TaskEntity task, TaskAlertRule taskAlertRule) {
         DeleteRuleResponse response = eventBridgeClient.deleteRule(
             DeleteRuleRequest.builder().name(generateRuleName(task.getName(), taskAlertRule.getAlarmLevel())).build());
@@ -116,9 +128,9 @@ public class AwsOperationImpl implements AwsOperation {
     }
 
     @Override
-    public void removeTarget(String ruleName, List<String> targets) {
+    public void removeTarget(String taskName, String alarmLevel, List<String> targets) {
         RemoveTargetsRequest request = RemoveTargetsRequest.builder()
-            .rule(ruleName).ids(targets).build();
+            .rule(generateRuleName(taskName, alarmLevel)).ids(targets).build();
         RemoveTargetsResponse response = eventBridgeClient.removeTargets(request);
         log.info("RemoveTargetsResponse: {}", response);
     }
