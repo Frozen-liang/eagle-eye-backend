@@ -27,8 +27,7 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     }
 
     /**
-     * 每一条任务 可能含 多条告警规则（对应不同告警规则）
-     * 需要为 每一条告警规则，在 EventBridge 中创建 rule.
+     * 每一条任务 可能含 多条告警规则（对应不同告警规则） 需要为 每一条告警规则，在 EventBridge 中创建 rule.
      */
     @Override
     public void startTask(TaskOperationRequest request) {
@@ -84,10 +83,10 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
         List<String> ruleTargetList = thirdPartyMappingService.getAwsRuleTargetList(taskAlertRule.getRuleId());
         if (CollectionUtils.isNotEmpty(ruleTargetList)) {
             awsOperation.removeTarget(task.getName(), taskAlertRule.getAlarmLevel(), ruleTargetList);
-            //            for (String ruleTarget: ruleTargetList) {
-            //                awsOperation.removePermissionForInvokeFunction(
-            //                    task.getName(), taskAlertRule.getAlarmLevel(), ruleTarget);
-            //            }
+            for (String ruleTarget : ruleTargetList) {
+                awsOperation.removePermissionForInvokeFunction(
+                    task.getName(), taskAlertRule.getAlarmLevel(), ruleTarget);
+            }
             thirdPartyMappingService.removeAwsRuleTargetMapping(taskAlertRule.getRuleId());
         }
     }
