@@ -1,38 +1,63 @@
 package com.sms.eagle.eye.backend.service;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sms.eagle.eye.backend.common.enums.AlarmLevel;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.convert.ConfigMetadataConverter;
+import com.sms.eagle.eye.backend.convert.PluginAlertFieldConverter;
+import com.sms.eagle.eye.backend.convert.PluginConfigFieldConverter;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskAlertRuleEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
-import com.sms.eagle.eye.backend.domain.service.*;
+import com.sms.eagle.eye.backend.domain.service.InvokeErrorRecordService;
+import com.sms.eagle.eye.backend.domain.service.PluginAlarmLevelMappingService;
+import com.sms.eagle.eye.backend.domain.service.PluginAlertFieldService;
+import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
+import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
+import com.sms.eagle.eye.backend.domain.service.PluginService;
+import com.sms.eagle.eye.backend.domain.service.TaskAlertRuleService;
+import com.sms.eagle.eye.backend.domain.service.TaskGroupMappingService;
+import com.sms.eagle.eye.backend.domain.service.TaskGroupService;
+import com.sms.eagle.eye.backend.domain.service.TaskService;
+import com.sms.eagle.eye.backend.domain.service.TaskTagMappingService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.handler.TaskHandler;
 import com.sms.eagle.eye.backend.model.ConfigMetadata;
 import com.sms.eagle.eye.backend.model.TaskAlertRule;
-import com.sms.eagle.eye.backend.request.task.*;
+import com.sms.eagle.eye.backend.request.task.TaskAlertRuleRequest;
+import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
+import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
+import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
+import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
 import com.sms.eagle.eye.backend.resolver.ConfigMetadataResolver;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
 import com.sms.eagle.eye.backend.service.impl.TaskApplicationServiceImpl;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.*;
 
 public class TaskApplicationServiceTest {
 
     private final TaskHandler taskHandler = mock(TaskHandler.class);
     private final ConfigMetadataConverter configMetadataConverter = mock(ConfigMetadataConverter.class);
     private final ConfigMetadataResolver configMetadataResolver = mock(ConfigMetadataResolver.class);
+    private final PluginConfigFieldConverter pluginConfigFieldConverter = mock(PluginConfigFieldConverter.class);
     private final TaskService taskService = mock(TaskService.class);
     private final PluginService pluginService = mock(PluginService.class);
+    private final PluginAlertFieldConverter pluginAlertFieldConverter = mock(PluginAlertFieldConverter.class);
     private final InvokeErrorRecordService invokeErrorRecordService = mock(InvokeErrorRecordService.class);
     private final PluginConfigFieldService pluginConfigFieldService = mock(PluginConfigFieldService.class);
     private final PluginAlertFieldService pluginAlertFieldService = mock(PluginAlertFieldService.class);
@@ -47,12 +72,11 @@ public class TaskApplicationServiceTest {
     private final TaskBasicInfoRequest taskBasicInfoRequest = mock(TaskBasicInfoRequest.class);
     private final TaskEntity taskEntity = mock(TaskEntity.class);
     private final TaskPluginConfigRequest taskPluginConfigRequest = mock(TaskPluginConfigRequest.class);
-    private final TaskScheduleRequest taskScheduleRequest = mock(TaskScheduleRequest.class);
-    private final TaskOperationRequest taskOperationRequest = TaskOperationRequest.builder().build();
     private final TaskAlertRuleRequest taskAlertRuleRequest = mock(TaskAlertRuleRequest.class);
 
     private final TaskApplicationService taskApplicationService =
-            new TaskApplicationServiceImpl(taskHandler, configMetadataConverter, configMetadataResolver, taskService,
+            new TaskApplicationServiceImpl(taskHandler, configMetadataConverter, pluginConfigFieldConverter,
+                pluginAlertFieldConverter, configMetadataResolver, taskService,
                     pluginService, invokeErrorRecordService, pluginConfigFieldService, pluginAlertFieldService,
                     pluginSelectOptionService, taskTagMappingService, taskGroupService, taskGroupMappingService,
                     taskAlertRuleService, AlarmLevelMappingService);

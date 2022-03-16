@@ -22,7 +22,6 @@ public class PluginAlertRuleEntity implements Serializable {
     @TableId
     private Long id;
     private Long pluginId;
-    // TODO Change to 'int'
     private Integer alarmLevel;
     private String alertKey;
     private LocalDateTime utcCreateTime;

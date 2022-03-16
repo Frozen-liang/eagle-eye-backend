@@ -33,6 +33,11 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
         this.taskGroupService = taskGroupService;
     }
 
+    /**
+     * 根据 父节点id 获取所有相邻的子节点.
+     *
+     * @param parentId 父节点id
+     */
     @Override
     public List<TaskGroupResponse> getGroupListByParentId(Long parentId) {
         if (Objects.isNull(parentId)) {
@@ -47,6 +52,9 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
         return getList(parentId, map);
     }
 
+    /**
+     * 获取所有的任务分组，以树的形式返回.
+     */
     @Override
     public List<TaskGroupTreeResponse> getTaskGroupTreeList() {
         Map<Long, List<TaskGroupEntity>> map = taskGroupService.getEntityList(null).stream()
@@ -54,6 +62,12 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
         return getTreeList(ROOT_ID, map);
     }
 
+    /**
+     * 根据 父节点id 得到其所有相邻子节点的数据.
+     *
+     * @param id 父节点id
+     * @param map 父节点及其对应子节点的哈希表
+     */
     private List<TaskGroupResponse> getList(Long id, Map<Long, List<TaskGroupEntity>> map) {
         List<TaskGroupEntity> entities = map.get(id);
         if (CollectionUtils.isEmpty(entities)) {
@@ -65,6 +79,12 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
             .collect(Collectors.toList());
     }
 
+    /**
+     * 根据 父节点id 得到其所有子节点的数据.
+     *
+     * @param id 父节点id
+     * @param map 父节点及其对应子节点的哈希表
+     */
     private List<TaskGroupTreeResponse> getTreeList(Long id, Map<Long, List<TaskGroupEntity>> map) {
         List<TaskGroupEntity> entities = map.get(id);
         if (CollectionUtils.isEmpty(entities)) {
@@ -85,6 +105,9 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
             .build();
     }
 
+    /**
+     * 将 {@link TaskGroupEntity} 转化为 {@link TaskGroupTreeResponse}.
+     */
     private TaskGroupTreeResponse convertToTreeResponse(TaskGroupEntity entity, Map<Long, List<TaskGroupEntity>> map) {
         return TaskGroupTreeResponse.builder()
             .id(entity.getId())
@@ -95,7 +118,12 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
     }
 
     /**
-     * 验证是否有重名 添加至同级节点的最后一个.
+     * TODO 加锁
+     * 添加任务组.
+     *
+     * <p>需要验证是否有重名,
+     *
+     * <p>新增节点要添加至同级节点的最后一个.
      */
     @Override
     public boolean addGroup(TaskGroupRequest request) {
@@ -107,7 +135,14 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
     }
 
     /**
-     * 情况一： 从同组下方移动到上方 情况二： 从同组上方移动到下方 情况三： 移动到其他组.
+     * TODO 并发分析
+     * 改变任务组的顺序以及上下级关系.
+     *
+     * <p>情况一： 从同组下方移动到上方
+     *
+     * <p>情况二： 从同组上方移动到下方
+     *
+     * <p>情况三： 移动到其他组.
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -136,26 +171,44 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
         return true;
     }
 
+    /**
+     * 更改任务分组名称.
+     */
     @Override
     public boolean rename(TaskGroupRequest request) {
         taskGroupService.rename(request.getId(), request.getName());
         return true;
     }
 
+    /**
+     * 判断修改前与修改后是否在同一级.
+     *
+     * @param request 任务分组修改数据
+     * @param entity 任务分组原始数据
+     */
     private boolean inSameLevel(TaskGroupRequest request, TaskGroupEntity entity) {
         return Objects.equals(request.getParentId(), entity.getParentId());
     }
 
+    /**
+     * 判断修改前与修改后是否是向上移动.
+     */
     private boolean isMoveUp(TaskGroupRequest request, TaskGroupEntity entity) {
         return entity.getIndex().compareTo(request.getPreIndex() + INDEX_STEP) > 0;
     }
 
+    /**
+     * 判断修改前与修改后是否是向下移动.
+     */
     private boolean isMoveDown(TaskGroupRequest request, TaskGroupEntity entity) {
         return entity.getIndex().compareTo(request.getPreIndex() + INDEX_STEP) < 0;
     }
 
     /**
-     * 检查是否有子节点.
+     * TODO 有关联任务时也不允许删除.
+     * 删除任务组.
+     *
+     * <p>检查是否有子节点,有则不允许删除.
      */
     @Transactional(rollbackFor = Exception.class)
     @Override

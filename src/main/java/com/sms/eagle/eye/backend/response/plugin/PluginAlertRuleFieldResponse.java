@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PluginConfigRuleResponse {
+public class PluginAlertRuleFieldResponse {
 
     private String key;
     private String labelName;

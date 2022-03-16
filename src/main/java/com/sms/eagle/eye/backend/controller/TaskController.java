@@ -8,7 +8,6 @@ import com.sms.eagle.eye.backend.request.task.TaskAlertRuleRequest;
 import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
-import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
 import com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse;
 import com.sms.eagle.eye.backend.response.task.TaskAlertRuleResponse;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
@@ -95,14 +94,6 @@ public class TaskController {
     @PutMapping("/alert-rule")
     public Response<Boolean> updateAlertRule(@RequestBody TaskAlertRuleRequest request) {
         return Response.ok(taskApplicationService.updateAlertRule(request));
-    }
-
-    /**
-     * 修改监控任务的定时计划.
-     */
-    @PutMapping("/schedule")
-    public Response<Boolean> updateSchedule(@RequestBody TaskScheduleRequest request) {
-        return Response.ok(taskApplicationService.updateSchedule(request));
     }
 
     /**

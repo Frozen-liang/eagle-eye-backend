@@ -19,7 +19,7 @@ public interface PluginConfigFieldConverter {
 
     PluginConfigFieldResponse toResponse(PluginConfigFieldEntity pluginConfigFieldEntity);
 
-    PluginConfigFieldWithValueResponse toValueResponse(PluginConfigFieldEntity pluginConfigFieldEntity, String value);
+    PluginConfigFieldWithValueResponse toValueResponse(PluginConfigFieldEntity pluginConfigFieldEntity, Object value);
 
     default Integer map(FieldType value) {
         return Objects.nonNull(value) ? value.getNumber() : FieldType.FIELD_UNKNOWN_VALUE;

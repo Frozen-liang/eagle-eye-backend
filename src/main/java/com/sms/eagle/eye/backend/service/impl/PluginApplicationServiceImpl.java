@@ -12,7 +12,7 @@ import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
 import com.sms.eagle.eye.backend.response.plugin.AlertRuleResponse;
-import com.sms.eagle.eye.backend.response.plugin.PluginConfigRuleResponse;
+import com.sms.eagle.eye.backend.response.plugin.PluginAlertRuleFieldResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginDetailResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginResponse;
 import com.sms.eagle.eye.backend.service.PluginApplicationService;
@@ -54,6 +54,15 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
         this.pluginAlarmLevelMappingService = pluginAlarmLevelMappingService;
     }
 
+    /**
+     * 添加插件
+     *
+     * <p>如果插件的 ScheduleBySelf 为true，则需要为系统告警级别
+     * 与插件自身的告警级别设置映射关系，TODO 至少一条.
+     *
+     * <p>插件元数据中提供的 {@link RegisterResponse#getAlertsList()} 是所有的告警规则表单，
+     * 添加插件时需要为不同告警级别绑定对应的告警规则表单.
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean addPlugin(PluginRequest request) {
@@ -75,10 +84,11 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
     @Override
     public PluginDetailResponse getPluginDetailById(Long id) {
         PluginEntity entity = pluginService.getEntityById(id);
+        List<PluginAlertRuleFieldResponse> allPluginAlertFields = pluginAlertFieldService.getResponseByPluginId(id);
         Map<Integer, List<PluginAlertRuleEntity>> alertRuleMap = pluginAlertRuleService.getListByPluginId(id)
             .stream().collect(Collectors.groupingBy(PluginAlertRuleEntity::getAlarmLevel));
-        Map<String, List<PluginConfigRuleResponse>> alertFieldMap = pluginAlertFieldService.getResponseByPluginId(id)
-            .stream().collect(Collectors.groupingBy(PluginConfigRuleResponse::getKey));
+        Map<String, List<PluginAlertRuleFieldResponse>> alertFieldMap = allPluginAlertFields
+            .stream().collect(Collectors.groupingBy(PluginAlertRuleFieldResponse::getKey));
 
         return PluginDetailResponse.builder()
             .name(entity.getName())
@@ -87,13 +97,20 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
             .scheduleBySelf(entity.getScheduleBySelf())
             .options(pluginSelectOptionService.getResponseByPluginId(id))
             .fields(pluginConfigFieldService.getResponseByPluginId(id))
+            .allAlerts(allPluginAlertFields)
             .alarmLevelMapping(pluginAlarmLevelMappingService.getResponseByPluginId(id))
             .alertRule(generateAlertRuleResponse(alertRuleMap, alertFieldMap))
             .build();
     }
 
+    /**
+     * 根据绑定的告警规则关系得到完整的告警规则表单数据.
+     *
+     * @param alertRuleMap key为告警级别，value是告警级别绑定的告警表单的key
+     * @param alertFieldMap key是告警表单的key，value是告警表单详情（虽然是List，但只会有一个）
+     */
     private List<AlertRuleResponse> generateAlertRuleResponse(Map<Integer, List<PluginAlertRuleEntity>> alertRuleMap,
-        Map<String, List<PluginConfigRuleResponse>> alertFieldMap) {
+        Map<String, List<PluginAlertRuleFieldResponse>> alertFieldMap) {
         List<AlertRuleResponse> list = new ArrayList<>();
         Iterator<Map.Entry<Integer, List<PluginAlertRuleEntity>>> iterator = alertRuleMap.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -108,15 +125,18 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
         return list;
     }
 
-    private List<PluginConfigRuleResponse> getFieldByKeys(List<String> ruleKeys,
-        Map<String, List<PluginConfigRuleResponse>> alertFieldMap) {
-        List<PluginConfigRuleResponse> list = new ArrayList<>();
+    private List<PluginAlertRuleFieldResponse> getFieldByKeys(List<String> ruleKeys,
+        Map<String, List<PluginAlertRuleFieldResponse>> alertFieldMap) {
+        List<PluginAlertRuleFieldResponse> list = new ArrayList<>();
         for (String key : ruleKeys) {
             list.addAll(alertFieldMap.get(key));
         }
         return list;
     }
 
+    /**
+     * 分页获取插件列表.
+     */
     @Override
     public CustomPage<PluginResponse> page(PluginQueryRequest request) {
         return new CustomPage<>(pluginService.getPage(request));

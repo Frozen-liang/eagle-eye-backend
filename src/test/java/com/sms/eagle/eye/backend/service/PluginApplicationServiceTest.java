@@ -7,7 +7,7 @@ import com.sms.eagle.eye.backend.domain.service.*;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
 import com.sms.eagle.eye.backend.response.plugin.AlertRuleResponse;
-import com.sms.eagle.eye.backend.response.plugin.PluginConfigRuleResponse;
+import com.sms.eagle.eye.backend.response.plugin.PluginAlertRuleFieldResponse;
 import com.sms.eagle.eye.backend.service.impl.PluginApplicationServiceImpl;
 import com.sms.eagle.eye.plugin.v1.RegisterResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -72,8 +72,8 @@ public class PluginApplicationServiceTest {
 
         Map<Integer, List<PluginAlertRuleEntity>> alertRuleMap = AlertRuleService.getListByPluginId(ID)
                 .stream().collect(Collectors.groupingBy(PluginAlertRuleEntity::getAlarmLevel));
-        Map<String, List<PluginConfigRuleResponse>> alertFieldMap = AlertFieldService.getResponseByPluginId(ID)
-                .stream().collect(Collectors.groupingBy(PluginConfigRuleResponse::getKey));
+        Map<String, List<PluginAlertRuleFieldResponse>> alertFieldMap = AlertFieldService.getResponseByPluginId(ID)
+                .stream().collect(Collectors.groupingBy(PluginAlertRuleFieldResponse::getKey));
         when(generateAlertRuleResponse(alertRuleMap, alertFieldMap)).thenReturn(Collections.emptyList());
 
         assertThat(pluginApplicationService.getPluginDetailById(ID)).isNotNull();
@@ -108,7 +108,7 @@ public class PluginApplicationServiceTest {
     }
 
     private List<AlertRuleResponse> generateAlertRuleResponse(Map<Integer, List<PluginAlertRuleEntity>> alertRuleMap,
-        Map<String, List<PluginConfigRuleResponse>> alertFieldMap) {
+        Map<String, List<PluginAlertRuleFieldResponse>> alertFieldMap) {
         List<AlertRuleResponse> list = new ArrayList<>();
         Iterator<Map.Entry<Integer, List<PluginAlertRuleEntity>>> iterator = alertRuleMap.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -123,9 +123,9 @@ public class PluginApplicationServiceTest {
         return list;
     }
 
-    private List<PluginConfigRuleResponse> getFieldByKeys(List<String> ruleKeys,
-                                                          Map<String, List<PluginConfigRuleResponse>> alertFieldMap) {
-        List<PluginConfigRuleResponse> list = new ArrayList<>();
+    private List<PluginAlertRuleFieldResponse> getFieldByKeys(List<String> ruleKeys,
+                                                          Map<String, List<PluginAlertRuleFieldResponse>> alertFieldMap) {
+        List<PluginAlertRuleFieldResponse> list = new ArrayList<>();
         for (String key : ruleKeys) {
             list.addAll(alertFieldMap.get(key));
         }
