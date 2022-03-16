@@ -11,6 +11,7 @@ import com.sms.eagle.eye.backend.domain.service.PluginService;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
+import com.sms.eagle.eye.backend.request.plugin.PluginUpdateRequest;
 import com.sms.eagle.eye.backend.response.plugin.AlertRuleResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginAlertRuleFieldResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginDetailResponse;
@@ -81,6 +82,24 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
         return true;
     }
 
+    /**
+     * 修改插件的 级别映射关系 以及 绑定的告警规则表单.
+     */
+    @Override
+    public boolean updatePlugin(PluginUpdateRequest request) {
+        PluginEntity entity = pluginService.getEntityById(request.getId());
+        if (entity.getScheduleBySelf()) {
+            Assert.notEmpty(request.getAlarmLevelMapping(),
+                "Please enter the plugin alarm level that corresponds to the system alarm level");
+            pluginAlarmLevelMappingService.updateByRequest(request.getAlarmLevelMapping(), request.getId());
+        }
+        pluginAlertRuleService.updateByRequest(request.getAlertRule(), request.getId());
+        return true;
+    }
+
+    /**
+     * 获取插件详情.
+     */
     @Override
     public PluginDetailResponse getPluginDetailById(Long id) {
         PluginEntity entity = pluginService.getEntityById(id);

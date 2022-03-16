@@ -4,6 +4,7 @@ import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
+import com.sms.eagle.eye.backend.request.plugin.PluginUpdateRequest;
 import com.sms.eagle.eye.backend.response.plugin.PluginDetailResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginMetadataResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginResponse;
@@ -66,6 +67,14 @@ public class PluginController {
     @PostMapping
     public Response<Boolean> add(@Validated @RequestBody PluginRequest request) {
         return Response.ok(pluginApplicationService.addPlugin(request));
+    }
+
+    /**
+     * 编辑插件.
+     */
+    @PutMapping
+    public Response<Boolean> update(@Validated @RequestBody PluginUpdateRequest request) {
+        return Response.ok(pluginApplicationService.updatePlugin(request));
     }
 
     /**
