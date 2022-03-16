@@ -23,5 +23,5 @@ public class AlertRuleResponse {
      * 插件metadata 提供的告警规则的 key列表.
      */
     @NotEmpty
-    private List<PluginConfigRuleResponse> alerts;
+    private List<PluginAlertRuleFieldResponse> alerts;
 }

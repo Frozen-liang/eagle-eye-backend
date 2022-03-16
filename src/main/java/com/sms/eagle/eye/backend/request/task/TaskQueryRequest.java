@@ -31,6 +31,9 @@ public class TaskQueryRequest extends PageRequest<TaskEntity> {
      * 所属插件id.
      */
     private Long pluginId;
+    /**
+     * 所属分组id.
+     */
     private Long groupId;
 
 }

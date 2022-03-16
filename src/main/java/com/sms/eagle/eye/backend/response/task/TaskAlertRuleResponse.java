@@ -17,7 +17,7 @@ public class TaskAlertRuleResponse {
     /**
      *  告警规则.
      */
-    private List<PluginConfigRuleWithValueResponse> alertRules;
+    private List<PluginAlertRuleWithValueResponse> alertRules;
     private List<PluginSelectOptionResponse> options;
 
     private Integer scheduleInterval;

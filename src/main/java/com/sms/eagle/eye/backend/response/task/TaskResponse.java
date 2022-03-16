@@ -39,17 +39,14 @@ public class TaskResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long pluginId;
     /**
-     * 任务间隔数值.
+     * 任务状态.
      */
-    private Integer scheduleInterval;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Integer status;
-    private Integer alarmLevel;
     /**
-     * 任务间隔单位.
+     * 任务告警级别.
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Integer scheduleUnit;
+    private Integer alarmLevel;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private List<Long> tagList;
     @JsonFormat(shape = JsonFormat.Shape.STRING)

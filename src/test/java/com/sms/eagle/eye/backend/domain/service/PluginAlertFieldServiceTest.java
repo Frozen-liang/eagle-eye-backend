@@ -5,12 +5,10 @@ import com.sms.eagle.eye.backend.convert.PluginAlertFieldConverter;
 import com.sms.eagle.eye.backend.domain.entity.PluginAlertFieldEntity;
 import com.sms.eagle.eye.backend.domain.service.impl.PluginAlertFieldServiceImpl;
 import com.sms.eagle.eye.backend.response.plugin.AlarmLevelMappingResponse;
-import com.sms.eagle.eye.backend.response.plugin.PluginConfigRuleResponse;
+import com.sms.eagle.eye.backend.response.plugin.PluginAlertRuleFieldResponse;
 import com.sms.eagle.eye.plugin.v1.ConfigField;
-import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
 import java.util.List;
 
@@ -21,7 +19,7 @@ public class PluginAlertFieldServiceTest {
 
     private final PluginAlertFieldConverter pluginAlertFieldConverter = mock(PluginAlertFieldConverter.class);
     private final PluginAlertFieldEntity pluginAlertFieldEntity = mock(PluginAlertFieldEntity.class);
-    private final PluginConfigRuleResponse ruleResponse = mock(PluginConfigRuleResponse.class);
+    private final PluginAlertRuleFieldResponse ruleResponse = mock(PluginAlertRuleFieldResponse.class);
     private final PluginAlertFieldService pluginAlertFieldService =
             spy(new PluginAlertFieldServiceImpl(pluginAlertFieldConverter));
 

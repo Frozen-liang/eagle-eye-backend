@@ -10,6 +10,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.sms.eagle.eye.backend.common.enums.AlarmLevel;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.convert.ConfigMetadataConverter;
+import com.sms.eagle.eye.backend.convert.PluginAlertFieldConverter;
+import com.sms.eagle.eye.backend.convert.PluginConfigFieldConverter;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskAlertRuleEntity;
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
@@ -34,11 +36,10 @@ import com.sms.eagle.eye.backend.request.task.TaskBasicInfoRequest;
 import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
 import com.sms.eagle.eye.backend.request.task.TaskPluginConfigRequest;
 import com.sms.eagle.eye.backend.request.task.TaskQueryRequest;
-import com.sms.eagle.eye.backend.request.task.TaskScheduleRequest;
 import com.sms.eagle.eye.backend.resolver.ConfigMetadataResolver;
 import com.sms.eagle.eye.backend.response.task.InvokeErrorRecordResponse;
+import com.sms.eagle.eye.backend.response.task.PluginAlertRuleWithValueResponse;
 import com.sms.eagle.eye.backend.response.task.PluginConfigFieldWithValueResponse;
-import com.sms.eagle.eye.backend.response.task.PluginConfigRuleWithValueResponse;
 import com.sms.eagle.eye.backend.response.task.TaskAlertRuleResponse;
 import com.sms.eagle.eye.backend.response.task.TaskPluginConfigResponse;
 import com.sms.eagle.eye.backend.response.task.TaskResponse;
@@ -50,7 +51,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +61,8 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
 
     private final TaskHandler taskHandler;
     private final ConfigMetadataConverter configMetadataConverter;
+    private final PluginConfigFieldConverter pluginConfigFieldConverter;
+    private final PluginAlertFieldConverter pluginAlertFieldConverter;
     private final ConfigMetadataResolver configMetadataResolver;
     private final TaskService taskService;
     private final PluginService pluginService;
@@ -76,6 +78,8 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
 
     public TaskApplicationServiceImpl(@Qualifier(TASK_HANDLER_PROXY) TaskHandler taskHandler,
         ConfigMetadataConverter configMetadataConverter,
+        PluginConfigFieldConverter pluginConfigFieldConverter,
+        PluginAlertFieldConverter pluginAlertFieldConverter,
         ConfigMetadataResolver configMetadataResolver, TaskService taskService,
         PluginService pluginService,
         InvokeErrorRecordService invokeErrorRecordService,
@@ -89,6 +93,8 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         PluginAlarmLevelMappingService pluginAlarmLevelMappingService) {
         this.taskHandler = taskHandler;
         this.configMetadataConverter = configMetadataConverter;
+        this.pluginConfigFieldConverter = pluginConfigFieldConverter;
+        this.pluginAlertFieldConverter = pluginAlertFieldConverter;
         this.configMetadataResolver = configMetadataResolver;
         this.taskService = taskService;
         this.pluginService = pluginService;
@@ -103,9 +109,12 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         this.pluginAlarmLevelMappingService = pluginAlarmLevelMappingService;
     }
 
+    /**
+     * 根据请求分页获取任务数据.
+     */
     @Override
     public CustomPage<TaskResponse> page(TaskQueryRequest request) {
-        IPage<TaskResponse> page = taskService.getPage(request, getSelfAndChildGroupList(request));
+        IPage<TaskResponse> page = taskService.getPage(request, getSelfAndChildGroupList(request.getGroupId()));
         page.convert(taskResponse -> {
             taskResponse.setTagList(taskTagMappingService.getTagListByTaskId(taskResponse.getId()));
             taskResponse.setGroupList(taskGroupMappingService.getGroupListByTaskId(taskResponse.getId()));
@@ -114,15 +123,28 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         return new CustomPage<>(page);
     }
 
-    private List<Long> getSelfAndChildGroupList(TaskQueryRequest request) {
-        if (Objects.nonNull(request.getGroupId())) {
-            List<Long> groups = taskGroupService.getChildGroupById(request.getGroupId());
-            groups.add(request.getGroupId());
+    /**
+     * 根据任务分组id查询其所有的子分组.
+     *
+     * @param groupId 任务分组id
+     * @return 包括当前分组id在内的其所有的子分组的id列表
+     */
+    private List<Long> getSelfAndChildGroupList(Long groupId) {
+        if (Objects.nonNull(groupId)) {
+            List<Long> groups = taskGroupService.getChildGroupById(groupId);
+            groups.add(groupId);
             return groups;
         }
         return Collections.emptyList();
     }
 
+    /**
+     * 添加监控任务.
+     *
+     * <p>任务名称不允许相同
+     *
+     * @return 任务id
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String addTask(TaskBasicInfoRequest request) {
@@ -136,6 +158,9 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         return taskId.toString();
     }
 
+    /**
+     * 更新任务基本信息.
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateTask(TaskBasicInfoRequest request) {
@@ -148,18 +173,18 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         return true;
     }
 
+    /**
+     * 根据任务id获取其填写的插件配置信息.
+     */
     @Override
     public TaskPluginConfigResponse getPluginConfigByTaskId(Long taskId) {
         TaskEntity taskEntity = taskService.getEntityById(taskId);
         Map<String, Object> configMap = configMetadataResolver.convertConfigToMap(taskEntity.getPluginConfig());
         List<PluginConfigFieldWithValueResponse> configFieldList = pluginConfigFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream().map(pluginConfigField -> {
-
-                PluginConfigFieldWithValueResponse response = PluginConfigFieldWithValueResponse.builder().build();
-                BeanUtils.copyProperties(pluginConfigField, response);
-                response.setValue(configMetadataResolver.decryptToFrontendValue(
-                    configMetadataConverter.fromConfigField(pluginConfigField), configMap));
-                return response;
+                Object value = configMetadataResolver.decryptToFrontendValue(
+                    configMetadataConverter.fromConfigField(pluginConfigField), configMap);
+                return pluginConfigFieldConverter.toValueResponse(pluginConfigField, value);
             }).collect(Collectors.toList());
         return TaskPluginConfigResponse.builder()
             .fields(configFieldList)
@@ -168,7 +193,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
-     * 更新数据库中的插件配置信息 如果任务正在运行中，则通知任务更新其配置.
+     * 更新任务的插件配置信息 如果任务正在运行中，则通知任务更新其配置.
      */
     @Override
     public boolean updatePluginConfig(TaskPluginConfigRequest request) {
@@ -183,18 +208,6 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         return true;
     }
 
-    /**
-     * TODO remove 更新数据库中的任务执行频率信息 如果任务正在运行中，则通知任务更新其执行频率.
-     */
-    @Override
-    public boolean updateSchedule(TaskScheduleRequest request) {
-        taskService.updateTaskEntity(TaskEntity.builder()
-            .id(request.getId())
-            .build());
-        updateTaskIfIsRunning(request.getId(), taskService.getTaskStatusById(request.getId()));
-        return true;
-    }
-
     private void updateTaskIfIsRunning(Long taskId, TaskStatus taskStatus) {
         if (Objects.equals(taskStatus, TaskStatus.RUNNING)) {
             TaskOperationRequest operationRequest = getOperationRequest(taskId);
@@ -203,7 +216,10 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
-     * 检查任务状态， 如果正则运行，则抛出异常 检查配置等信息是否完整.
+     * 根据任务id启动任务
+     *
+     * <p>检查任务状态，如果正在运行，则抛出异常
+     * TODO 检查配置等信息是否完整.
      */
     @Override
     public boolean startByTaskId(Long taskId) {
@@ -219,7 +235,9 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
-     * 检查任务状态 如果是等待或失败状态，则抛出异常.
+     * 根据任务id停止任务
+     *
+     * <p>检查任务状态 如果是等待或失败状态，则抛出异常.
      */
     @Override
     public boolean stopByTaskId(Long taskId) {
@@ -236,7 +254,9 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
-     * 如果任务正则运行中，则提示先停止任务 否则直接删除任务.
+     * 删除任务
+     *
+     * <p>如果任务正则运行中，则提示先停止任务 否则直接删除任务.
      */
     @Override
     public boolean removeTask(Long taskId) {
@@ -248,6 +268,10 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         return true;
     }
 
+    /**
+     * 获取任务的启动错误信息.
+     * TODO 任务恢复正常需删除之前的启动错误信息
+     */
     @Override
     public List<InvokeErrorRecordResponse> getErrorRecord(Long taskId) {
         return invokeErrorRecordService.getErrorRecords(taskId);
@@ -264,14 +288,12 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         String alertRule = alertRuleOptional.map(TaskAlertRuleEntity::getAlertRules).orElse(null);
         Map<String, Object> ruleMap = configMetadataResolver.convertConfigToMap(alertRule);
 
-        List<PluginConfigRuleWithValueResponse> rules = pluginAlertFieldService
+        List<PluginAlertRuleWithValueResponse> rules = pluginAlertFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream()
             .map(pluginAlertFieldEntity -> {
-                PluginConfigRuleWithValueResponse response = PluginConfigRuleWithValueResponse.builder().build();
-                BeanUtils.copyProperties(pluginAlertFieldEntity, response);
                 ConfigMetadata configMetadata = configMetadataConverter.fromAlertField(pluginAlertFieldEntity);
-                response.setValue(configMetadataResolver.decryptToFrontendValue(configMetadata, ruleMap));
-                return response;
+                Object value = configMetadataResolver.decryptToFrontendValue(configMetadata, ruleMap);
+                return pluginAlertFieldConverter.toValueResponse(pluginAlertFieldEntity, value);
             }).collect(Collectors.toList());
 
         return TaskAlertRuleResponse.builder()
@@ -282,6 +304,11 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
             .build();
     }
 
+    /**
+     * 更新任务的告警规则.
+     *
+     * <p>如果任务正在运行中，则通知任务更新其规则.
+     */
     @Override
     public boolean updateAlertRule(TaskAlertRuleRequest request) {
         TaskEntity taskEntity = taskService.getEntityById(request.getTaskId());
@@ -297,35 +324,40 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         return true;
     }
 
+    /**
+     * 根据任务id获取任务操作的数据.
+     */
     private TaskOperationRequest getOperationRequest(Long taskId) {
         TaskEntity task = taskService.getEntityById(taskId);
         PluginEntity plugin = pluginService.getEntityById(task.getPluginId());
         List<ConfigMetadata> configFields = pluginConfigFieldService.getListByPluginId(plugin.getId()).stream()
             .map(configMetadataConverter::fromConfigField).collect(Collectors.toList());
         String config = configMetadataResolver.decryptToString(configFields, task.getPluginConfig());
-
         List<ConfigMetadata> ruleFields = pluginAlertFieldService.getListByPluginId(task.getPluginId()).stream()
             .map(configMetadataConverter::fromAlertField).collect(Collectors.toList());
-        List<TaskAlertRuleEntity> taskAlertRuleList = taskAlertRuleService.getByTaskId(taskId);
-        List<TaskAlertRule> taskAlertRules = taskAlertRuleList.stream().map(taskAlertRuleEntity -> {
-            String alarmLevel = pluginAlarmLevelMappingService.getMappingLevelByPluginIdAndSystemLevel(
-                    task.getPluginId(), taskAlertRuleEntity.getAlarmLevel())
-                .orElse(AlarmLevel.resolve(taskAlertRuleEntity.getAlarmLevel()).getName());
-            return TaskAlertRule.builder()
-                .ruleId(taskAlertRuleEntity.getId())
-                .alarmLevel(alarmLevel)
-                .decryptedAlertRule(configMetadataResolver
-                    .decryptToString(ruleFields, taskAlertRuleEntity.getAlertRules()))
-                .scheduleInterval(taskAlertRuleEntity.getScheduleInterval())
-                .scheduleUnit(taskAlertRuleEntity.getScheduleUnit())
-                .build();
-        }).collect(Collectors.toList());
-
+        List<TaskAlertRule> taskAlertRules = taskAlertRuleService.getByTaskId(taskId).stream()
+            .map(entity -> convertEntityToDto(entity, ruleFields, task.getPluginId()))
+            .collect(Collectors.toList());
         return TaskOperationRequest.builder()
             .task(task)
             .plugin(plugin)
             .decryptedConfig(config)
             .alertRules(taskAlertRules)
+            .build();
+    }
+
+    private TaskAlertRule convertEntityToDto(TaskAlertRuleEntity entity,
+        List<ConfigMetadata> ruleFields, Long pluginId) {
+        String alarmLevelName = pluginAlarmLevelMappingService
+            .getMappingLevelByPluginIdAndSystemLevel(pluginId, entity.getAlarmLevel())
+            .orElse(AlarmLevel.resolve(entity.getAlarmLevel()).getName());
+        return TaskAlertRule.builder()
+            .ruleId(entity.getId())
+            .alarmLevel(alarmLevelName)
+            .decryptedAlertRule(configMetadataResolver
+                .decryptToString(ruleFields, entity.getAlertRules()))
+            .scheduleInterval(entity.getScheduleInterval())
+            .scheduleUnit(entity.getScheduleUnit())
             .build();
     }
 }

@@ -7,7 +7,7 @@ import com.sms.eagle.eye.backend.convert.PluginAlertFieldConverter;
 import com.sms.eagle.eye.backend.domain.entity.PluginAlertFieldEntity;
 import com.sms.eagle.eye.backend.domain.mapper.PluginAlertFieldMapper;
 import com.sms.eagle.eye.backend.domain.service.PluginAlertFieldService;
-import com.sms.eagle.eye.backend.response.plugin.PluginConfigRuleResponse;
+import com.sms.eagle.eye.backend.response.plugin.PluginAlertRuleFieldResponse;
 import com.sms.eagle.eye.plugin.v1.ConfigField;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +38,7 @@ public class PluginAlertFieldServiceImpl extends ServiceImpl<PluginAlertFieldMap
     }
 
     @Override
-    public List<PluginConfigRuleResponse> getResponseByPluginId(Long pluginId) {
+    public List<PluginAlertRuleFieldResponse> getResponseByPluginId(Long pluginId) {
         return list(Wrappers.<PluginAlertFieldEntity>lambdaQuery().eq(PluginAlertFieldEntity::getPluginId, pluginId))
             .stream().map(pluginAlertFieldConverter::toResponse)
             .collect(Collectors.toList());

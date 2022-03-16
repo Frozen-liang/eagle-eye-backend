@@ -75,7 +75,9 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
     public ChannelDetailResponse getByChannelId(Long channelId) {
         NotificationChannelEntity entity = notificationChannelService.getEntityById(channelId);
         List<ChannelFieldWithValueResponse> config = getFieldValueResponse(entity);
-        return converter.toDetailResponse(entity, config);
+        ChannelDetailResponse response = converter.toDetailResponse(entity);
+        response.setConfig(config);
+        return response;
     }
 
     private List<ChannelFieldWithValueResponse> getFieldValueResponse(NotificationChannelEntity entity) {

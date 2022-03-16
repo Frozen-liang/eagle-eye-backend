@@ -1,5 +1,14 @@
 package com.sms.eagle.eye.backend.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sms.eagle.eye.backend.convert.ConfigMetadataConverter;
 import com.sms.eagle.eye.backend.convert.MetadataFieldConverter;
@@ -16,19 +25,15 @@ import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldWithValueResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelPageResponse;
 import com.sms.eagle.eye.backend.service.impl.NotificationChannelApplicationServiceImpl;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.beans.BeanUtils;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class NotificationChannelApplicationServiceTest {
 
@@ -92,12 +97,14 @@ public class NotificationChannelApplicationServiceTest {
         assertThat(notificationChannelApplicationService.getInputFieldsByType(TYPE)).isNotNull();
     }
 
+    /**
+     * TODO.
+     */
     @Test
     @DisplayName("Test the getByChannelId method in the NotificationChannelApplication Service")
     public void getByChannelId_test() {
         when(notificationChannelService.getEntityById(ID)).thenReturn(notificationChannelEntity);
-        List<ChannelFieldWithValueResponse> config = getFieldValueResponse(notificationChannelEntity);
-        when(Converter.toDetailResponse(notificationChannelEntity, config)).thenReturn(channelDetailResponse);
+        when(Converter.toDetailResponse(notificationChannelEntity)).thenReturn(channelDetailResponse);
         assertThat(notificationChannelApplicationService.getByChannelId(ID)).isNotNull();
     }
 

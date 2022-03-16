@@ -26,4 +26,8 @@ public class PluginDetailResponse {
     private List<PluginSelectOptionResponse> options;
     private List<AlarmLevelMappingResponse> alarmLevelMapping;
     private List<AlertRuleResponse> alertRule;
+    /**
+     * 插件所有的告警规则，供编辑时候进行选择.
+     */
+    private List<PluginAlertRuleFieldResponse> allAlerts;
 }
