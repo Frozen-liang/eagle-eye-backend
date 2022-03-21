@@ -57,27 +57,36 @@ public class OAuth2ApplicationServiceTest {
 
     @Test
     void getAccessToken_test() {
+        // mock
         mock_restTemplate();
+        // 执行
         String accessToken = oAuth2ApplicationService.getAccessToken(CODE);
+        // 验证
         assertThat(accessToken).isEqualTo(ACCESS_TOKEN);
     }
 
     @Test
     void getAccessToken_exception_test() {
+        // mock
         when(restTemplate.postForObject(anyString(), any(HttpEntity.class), any()))
             .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+        // 验证异常
         assertThatThrownBy(() -> oAuth2ApplicationService.getAccessToken(CODE)).isInstanceOf(EagleEyeException.class);
     }
 
     @Test
     void getUserInfo_test() {
-        UserResponse userInfo = oAuth2ApplicationService.getUserInfo();
+        // mock
         when(userPermissionService.getPermissionByEmail(anyString())).thenReturn(Collections.emptyList());
+        // 执行
+        UserResponse userInfo = oAuth2ApplicationService.getUserInfo();
+        // 验证
         assertThat(userInfo).isNotNull();
     }
 
     @Test
     void getUsers_test() {
+        // mock
         mock_restTemplate();
         String email = "email@test.com";
         when(userPermissionService.list()).thenReturn(List.of(
@@ -89,13 +98,16 @@ public class OAuth2ApplicationServiceTest {
             HttpStatus.OK);
         when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
             .thenReturn(responseEntity);
+        // 执行
         List<UserPermissionGroupResponse> users = oAuth2ApplicationService.getUsers();
+        // 验证
         assertThat(users).hasSize(1);
         assertThat(users).allMatch(userPermissionGroupResponse -> email.equals(userPermissionGroupResponse.getEmail()));
     }
 
     @Test
     void getUsers_exception_test() {
+        // mock
         mock_restTemplate();
         String email = "email@test.com";
         when(userPermissionService.list()).thenReturn(List.of(
@@ -105,6 +117,7 @@ public class OAuth2ApplicationServiceTest {
             .setData(Collections.singletonList(UserPermissionGroupResponse.builder().email(email).build()));
         when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
             .thenThrow(new RestClientException(""));
+        // 验证异常
         assertThatThrownBy(oAuth2ApplicationService::getUsers).isInstanceOf(EagleEyeException.class);
     }
 

@@ -24,10 +24,11 @@ public class NotificationTemplateApplicationServiceImpl implements NotificationT
 
     @Override
     public NotificationTemplateResponse getTemplate(Integer channelType, Integer templateType) {
-        return NotificationTemplateResponse.builder()
-            .template(notificationTemplateService.getByChannelAndTemplateType(channelType, templateType)
-                .map(NotificationTemplateEntity::getTemplate).orElse(DEFAULT_TEMPLATE))
-            .build();
+        NotificationTemplateResponse build = NotificationTemplateResponse.builder()
+                .template(notificationTemplateService.getByChannelAndTemplateType(channelType, templateType)
+                        .map(NotificationTemplateEntity::getTemplate).orElse(DEFAULT_TEMPLATE))
+                .build();
+        return build;
     }
 
     @Override
