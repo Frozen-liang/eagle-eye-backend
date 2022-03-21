@@ -1,25 +1,26 @@
 package com.sms.eagle.eye.backend.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.sms.eagle.eye.backend.common.enums.NotificationTemplateType;
 import com.sms.eagle.eye.backend.domain.entity.NotificationTemplateEntity;
 import com.sms.eagle.eye.backend.domain.service.NotificationTemplateService;
 import com.sms.eagle.eye.backend.model.TemplateField;
-import com.sms.eagle.eye.backend.request.template.NotificationTemplateRequest;
 import com.sms.eagle.eye.backend.response.template.NotificationTemplateDetailResponse;
 import com.sms.eagle.eye.backend.response.template.NotificationTemplateResponse;
 import com.sms.eagle.eye.backend.service.impl.NotificationTemplateApplicationServiceImpl;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 public class NotificationTemplateApplicationServiceTest {
 
     private final NotificationTemplateService notificationTemplateService = mock(NotificationTemplateService.class);
     private final NotificationTemplateApplicationService notificationTemplateApplicationService =
             new NotificationTemplateApplicationServiceImpl(notificationTemplateService);
-    private final NotificationTemplateRequest request = mock(NotificationTemplateRequest.class);
 
     private static final Integer TYPE = 1;
     private static final String Template = "Template";
@@ -36,16 +37,13 @@ public class NotificationTemplateApplicationServiceTest {
     @DisplayName("Test the getTemplate method in the Notification Template Application Service")
     public void getTemplate_test() {
         // mock
-        Optional<NotificationTemplateEntity> entity = mock(Optional.class);
+        Optional<NotificationTemplateEntity> entity = Optional.empty();
         when(notificationTemplateService.getByChannelAndTemplateType(TYPE, TYPE)).thenReturn(entity);
-        NotificationTemplateEntity templateEntity = mock(NotificationTemplateEntity.class);
         // 执行
         NotificationTemplateResponse result = notificationTemplateApplicationService.getTemplate(TYPE, TYPE);
         // 验证
         assertThat(result).isNotNull();
-        // expected: "Template"
-        // but was: ""
-        // assertThat(result.getTemplate()).isEqualTo(Template);
+         assertThat(result.getTemplate()).isEqualTo(DEFAULT_TEMPLATE);
     }
 
     /**
@@ -59,25 +57,16 @@ public class NotificationTemplateApplicationServiceTest {
     @DisplayName("Test the getTemplate method in the Notification Template Application Service")
     public void getTemplate_test1() {
         // mock
-        Optional<NotificationTemplateEntity> entity = mock(Optional.class);
-        when(notificationTemplateService.getByChannelAndTemplateType(TYPE, TYPE)).thenReturn(entity);
         NotificationTemplateEntity templateEntity = mock(NotificationTemplateEntity.class);
+        doReturn(Template).when(templateEntity).getTemplate();
+        Optional<NotificationTemplateEntity> entityOptional = Optional.of(templateEntity);
+        when(notificationTemplateService.getByChannelAndTemplateType(TYPE, TYPE)).thenReturn(entityOptional);
         // 执行
         NotificationTemplateResponse result = notificationTemplateApplicationService.getTemplate(TYPE, TYPE);
         // 验证
         assertThat(result).isNotNull();
-        // expected: "Template"
-        // but was: ""
-        // assertThat(result.getTemplate()).isEqualTo(Template);
+        assertThat(result.getTemplate()).isEqualTo(Template);
     }
-
-    /**
-     * {@link NotificationTemplateApplicationServiceImpl#getTemplate(Integer, Integer)} ()}
-     *
-     * <p> 根据 channelType通道类型 和 templateType模版类型 获取模版内容
-     *
-     * <p> 情形1：getTemplate 是模版内容，如果为空则返回 DEFAULT_TEMPLATE = ”“
-     */
 
     /**
      * {@link NotificationTemplateApplicationServiceImpl#getTemplateWithFieldInfo(Integer, NotificationTemplateType)} ()}

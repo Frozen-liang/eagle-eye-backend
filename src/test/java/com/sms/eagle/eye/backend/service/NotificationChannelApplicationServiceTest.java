@@ -1,20 +1,12 @@
 package com.sms.eagle.eye.backend.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sms.eagle.eye.backend.model.CustomPage;
-import com.sms.eagle.eye.backend.request.alert.AlertQueryRequest;
-import com.sms.eagle.eye.backend.service.impl.AlertApplicationServiceImpl;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
 
 import com.sms.eagle.eye.backend.convert.ConfigMetadataConverter;
 import com.sms.eagle.eye.backend.convert.MetadataFieldConverter;
@@ -26,11 +18,8 @@ import com.sms.eagle.eye.backend.notification.Channel;
 import com.sms.eagle.eye.backend.request.channel.NotificationChannelQueryRequest;
 import com.sms.eagle.eye.backend.request.channel.NotificationChannelRequest;
 import com.sms.eagle.eye.backend.resolver.ConfigMetadataResolver;
-import com.sms.eagle.eye.backend.response.channel.ChannelDetailResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelFieldResponse;
-import com.sms.eagle.eye.backend.response.channel.ChannelFieldWithValueResponse;
 import com.sms.eagle.eye.backend.response.channel.ChannelListResponse;
-import com.sms.eagle.eye.backend.response.channel.ChannelPageResponse;
 import com.sms.eagle.eye.backend.service.impl.NotificationChannelApplicationServiceImpl;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
@@ -47,14 +36,11 @@ public class NotificationChannelApplicationServiceTest {
     private final ConfigMetadataResolver configMetadataResolver = mock(ConfigMetadataResolver.class);
     private final ConfigMetadataConverter configMetadataConverter = mock(ConfigMetadataConverter.class);
     private final NotificationChannelService notificationChannelService = mock(NotificationChannelService.class);
-    private final ChannelPageResponse channelPageResponse = mock(ChannelPageResponse.class);
 
     private final NotificationChannelApplicationService notificationChannelApplicationService
-            = spy(new NotificationChannelApplicationServiceImpl(channel, Converter, metadataFieldConverter,
-            configMetadataConverter, configMetadataResolver, notificationChannelService));
-    private final NotificationChannelQueryRequest request = mock(NotificationChannelQueryRequest.class);
+        = spy(new NotificationChannelApplicationServiceImpl(channel, Converter, metadataFieldConverter,
+        configMetadataConverter, configMetadataResolver, notificationChannelService));
     private final NotificationChannelRequest channelRequest = mock(NotificationChannelRequest.class);
-    private final ConfigMetadata configMetadata = mock(ConfigMetadata.class);
     private final NotificationChannelEntity notificationChannelEntity = mock(NotificationChannelEntity.class);
 
     private static final Integer TYPE = 1;
