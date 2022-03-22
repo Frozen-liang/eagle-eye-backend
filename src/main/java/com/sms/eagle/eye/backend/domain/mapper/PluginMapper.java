@@ -19,6 +19,8 @@ public interface PluginMapper extends BaseMapper<PluginEntity> {
     IPage<PluginResponse> getPage(Page<?> page, @Param("request") PluginQueryRequest request);
 
     List<IdNameResponse<Long>> getList();
+
+    Integer selectCountByName(@Param("name") String name);
 }
 
 

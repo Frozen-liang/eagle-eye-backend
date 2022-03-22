@@ -24,6 +24,8 @@ public interface TaskMapper extends BaseMapper<TaskEntity> {
     Integer selectCountByName(@Param("name") String name);
 
     Optional<Integer> getTaskStatusById(@Param("id") Long id);
+
+    List<Long> getTaskListByPluginAndStatus(@Param("pluginId") Long pluginId, @Param("status") Integer status);
 }
 
 
