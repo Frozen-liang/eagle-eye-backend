@@ -16,4 +16,8 @@ import lombok.NoArgsConstructor;
 public class PasswordQueryRequest extends PageRequest<PasswordStoreEntity> {
 
     private String key;
+
+    private String description;
+
+    private String creator;
 }
