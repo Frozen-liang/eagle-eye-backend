@@ -94,6 +94,7 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
 
     private List<UserPermissionGroupResponse> queryUser(String accessToken) {
         try {
+            log.info("accessToken: {}", accessToken);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setBearerAuth(accessToken);
             ResponseEntity<NerkoUserResponse> responseEntity = restTemplate
@@ -106,8 +107,9 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
             return nerkoUserResponse.getData();
         } catch (Unauthorized e) {
             log.warn("The token expires! refresh token!", e);
-            usersAccessToken = getAccessTokenByGrantType(CLIENT_CREDENTIALS, null);
-            return queryUser(usersAccessToken);
+            throw new EagleEyeException(OAUTH_CODE_ERROR);
+//            usersAccessToken = getAccessTokenByGrantType(CLIENT_CREDENTIALS, null);
+//            return queryUser(usersAccessToken);
         }
     }
 
