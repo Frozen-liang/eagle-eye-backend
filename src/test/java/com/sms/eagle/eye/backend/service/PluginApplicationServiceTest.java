@@ -1,49 +1,63 @@
 package com.sms.eagle.eye.backend.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.sms.eagle.eye.backend.domain.entity.PluginAlertRuleEntity;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
-import com.sms.eagle.eye.backend.domain.service.*;
+import com.sms.eagle.eye.backend.domain.service.PluginAlarmLevelMappingService;
+import com.sms.eagle.eye.backend.domain.service.PluginAlertFieldService;
+import com.sms.eagle.eye.backend.domain.service.PluginAlertRuleService;
+import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
+import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
+import com.sms.eagle.eye.backend.domain.service.PluginService;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
-import com.sms.eagle.eye.backend.response.plugin.AlertRuleResponse;
-import com.sms.eagle.eye.backend.response.plugin.PluginAlertRuleFieldResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginDetailResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginResponse;
 import com.sms.eagle.eye.backend.service.impl.PluginApplicationServiceImpl;
 import com.sms.eagle.eye.plugin.v1.RegisterResponse;
+import java.util.Collections;
+import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.*;
+import org.springframework.context.ApplicationContext;
 
 public class PluginApplicationServiceTest {
 
-    private final PluginService pluginService = mock(PluginService.class);
-    private final PluginRpcService RpcService = mock(PluginRpcService.class);
-    private final PluginAlertRuleService AlertRuleService = mock(PluginAlertRuleService.class);
-    private final PluginAlertFieldService AlertFieldService = mock(PluginAlertFieldService.class);
-    private final PluginConfigFieldService ConfigFieldService = mock(PluginConfigFieldService.class);
-    private final PluginSelectOptionService SelectOptionService = mock(PluginSelectOptionService.class);
-    private final PluginAlarmLevelMappingService AlarmLevelMappingService = mock(PluginAlarmLevelMappingService.class);
+    private static final ApplicationContext applicationContext = mock(ApplicationContext.class);
+    private static final PluginService pluginService = mock(PluginService.class);
+    private static final PluginRpcService RpcService = mock(PluginRpcService.class);
+    private static final PluginAlertRuleService AlertRuleService = mock(PluginAlertRuleService.class);
+    private static final PluginAlertFieldService AlertFieldService = mock(PluginAlertFieldService.class);
+    private static final PluginConfigFieldService ConfigFieldService = mock(PluginConfigFieldService.class);
+    private static final PluginSelectOptionService SelectOptionService = mock(PluginSelectOptionService.class);
+    private static final PluginAlarmLevelMappingService AlarmLevelMappingService =
+        mock(PluginAlarmLevelMappingService.class);
+
     private final PluginRequest pluginRequest = mock(PluginRequest.class);
     private final RegisterResponse registerResponse = mock(RegisterResponse.class);
     private final PluginEntity entity = mock(PluginEntity.class);
     private final PluginQueryRequest pluginQueryRequest = mock(PluginQueryRequest.class);
 
-    private final PluginApplicationService pluginApplicationService =
+    private static final PluginApplicationServiceImpl pluginApplicationService =
             new PluginApplicationServiceImpl(pluginService, RpcService, AlertRuleService, AlertFieldService,
                     ConfigFieldService, SelectOptionService, AlarmLevelMappingService);
 
     private static final Long ID = 1L;
     private static final String VALUE = "VALUE";
     private static final Integer INTEGER = 1;
+
+    @BeforeAll
+    public static void init() {
+        pluginApplicationService.setApplicationContext(applicationContext);
+    }
 
     @Test
     @DisplayName("Test the page method in the Plugin Application Service")
