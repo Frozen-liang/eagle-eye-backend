@@ -5,6 +5,7 @@ import com.sms.eagle.eye.backend.response.permission.PermissionResponse;
 import com.sms.eagle.eye.backend.service.impl.PermissionApplicationServiceImpl;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,9 +22,14 @@ public class PermissionApplicationServiceTest {
 
     @Test
     void list_test() {
-        when(permissionService.listByName(NAME)).thenReturn(Collections.emptyList());
+        // mock
+        PermissionResponse response = mock(PermissionResponse.class);
+        List<PermissionResponse> list = Arrays.asList(response);
+        when(permissionService.listByName(NAME)).thenReturn(list);
+        // 执行
         List<PermissionResponse> result = permissionApplicationService.list(NAME);
-        assertThat(result).isNotNull();
-        assertThat(result).isEmpty();
+        // 验证
+        assertThat(result).isNotEmpty();
+        assertThat(result).isEqualTo(list);
     }
 }

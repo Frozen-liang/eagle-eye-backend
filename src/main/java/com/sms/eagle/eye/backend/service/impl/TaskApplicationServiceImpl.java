@@ -312,7 +312,6 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Override
     public boolean updateAlertRule(TaskAlertRuleRequest request) {
         TaskEntity taskEntity = taskService.getEntityById(request.getTaskId());
-
         List<ConfigMetadata> configMetadata = pluginAlertFieldService
             .getListByPluginId(taskEntity.getPluginId()).stream()
             .map(configMetadataConverter::fromAlertField).collect(Collectors.toList());

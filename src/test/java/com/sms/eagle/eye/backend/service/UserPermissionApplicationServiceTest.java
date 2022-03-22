@@ -16,12 +16,17 @@ public class UserPermissionApplicationServiceTest {
 
     @Test
     void addOrUpdate_test() {
+        // 构建请求参数
         UserPermissionRequest request = UserPermissionRequest.builder()
             .email("email@test.com")
             .permissionGroupId(1L)
             .build();
+        // mock
         when(userPermissionService.addOrUpdate(request)).thenReturn(true);
-        assert userPermissionApplicationService.addOrUpdate(request);
+        // 执行
+        boolean addOrUpdate = userPermissionApplicationService.addOrUpdate(request);
+        // 验证
+        assert addOrUpdate;
     }
 
 }
