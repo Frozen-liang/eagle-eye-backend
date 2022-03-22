@@ -22,4 +22,6 @@ public interface PluginService extends IService<PluginEntity> {
     void updatePluginStatus(Long pluginId, Boolean enabled);
 
     PluginEntity getEntityById(Long pluginId);
+
+    Integer countByName(String name);
 }

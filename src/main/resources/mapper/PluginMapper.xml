@@ -32,4 +32,9 @@
         where is_deleted = false
         order by name
     </select>
+    <select id="selectCountByName" resultType="java.lang.Integer">
+        select count(1)
+        from plugin
+        where lower(name) = #{name} and is_deleted = false
+    </select>
 </mapper>

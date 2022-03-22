@@ -60,4 +60,7 @@
     <select id="getTaskStatusById" resultType="java.lang.Integer">
         select status from task where id = #{id} and is_deleted = false
     </select>
+    <select id="getTaskListByPluginAndStatus" resultType="java.lang.Long">
+        select id from task where is_deleted = false and plugin_id = #{pluginId} and status = #{status}
+    </select>
 </mapper>

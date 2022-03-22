@@ -29,4 +29,6 @@ public interface TaskService extends IService<TaskEntity> {
     Integer countByName(String name);
 
     TaskStatus getTaskStatusById(Long taskId);
+
+    List<Long> getRunningTaskListByPlugin(Long pluginId);
 }

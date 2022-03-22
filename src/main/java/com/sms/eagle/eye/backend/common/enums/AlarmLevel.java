@@ -13,9 +13,8 @@ import lombok.Getter;
 @Getter
 public enum AlarmLevel {
     NORMAL(0, "Normal", Boolean.FALSE, "#deecdc"),
-    TIPS(1, "Tips", Boolean.TRUE, "#faeccc"),
-    IMPORTANT(2, "Important", Boolean.TRUE, "#f5dfcc"),
-    EMERGENCY(3, "Emergency", Boolean.TRUE, "#fae3de");
+    WARNING(1, "Warning", Boolean.TRUE, "#faeccc"),
+    CRITICAL(2, "Critical", Boolean.TRUE, "#f5dfcc");
 
     private final Integer value;
     private final String name;
