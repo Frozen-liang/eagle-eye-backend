@@ -5,7 +5,6 @@ import static com.sms.eagle.eye.backend.exception.ErrorCode.OAUTH_CODE_ERROR;
 
 import com.sms.eagle.eye.backend.config.NerkoOAuth2Properties;
 import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionEntity;
-import com.sms.eagle.eye.backend.domain.service.PermissionGroupService;
 import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.model.NerkoUserResponse;
@@ -106,7 +105,7 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
                 .requireNonNullElse(responseEntity.getBody(), new NerkoUserResponse());
             return nerkoUserResponse.getData();
         } catch (Unauthorized e) {
-            log.warn("The token expires! refresh token!");
+            log.warn("The token expires! refresh token!", e);
             usersAccessToken = getAccessTokenByGrantType(CLIENT_CREDENTIALS, null);
             return queryUser(usersAccessToken);
         }
