@@ -86,6 +86,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, TaskEntity>
         }
         throw new EagleEyeException(TASK_ID_IS_NOT_CORRECT);
     }
+
+    @Override
+    public List<Long> getRunningTaskListByPlugin(Long pluginId) {
+        return getBaseMapper().getTaskListByPluginAndStatus(pluginId, TaskStatus.RUNNING.getValue());
+    }
 }
 
 

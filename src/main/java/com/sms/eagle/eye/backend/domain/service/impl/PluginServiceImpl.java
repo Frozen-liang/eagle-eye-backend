@@ -17,6 +17,7 @@ import com.sms.eagle.eye.backend.response.plugin.PluginResponse;
 import com.sms.eagle.eye.backend.utils.SecurityUtil;
 import com.sms.eagle.eye.plugin.v1.RegisterResponse;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,6 +70,11 @@ public class PluginServiceImpl extends ServiceImpl<PluginMapper, PluginEntity>
             return optional.get();
         }
         throw new EagleEyeException(PLUGIN_ID_IS_NOT_CORRECT);
+    }
+
+    @Override
+    public Integer countByName(String name) {
+        return getBaseMapper().selectCountByName(name.toLowerCase(Locale.ROOT));
     }
 }
 

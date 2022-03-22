@@ -1,5 +1,7 @@
 package com.sms.eagle.eye.backend.service.impl;
 
+import static com.sms.eagle.eye.backend.exception.ErrorCode.PLUGIN_HAS_ALREADY_EXIST;
+
 import com.sms.eagle.eye.backend.domain.entity.PluginAlertRuleEntity;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.service.PluginAlarmLevelMappingService;
@@ -8,6 +10,8 @@ import com.sms.eagle.eye.backend.domain.service.PluginAlertRuleService;
 import com.sms.eagle.eye.backend.domain.service.PluginConfigFieldService;
 import com.sms.eagle.eye.backend.domain.service.PluginSelectOptionService;
 import com.sms.eagle.eye.backend.domain.service.PluginService;
+import com.sms.eagle.eye.backend.event.DisablePluginEvent;
+import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
@@ -24,12 +28,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 @Service
-public class PluginApplicationServiceImpl implements PluginApplicationService {
+public class PluginApplicationServiceImpl implements PluginApplicationService, ApplicationContextAware {
+
+    private ApplicationContext applicationContext;
 
     private final PluginService pluginService;
     private final PluginRpcService pluginRpcService;
@@ -68,8 +77,10 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
     @Override
     public boolean addPlugin(PluginRequest request) {
         RegisterResponse registerResponse = pluginRpcService.getRegisterResponseByTarget(request.getUrl());
+        if (pluginService.countByName(registerResponse.getName()) != 0) {
+            throw new EagleEyeException(PLUGIN_HAS_ALREADY_EXIST);
+        }
         Long pluginId = pluginService.savePluginAndReturnId(registerResponse, request.getUrl());
-
         if (registerResponse.getScheduleBySelf()) {
             Assert.notEmpty(request.getAlarmLevelMapping(),
                 "Please enter the plugin alarm level that corresponds to the system alarm level");
@@ -168,6 +179,7 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean deletePlugin(Long pluginId) {
+        applicationContext.publishEvent(DisablePluginEvent.builder().pluginId(pluginId).build());
         pluginService.deletePlugin(pluginId);
         return true;
     }
@@ -178,10 +190,18 @@ public class PluginApplicationServiceImpl implements PluginApplicationService {
         return true;
     }
 
+    /**
+     * 停止正在运行的任务，将插件状态设置为禁用.
+     */
     @Override
     public boolean disablePlugin(Long pluginId) {
+        applicationContext.publishEvent(DisablePluginEvent.builder().pluginId(pluginId).build());
         pluginService.updatePluginStatus(pluginId, Boolean.FALSE);
         return true;
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 }

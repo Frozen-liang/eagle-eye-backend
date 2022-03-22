@@ -13,7 +13,6 @@ import java.util.Base64;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -47,9 +46,7 @@ public class UserinfoInterceptorTest {
         assertThat(userinfoInterceptor.preHandle(request, response, handler)).isTrue();
     }
 
-    // TODO
     @Test
-    @Disabled
     void preHandle_exception_test() throws IOException {
         when(request.getHeader(header)).thenReturn(userInfoBase64);
         when(objectMapper.readValue(Base64.getDecoder().decode(userInfoBase64), UserInfo.class)).thenThrow(new RuntimeException());

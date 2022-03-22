@@ -17,6 +17,7 @@ public enum ErrorCode {
     TASK_ALERT_NOTIFICATION_ID_IS_NOT_CORRECT("", "Can't find the corresponding alert notification"),
     GROUP_ID_IS_NOT_CORRECT("", "Can't find the corresponding group"),
     PLUGIN_ID_IS_NOT_CORRECT("", "Can't find the corresponding plugin"),
+    PLUGIN_HAS_ALREADY_EXIST("", "Plugin name already exists"),
     MUST_USE_PASSWORD_VAULT("", "You need to use the passwords in the password vault"),
     INVALID_TASK_SCHEDULE_UNIT_ID("", ""),
     INVALID_ALERT_FIELD_KEY("", ""),
