@@ -12,6 +12,10 @@ import org.springframework.stereotype.Repository;
 public interface TaskGroupMappingMapper extends BaseMapper<TaskGroupMappingEntity> {
 
     List<Long> getGroupListByTaskId(@Param("taskId") Long taskId);
+
+    Integer countByGroupId(@Param("groupId") Long groupId);
+
+    Integer countByGroupIds(@Param("groupIds") List<Long> groupIds);
 }
 
 
