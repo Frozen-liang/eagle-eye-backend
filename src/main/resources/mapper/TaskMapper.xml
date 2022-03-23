@@ -18,7 +18,7 @@
                task.plugin_config,
                task.utc_create_time createTime
         from task
-         inner join plugin on task.plugin_id = plugin.id
+         inner join plugin on task.plugin_id = plugin.id and plugin.is_enabled = true and plugin.is_deleted = false
         <where>
             task.is_deleted = false and plugin.is_deleted = false
             <if test="request.name != null">
