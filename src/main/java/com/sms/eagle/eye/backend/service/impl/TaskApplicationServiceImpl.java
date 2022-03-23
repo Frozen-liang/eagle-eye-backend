@@ -5,9 +5,11 @@ import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_IS_ALREADY_RUNN
 import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_IS_RUNNING_AND_DELETE_ERROR;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.TASK_NAME_HAS_ALREADY_EXIST;
 import static com.sms.eagle.eye.backend.handler.impl.TaskHandlerProxy.TASK_HANDLER_PROXY;
+import static com.sms.eagle.eye.backend.response.task.TaskAlertRuleResponse.DEFAULT_SCHEDULE_INTERVAL;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.sms.eagle.eye.backend.common.enums.AlarmLevel;
+import com.sms.eagle.eye.backend.common.enums.TaskScheduleUnit;
 import com.sms.eagle.eye.backend.common.enums.TaskStatus;
 import com.sms.eagle.eye.backend.convert.ConfigMetadataConverter;
 import com.sms.eagle.eye.backend.convert.PluginAlertFieldConverter;
@@ -300,8 +302,10 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
         return TaskAlertRuleResponse.builder()
             .alertRules(rules)
             .options(pluginSelectOptionService.getResponseByPluginId(taskEntity.getPluginId()))
-            .scheduleInterval(alertRuleOptional.map(TaskAlertRuleEntity::getScheduleInterval).orElse(null))
-            .scheduleUnit(alertRuleOptional.map(TaskAlertRuleEntity::getScheduleUnit).orElse(null))
+            .scheduleInterval(alertRuleOptional.map(TaskAlertRuleEntity::getScheduleInterval)
+                .orElse(DEFAULT_SCHEDULE_INTERVAL))
+            .scheduleUnit(alertRuleOptional.map(TaskAlertRuleEntity::getScheduleUnit)
+                .orElse(TaskScheduleUnit.MINUTE.getId()))
             .build();
     }
 
