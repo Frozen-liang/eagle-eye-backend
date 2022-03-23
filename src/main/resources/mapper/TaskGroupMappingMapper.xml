@@ -12,7 +12,7 @@
 
     <select id="countByGroupId" resultType="java.lang.Integer">
         select count(*)  from task_group_mapping tgm left join task t on tgm.task_id = t.id
-        where tgm.group_id =#{groupId}
+        where tgm.group_id =#{groupId} and t.is_deleted = false
     </select>
 
     <select id="countByGroupIds" resultType="java.lang.Integer">
@@ -22,6 +22,7 @@
             <foreach collection="groupIds" item="item" index="index" open="(" close=")" separator=",">
                 #{item}
             </foreach>
+            and t.is_deleted = false
         </where>
     </select>
 
