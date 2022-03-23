@@ -29,7 +29,7 @@
     <select id="getList" resultType="com.sms.eagle.eye.backend.model.IdNameResponse">
         select id, name
         from plugin
-        where is_deleted = false
+        where is_deleted = false and is_enabled = true
         order by name
     </select>
     <select id="selectCountByName" resultType="java.lang.Integer">
