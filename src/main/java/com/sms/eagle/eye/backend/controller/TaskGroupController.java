@@ -58,4 +58,9 @@ public class TaskGroupController {
         return Response.ok(taskGroupApplicationService.removeGroup(id));
     }
 
+    @DeleteMapping("/batch/{ids}")
+    public Response<Boolean> deleteByIds(@PathVariable List<Long> ids) {
+        return Response.ok(taskGroupApplicationService.removeGroupByIds(ids));
+    }
+
 }

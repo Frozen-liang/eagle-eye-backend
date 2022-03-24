@@ -1,6 +1,7 @@
 package com.sms.eagle.eye.backend.service;
 
 import com.sms.eagle.eye.backend.domain.entity.TaskGroupEntity;
+import com.sms.eagle.eye.backend.domain.service.TaskGroupMappingService;
 import com.sms.eagle.eye.backend.domain.service.TaskGroupService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.GROUP_NAME_HAS_ALREADY_EXIST;
@@ -9,6 +10,8 @@ import com.sms.eagle.eye.backend.request.group.TaskGroupRequest;
 import com.sms.eagle.eye.backend.response.task.TaskGroupResponse;
 import com.sms.eagle.eye.backend.response.task.TaskGroupTreeResponse;
 import com.sms.eagle.eye.backend.service.impl.TaskGroupApplicationServiceImpl;
+import org.apache.commons.collections4.CollectionUtils;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
@@ -18,12 +21,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.wildfly.common.Assert.assertTrue;
 
 public class TaskGroupApplicationServiceTest {
 
     private final TaskGroupService taskGroupService = mock(TaskGroupService.class);
+    private final TaskGroupMappingService taskGroupMappingService = mock(TaskGroupMappingService.class);
     private final TaskGroupApplicationService taskGroupApplicationService =
-            new TaskGroupApplicationServiceImpl(taskGroupService);
+        new TaskGroupApplicationServiceImpl(taskGroupService, taskGroupMappingService);
     private final TaskGroupRequest taskGroupRequest = mock(TaskGroupRequest.class);
     private final TaskGroupEntity taskGroupEntity = mock(TaskGroupEntity.class);
 
@@ -229,10 +234,7 @@ public class TaskGroupApplicationServiceTest {
         when(taskGroupEntity.getParentId()).thenReturn(ID);
         when(taskGroupEntity.getIndex()).thenReturn(INTEGER);
         doNothing().when(taskGroupService).putAllGroupDown(ID, INTEGER, INTEGER);
-        // 执行
-        boolean removeGroup = taskGroupApplicationService.removeGroup(ID);
-        // 验证
-        assertThat(removeGroup).isTrue();
+        assertThat(taskGroupApplicationService.removeGroup(ID)).isTrue();
     }
 
     /**
@@ -248,8 +250,41 @@ public class TaskGroupApplicationServiceTest {
         // mock
         when(taskGroupService.hasChild(ID)).thenReturn(Boolean.TRUE);
         when(taskGroupService.getEntityById(ID)).thenReturn(taskGroupEntity);
-        // 验证异常
-        assertThatThrownBy(() -> taskGroupApplicationService.removeGroup(ID)).isInstanceOf(EagleEyeException.class)
-                .extracting("code").isEqualTo(REMOVE_CHILD_BEFORE_DELETE_GROUP.getCode());
+        assertThatThrownBy(() -> taskGroupApplicationService.removeGroup(ID)).isInstanceOf(EagleEyeException.class);
     }
+
+    @Test
+    @DisplayName("Test the removeGroupByIds method in the Task Group Application Service")
+    public void removeGroupByIds_test() {
+        List<TaskGroupEntity> entityList = Lists.newArrayList(TaskGroupEntity.builder().id(ID).parentId(ID).build());
+        when(taskGroupService.listByIds(any())).thenReturn(entityList);
+        when(taskGroupService.getChildGroupByIds(any())).thenReturn(Lists.newArrayList(ID));
+        when(taskGroupMappingService.countByGroupIds(any())).thenReturn(0);
+        doNothing().when(taskGroupService).deleteGroupByIds(any());
+        doNothing().when(taskGroupService).putAllGroupUp(any(), any(), any());
+        boolean isSuccess = taskGroupApplicationService.removeGroupByIds(Lists.newArrayList(ID));
+        assertTrue(isSuccess);
+    }
+
+    @Test
+    @DisplayName("An exception occurred while remove group by ids ")
+    public void removeGroupByIds_test_thrownException() {
+        List<TaskGroupEntity> entityList = Lists.newArrayList(TaskGroupEntity.builder().id(ID).parentId(ID).build());
+        when(taskGroupService.listByIds(any())).thenReturn(entityList);
+        when(taskGroupService.getChildGroupByIds(any())).thenReturn(Lists.newArrayList(2L));
+        assertThatThrownBy(() -> taskGroupApplicationService.removeGroupByIds(Lists.newArrayList(ID)))
+            .isInstanceOf(EagleEyeException.class);
+    }
+
+    @Test
+    @DisplayName("An exception occurred while remove group by ids ")
+    public void removeGroupByIdsTaskIsNotNull_test_thrownException() {
+        List<TaskGroupEntity> entityList = Lists.newArrayList(TaskGroupEntity.builder().id(ID).parentId(ID).build());
+        when(taskGroupService.listByIds(any())).thenReturn(entityList);
+        when(taskGroupService.getChildGroupByIds(any())).thenReturn(Lists.newArrayList(ID));
+        when(taskGroupMappingService.countByGroupIds(any())).thenReturn(INTEGER);
+        assertThatThrownBy(() -> taskGroupApplicationService.removeGroupByIds(Lists.newArrayList(ID)))
+            .isInstanceOf(EagleEyeException.class);
+    }
+
 }

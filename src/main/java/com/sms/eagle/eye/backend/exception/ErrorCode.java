@@ -36,7 +36,8 @@ public enum ErrorCode {
     DATE_FORMAT_ERROR("", "Please enter the correct date format: yy-MM-dd"),
     GET_METADATA_ERROR("", "Failed to get metadata"),
     CHANNEL_CHECK_ERROR("", "%s can not be empty"),
-    WECOM_ERROR("", "Failed to send WeCom message: %s");
+    WECOM_ERROR("", "Failed to send WeCom message: %s"),
+    REMOVE_TASK_BEFORE_DELETE_GROUP("", "Please delete the associated task first");
 
     private final String code;
     private final String message;

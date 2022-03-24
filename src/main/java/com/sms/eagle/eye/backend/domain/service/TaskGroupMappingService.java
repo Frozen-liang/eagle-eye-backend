@@ -9,4 +9,8 @@ public interface TaskGroupMappingService extends IService<TaskGroupMappingEntity
     void updateGroupMapping(Long taskId, List<Long> groupList);
 
     List<Long> getGroupListByTaskId(Long taskId);
+
+    Integer countByGroupId(Long groupId);
+
+    Integer countByGroupIds(List<Long> groupIds);
 }

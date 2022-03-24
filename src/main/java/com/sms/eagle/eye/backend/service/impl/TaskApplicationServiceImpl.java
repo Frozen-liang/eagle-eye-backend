@@ -256,6 +256,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     }
 
     /**
+     * TODO 删除任务后需要删除任务和任务组的关联数据。
      * 删除任务
      *
      * <p>如果任务正则运行中，则提示先停止任务 否则直接删除任务.

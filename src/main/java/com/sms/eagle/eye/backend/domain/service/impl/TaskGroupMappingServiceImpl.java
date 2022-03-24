@@ -36,6 +36,17 @@ public class TaskGroupMappingServiceImpl extends ServiceImpl<TaskGroupMappingMap
     public List<Long> getGroupListByTaskId(Long taskId) {
         return getBaseMapper().getGroupListByTaskId(taskId);
     }
+
+    @Override
+    public Integer countByGroupId(Long groupId) {
+        return getBaseMapper().countByGroupId(groupId);
+    }
+
+    @Override
+    public Integer countByGroupIds(List<Long> groupIds) {
+        return getBaseMapper().countByGroupIds(groupIds);
+    }
+
 }
 
 

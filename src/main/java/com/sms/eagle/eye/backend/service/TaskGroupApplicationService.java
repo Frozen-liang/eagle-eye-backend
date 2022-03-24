@@ -40,4 +40,9 @@ public interface TaskGroupApplicationService {
      * 删除任务组.
      */
     boolean removeGroup(Long id);
+
+    /**
+     * 删除多个任务组.
+     */
+    boolean removeGroupByIds(List<Long> ids);
 }

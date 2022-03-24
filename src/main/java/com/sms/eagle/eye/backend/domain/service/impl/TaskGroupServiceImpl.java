@@ -4,6 +4,7 @@ import static com.sms.eagle.eye.backend.exception.ErrorCode.GROUP_ID_IS_NOT_CORR
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
 import com.sms.eagle.eye.backend.aspect.DomainServiceAdvice;
 import com.sms.eagle.eye.backend.domain.entity.TaskGroupEntity;
 import com.sms.eagle.eye.backend.domain.mapper.TaskGroupMapper;
@@ -98,10 +99,26 @@ public class TaskGroupServiceImpl extends ServiceImpl<TaskGroupMapper, TaskGroup
     }
 
     @Override
+    public void deleteGroupByIds(List<Long> ids) {
+        removeByIds(ids);
+    }
+
+    @Override
     public List<Long> getChildGroupById(Long id) {
         Map<Long, List<TaskGroupEntity>> parentGroupMap = list().stream()
             .collect(Collectors.groupingBy(TaskGroupEntity::getParentId));
         return getChildIdList(id, parentGroupMap);
+    }
+
+    @Override
+    public List<Long> getChildGroupByIds(List<Long> ids) {
+        Map<Long, List<TaskGroupEntity>> parentGroupMap = list().stream()
+            .collect(Collectors.groupingBy(TaskGroupEntity::getParentId));
+        List<Long> childIds = Lists.newArrayList();
+        for (Long id : ids) {
+            childIds.addAll(getChildIdList(id, parentGroupMap));
+        }
+        return childIds;
     }
 
     private List<Long> getChildIdList(Long id, Map<Long, List<TaskGroupEntity>> map) {

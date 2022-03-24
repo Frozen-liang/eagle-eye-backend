@@ -29,6 +29,11 @@ public interface TaskGroupService extends IService<TaskGroupEntity> {
 
     void deleteGroup(Long id);
 
+    void deleteGroupByIds(List<Long> ids);
+
     List<Long> getChildGroupById(Long id);
+
+    List<Long> getChildGroupByIds(List<Long> ids);
+
 
 }

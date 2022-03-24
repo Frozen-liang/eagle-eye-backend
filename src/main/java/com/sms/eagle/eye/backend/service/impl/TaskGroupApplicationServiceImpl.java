@@ -4,8 +4,11 @@ import static com.sms.eagle.eye.backend.domain.service.impl.TaskGroupServiceImpl
 import static com.sms.eagle.eye.backend.domain.service.impl.TaskGroupServiceImpl.ROOT_ID;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.GROUP_NAME_HAS_ALREADY_EXIST;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.REMOVE_CHILD_BEFORE_DELETE_GROUP;
+import static com.sms.eagle.eye.backend.exception.ErrorCode.REMOVE_TASK_BEFORE_DELETE_GROUP;
 
+import com.sms.eagle.eye.backend.common.function.FunctionHandler;
 import com.sms.eagle.eye.backend.domain.entity.TaskGroupEntity;
+import com.sms.eagle.eye.backend.domain.service.TaskGroupMappingService;
 import com.sms.eagle.eye.backend.domain.service.TaskGroupService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.request.group.TaskGroupRequest;
@@ -17,6 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -28,9 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationService {
 
     private final TaskGroupService taskGroupService;
+    private final TaskGroupMappingService taskGroupMappingService;
 
-    public TaskGroupApplicationServiceImpl(TaskGroupService taskGroupService) {
+    public TaskGroupApplicationServiceImpl(TaskGroupService taskGroupService,
+        TaskGroupMappingService taskGroupMappingService) {
         this.taskGroupService = taskGroupService;
+        this.taskGroupMappingService = taskGroupMappingService;
     }
 
     /**
@@ -118,8 +125,7 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
     }
 
     /**
-     * TODO 加锁
-     * 添加任务组.
+     * TODO 加锁 添加任务组.
      *
      * <p>需要验证是否有重名,
      *
@@ -135,8 +141,7 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
     }
 
     /**
-     * TODO 并发分析
-     * 改变任务组的顺序以及上下级关系.
+     * TODO 并发分析 改变任务组的顺序以及上下级关系.
      *
      * <p>情况一： 从同组下方移动到上方
      *
@@ -205,20 +210,44 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
     }
 
     /**
-     * TODO 有关联任务时也不允许删除.
-     * 删除任务组.
-     *
-     * <p>检查是否有子节点,有则不允许删除.
+     * 检查是否有子节点,有则不允许删除.
+     * 检查是否有任务,有则不允许删除.
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean removeGroup(Long id) {
+        FunctionHandler.isTrue(taskGroupService.hasChild(id)).throwMessage(REMOVE_CHILD_BEFORE_DELETE_GROUP);
+        FunctionHandler.isTrue(taskGroupMappingService.countByGroupId(id) > 0)
+            .throwMessage(REMOVE_TASK_BEFORE_DELETE_GROUP);
         TaskGroupEntity entity = taskGroupService.getEntityById(id);
-        if (taskGroupService.hasChild(id)) {
-            throw new EagleEyeException(REMOVE_CHILD_BEFORE_DELETE_GROUP);
-        }
         taskGroupService.deleteGroup(id);
         taskGroupService.putAllGroupUp(entity.getParentId(), entity.getIndex(), null);
-        return true;
+        return Boolean.TRUE;
     }
+
+    /**
+     * 检查是否有子节点,有则不允许删除.
+     * 检查是否有任务,有则不允许删除.
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean removeGroupByIds(List<Long> ids) {
+        List<TaskGroupEntity> entityList = taskGroupService.listByIds(ids);
+        List<Long> childIds = taskGroupService.getChildGroupByIds(ids);
+        Map<Long, TaskGroupEntity> entityMap = entityList.stream().collect(Collectors.toMap(TaskGroupEntity::getId,
+            Function.identity()));
+        List<Long> noExistIds = childIds.stream().filter(id -> !entityMap.containsKey(id)).collect(Collectors.toList());
+        FunctionHandler.isTrue(CollectionUtils.isNotEmpty(noExistIds)).throwMessage(REMOVE_CHILD_BEFORE_DELETE_GROUP);
+        FunctionHandler.isTrue(taskGroupMappingService.countByGroupIds(ids) > 0)
+            .throwMessage(REMOVE_TASK_BEFORE_DELETE_GROUP);
+        List<TaskGroupEntity> existParentGroupList = entityList.stream()
+            .filter(entity -> !Objects.equals(ROOT_ID, entity.getParentId()))
+            .collect(Collectors.toList());
+        taskGroupService.deleteGroupByIds(ids);
+        for (TaskGroupEntity entity : existParentGroupList) {
+            taskGroupService.putAllGroupUp(entity.getParentId(), entity.getIndex(), null);
+        }
+        return Boolean.TRUE;
+    }
+
 }
