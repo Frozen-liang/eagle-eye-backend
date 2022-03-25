@@ -240,11 +240,9 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
         FunctionHandler.isTrue(CollectionUtils.isNotEmpty(noExistIds)).throwMessage(REMOVE_CHILD_BEFORE_DELETE_GROUP);
         FunctionHandler.isTrue(taskGroupMappingService.countByGroupIds(ids) > 0)
             .throwMessage(REMOVE_TASK_BEFORE_DELETE_GROUP);
-        List<TaskGroupEntity> existParentGroupList = entityList.stream()
-            .filter(entity -> !Objects.equals(ROOT_ID, entity.getParentId()))
-            .collect(Collectors.toList());
-        taskGroupService.deleteGroupByIds(ids);
-        for (TaskGroupEntity entity : existParentGroupList) {
+        for (TaskGroupEntity groupEntity : entityList) {
+            TaskGroupEntity entity = taskGroupService.getEntityById(groupEntity.getId());
+            taskGroupService.deleteGroup(entity.getId());
             taskGroupService.putAllGroupUp(entity.getParentId(), entity.getIndex(), null);
         }
         return Boolean.TRUE;
