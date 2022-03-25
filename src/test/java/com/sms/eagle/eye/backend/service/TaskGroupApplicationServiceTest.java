@@ -256,11 +256,13 @@ public class TaskGroupApplicationServiceTest {
     @Test
     @DisplayName("Test the removeGroupByIds method in the Task Group Application Service")
     public void removeGroupByIds_test() {
-        List<TaskGroupEntity> entityList = Lists.newArrayList(TaskGroupEntity.builder().id(ID).parentId(ID).build());
+        TaskGroupEntity entity = TaskGroupEntity.builder().id(ID).parentId(ID).build();
+        List<TaskGroupEntity> entityList = Lists.newArrayList(entity);
         when(taskGroupService.listByIds(any())).thenReturn(entityList);
         when(taskGroupService.getChildGroupByIds(any())).thenReturn(Lists.newArrayList(ID));
         when(taskGroupMappingService.countByGroupIds(any())).thenReturn(0);
-        doNothing().when(taskGroupService).deleteGroupByIds(any());
+        when(taskGroupService.getEntityById(any())).thenReturn(entity);
+        doNothing().when(taskGroupService).deleteGroup(any());
         doNothing().when(taskGroupService).putAllGroupUp(any(), any(), any());
         boolean isSuccess = taskGroupApplicationService.removeGroupByIds(Lists.newArrayList(ID));
         assertTrue(isSuccess);
