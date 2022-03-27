@@ -9,13 +9,11 @@ import feign.Response;
 import feign.jackson.JacksonDecoder;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import org.springframework.http.HttpStatus;
 
 public class NerkoJacksonDecoder extends JacksonDecoder {
 
     @Override
     public Object decode(Response response, Type type) throws IOException {
-        HttpStatus status = HttpStatus.valueOf(response.status());
         Object result = super.decode(response, type);
         if (result instanceof NerkoBaseResponse) {
             NerkoBaseResponse nerkoBaseResponse = (NerkoBaseResponse) result;
