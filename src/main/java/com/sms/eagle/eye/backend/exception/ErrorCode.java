@@ -18,7 +18,9 @@ public enum ErrorCode {
     GROUP_ID_IS_NOT_CORRECT("", "Can't find the corresponding group"),
     PLUGIN_ID_IS_NOT_CORRECT("", "Can't find the corresponding plugin"),
     PLUGIN_HAS_ALREADY_EXIST("", "Plugin name already exists"),
+    ALARM_MAPPING_CAN_NOT_BE_REPEATED("", "Alarm Level can not be repeated"),
     MUST_USE_PASSWORD_VAULT("", "You need to use the passwords in the password vault"),
+    NOTIFICATION_TEMPLATE_TYPE_ERROR("", "Can't find the corresponding notification template"),
     INVALID_TASK_SCHEDULE_UNIT_ID("", ""),
     INVALID_ALERT_FIELD_KEY("", ""),
     INVALID_ALARM_LEVEL("", ""),
@@ -37,7 +39,8 @@ public enum ErrorCode {
     GET_METADATA_ERROR("", "Failed to get metadata"),
     CHANNEL_CHECK_ERROR("", "%s can not be empty"),
     WECOM_ERROR("", "Failed to send WeCom message: %s"),
-    REMOVE_TASK_BEFORE_DELETE_GROUP("", "Please delete the associated task first");
+    REMOVE_TASK_BEFORE_DELETE_GROUP("", "Please delete the associated task first"),
+    GET_OAUTH_RESOURCE_ERROR("", "Failed to get third-party resources, %s");
 
     private final String code;
     private final String message;

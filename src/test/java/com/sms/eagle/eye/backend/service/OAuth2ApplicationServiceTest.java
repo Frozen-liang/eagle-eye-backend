@@ -8,16 +8,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import com.sms.eagle.eye.backend.config.NerkoOAuth2Properties;
 import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionEntity;
 import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.model.NerkoUserResponse;
-import com.sms.eagle.eye.backend.model.OAuth2AccessTokenResponse;
+import com.sms.eagle.eye.backend.model.OAuth2TokenResponse;
 import com.sms.eagle.eye.backend.model.UserInfo;
+import com.sms.eagle.eye.backend.nerko.service.NerkoUserService;
+import com.sms.eagle.eye.backend.oauth2.NerkoTokenService;
 import com.sms.eagle.eye.backend.response.user.UserPermissionGroupResponse;
 import com.sms.eagle.eye.backend.response.user.UserResponse;
-import com.sms.eagle.eye.backend.service.OAuth2ApplicationService;
 import com.sms.eagle.eye.backend.service.impl.OAuth2ApplicationServiceImpl;
 import com.sms.eagle.eye.backend.utils.SecurityUtil;
 import java.util.Collections;
@@ -36,10 +36,11 @@ import org.springframework.web.client.RestTemplate;
 public class OAuth2ApplicationServiceTest {
 
     private final RestTemplate restTemplate = mock(RestTemplate.class);
-    private final NerkoOAuth2Properties nerkoOAuth2Properties = createNerkoOAuth2Properties();
+    private final NerkoTokenService nerkoTokenService = mock(NerkoTokenService.class);
+    private final NerkoUserService nerkoUserService = mock(NerkoUserService.class);
     private final UserPermissionService userPermissionService = mock(UserPermissionService.class);
     private final OAuth2ApplicationService oAuth2ApplicationService =
-        new OAuth2ApplicationServiceImpl(restTemplate, nerkoOAuth2Properties, userPermissionService);
+        new OAuth2ApplicationServiceImpl(nerkoTokenService, nerkoUserService, userPermissionService);
     private static final String CODE = "code";
     private static final String ACCESS_TOKEN = "accessToken";
     private static final MockedStatic<SecurityUtil> SECURITY_UTIL_MOCKED_STATIC = mockStatic(SecurityUtil.class);
@@ -60,7 +61,7 @@ public class OAuth2ApplicationServiceTest {
         // mock
         mock_restTemplate();
         // 执行
-        String accessToken = oAuth2ApplicationService.getAccessToken(CODE);
+        String accessToken = oAuth2ApplicationService.getToken(CODE).getAccessToken();
         // 验证
         assertThat(accessToken).isEqualTo(ACCESS_TOKEN);
     }
@@ -71,7 +72,7 @@ public class OAuth2ApplicationServiceTest {
         when(restTemplate.postForObject(anyString(), any(HttpEntity.class), any()))
             .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
         // 验证异常
-        assertThatThrownBy(() -> oAuth2ApplicationService.getAccessToken(CODE)).isInstanceOf(EagleEyeException.class);
+        assertThatThrownBy(() -> oAuth2ApplicationService.getToken(CODE)).isInstanceOf(EagleEyeException.class);
     }
 
     @Test
@@ -122,20 +123,11 @@ public class OAuth2ApplicationServiceTest {
     }
 
     private void mock_restTemplate() {
-        OAuth2AccessTokenResponse auth2AccessTokenResponse = OAuth2AccessTokenResponse.builder()
+        OAuth2TokenResponse auth2AccessTokenResponse = OAuth2TokenResponse.builder()
             .accessToken(ACCESS_TOKEN)
             .refreshToken("refreshToken").build();
         when(restTemplate.postForObject(anyString(), any(HttpEntity.class), any()))
             .thenReturn(auth2AccessTokenResponse);
-    }
-
-    private NerkoOAuth2Properties createNerkoOAuth2Properties() {
-        NerkoOAuth2Properties nerkoOAuth2Properties = new NerkoOAuth2Properties();
-        nerkoOAuth2Properties.setClientId("clientId");
-        nerkoOAuth2Properties.setClientSecret("clientSecret");
-        nerkoOAuth2Properties.setTokenEndpoint("http://localhost/oauth/auth");
-        nerkoOAuth2Properties.setUsersEndpoint("http://localhost/v1/user");
-        return nerkoOAuth2Properties;
     }
 
 }

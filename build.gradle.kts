@@ -28,6 +28,8 @@ val mybatisPlusVersion by extra("3.5.1")
 val transmittableThreadVersion by extra("2.12.4")
 val jasyptVersion by extra("3.0.4")
 val powermockVersion by extra("2.0.2")
+val hydraClientVersion by extra("1.11.7")
+val caffeineVersion by extra("3.0.6")
 
 plugins {
     java
@@ -125,6 +127,8 @@ dependencies {
     implementation("software.amazon.awssdk:cloudwatchlogs")
     implementation("software.amazon.awssdk:eventbridge")
     implementation("io.awspring.cloud:spring-cloud-starter-aws-messaging")
+    implementation("sh.ory.hydra:hydra-client:$hydraClientVersion")
+    implementation("com.github.ben-manes.caffeine:caffeine:$caffeineVersion")
 //    implementation("software.amazon.awssdk:sqs")
 //    implementation("com.amazonaws:amazon-sqs-java-messaging-lib:1.0.4")
     implementation("com.baomidou:mybatis-plus-boot-starter:$mybatisPlusVersion")
