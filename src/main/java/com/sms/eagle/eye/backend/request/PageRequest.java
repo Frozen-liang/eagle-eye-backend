@@ -1,4 +1,4 @@
-package com.sms.eagle.eye.backend.model;
+package com.sms.eagle.eye.backend.request;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.AllArgsConstructor;

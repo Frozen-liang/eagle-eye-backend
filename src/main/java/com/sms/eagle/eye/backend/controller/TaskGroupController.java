@@ -2,8 +2,8 @@ package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
-import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.group.TaskGroupRequest;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.response.task.TaskGroupResponse;
 import com.sms.eagle.eye.backend.response.task.TaskGroupTreeResponse;
 import com.sms.eagle.eye.backend.service.TaskGroupApplicationService;

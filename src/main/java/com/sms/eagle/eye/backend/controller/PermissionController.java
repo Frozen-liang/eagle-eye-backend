@@ -1,6 +1,6 @@
 package com.sms.eagle.eye.backend.controller;
 
-import com.sms.eagle.eye.backend.model.Response;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.response.permission.PermissionResponse;
 import com.sms.eagle.eye.backend.service.PermissionApplicationService;
 import java.util.List;

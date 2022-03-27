@@ -1,9 +1,9 @@
 package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.model.NotificationEvent;
-import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.task.TaskAlertNotificationAddRequest;
 import com.sms.eagle.eye.backend.request.task.TaskAlertNotificationUpdateRequest;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.response.task.TaskAlertNotificationResponse;
 import com.sms.eagle.eye.backend.service.TaskNotificationApplicationService;
 import java.util.List;

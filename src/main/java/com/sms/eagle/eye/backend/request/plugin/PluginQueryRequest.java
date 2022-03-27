@@ -1,7 +1,7 @@
 package com.sms.eagle.eye.backend.request.plugin;
 
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
-import com.sms.eagle.eye.backend.model.PageRequest;
+import com.sms.eagle.eye.backend.request.PageRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

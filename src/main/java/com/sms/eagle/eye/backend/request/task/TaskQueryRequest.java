@@ -1,7 +1,7 @@
 package com.sms.eagle.eye.backend.request.task;
 
 import com.sms.eagle.eye.backend.domain.entity.TaskEntity;
-import com.sms.eagle.eye.backend.model.PageRequest;
+import com.sms.eagle.eye.backend.request.PageRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

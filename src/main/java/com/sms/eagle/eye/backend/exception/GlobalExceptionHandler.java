@@ -1,6 +1,6 @@
 package com.sms.eagle.eye.backend.exception;
 
-import com.sms.eagle.eye.backend.model.Response;
+import com.sms.eagle.eye.backend.response.Response;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

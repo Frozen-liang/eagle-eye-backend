@@ -1,10 +1,10 @@
 package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.model.CustomPage;
-import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.alert.AlertListRequest;
 import com.sms.eagle.eye.backend.request.alert.AlertQueryRequest;
 import com.sms.eagle.eye.backend.request.alert.WebHookRequest;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.response.alert.AlertResponse;
 import com.sms.eagle.eye.backend.service.AlertApplicationService;
 import java.util.List;
