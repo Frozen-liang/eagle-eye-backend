@@ -1,133 +1,115 @@
 package com.sms.eagle.eye.backend.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionEntity;
 import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
-import com.sms.eagle.eye.backend.exception.EagleEyeException;
-import com.sms.eagle.eye.backend.model.NerkoUserResponse;
 import com.sms.eagle.eye.backend.model.OAuth2TokenResponse;
 import com.sms.eagle.eye.backend.model.UserInfo;
+import com.sms.eagle.eye.backend.nerko.dto.NerkoUserInfo;
 import com.sms.eagle.eye.backend.nerko.service.NerkoUserService;
 import com.sms.eagle.eye.backend.oauth2.NerkoTokenService;
 import com.sms.eagle.eye.backend.response.user.UserPermissionGroupResponse;
 import com.sms.eagle.eye.backend.response.user.UserResponse;
 import com.sms.eagle.eye.backend.service.impl.OAuth2ApplicationServiceImpl;
 import com.sms.eagle.eye.backend.utils.SecurityUtil;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 public class OAuth2ApplicationServiceTest {
 
-    private final RestTemplate restTemplate = mock(RestTemplate.class);
     private final NerkoTokenService nerkoTokenService = mock(NerkoTokenService.class);
     private final NerkoUserService nerkoUserService = mock(NerkoUserService.class);
     private final UserPermissionService userPermissionService = mock(UserPermissionService.class);
-    private final OAuth2ApplicationService oAuth2ApplicationService =
-        new OAuth2ApplicationServiceImpl(nerkoTokenService, nerkoUserService, userPermissionService);
-    private static final String CODE = "code";
-    private static final String ACCESS_TOKEN = "accessToken";
-    private static final MockedStatic<SecurityUtil> SECURITY_UTIL_MOCKED_STATIC = mockStatic(SecurityUtil.class);
 
-    static {
-        UserInfo userInfo = UserInfo.builder().username("username").nickname("nickname").email("email@test.com")
-            .build();
-        SECURITY_UTIL_MOCKED_STATIC.when(SecurityUtil::getCurrentUser).thenReturn(userInfo);
-    }
+    private final OAuth2ApplicationService oAuth2ApplicationService =
+        spy(new OAuth2ApplicationServiceImpl(nerkoTokenService, nerkoUserService, userPermissionService));
+
+    private static final MockedStatic<SecurityUtil> SECURITY_UTIL_MOCKED_STATIC = mockStatic(SecurityUtil.class);
 
     @AfterAll
     static void afterAll() {
         SECURITY_UTIL_MOCKED_STATIC.close();
     }
 
+    /**
+     * {@link OAuth2ApplicationServiceImpl#getToken(String)}
+     *
+     * 获取 access token
+     */
     @Test
-    void getAccessToken_test() {
-        // mock
-        mock_restTemplate();
+    void getToken_test() {
+        String code = "";
+        // mock nerkoTokenService.getAccessTokenByCode()
+        OAuth2TokenResponse response = mock(OAuth2TokenResponse.class);
+        doReturn(response).when(nerkoTokenService).getAccessTokenByCode(code);
         // 执行
-        String accessToken = oAuth2ApplicationService.getToken(CODE).getAccessToken();
+        OAuth2TokenResponse result = oAuth2ApplicationService.getToken(code);
         // 验证
-        assertThat(accessToken).isEqualTo(ACCESS_TOKEN);
+        assertThat(result).isEqualTo(response);
     }
 
-    @Test
-    void getAccessToken_exception_test() {
-        // mock
-        when(restTemplate.postForObject(anyString(), any(HttpEntity.class), any()))
-            .thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-        // 验证异常
-        assertThatThrownBy(() -> oAuth2ApplicationService.getToken(CODE)).isInstanceOf(EagleEyeException.class);
-    }
-
+    /**
+     * {@link OAuth2ApplicationServiceImpl#getUserInfo()} ()}
+     *
+     * 获取当前请求的用户信息
+     */
     @Test
     void getUserInfo_test() {
-        // mock
-        when(userPermissionService.getPermissionByEmail(anyString())).thenReturn(Collections.emptyList());
+        // mock SecurityUtil.getCurrentUser()
+        String username = "username";
+        String email = "email";
+        UserInfo userInfo = UserInfo.builder().username(username).email(email).build();
+        SECURITY_UTIL_MOCKED_STATIC.when(SecurityUtil::getCurrentUser).thenReturn(userInfo);
+        // mock userPermissionService.getPermissionByEmail()
+        List<String> permissions = mock(List.class);
+        when(userPermissionService.getPermissionByEmail(email)).thenReturn(permissions);
         // 执行
-        UserResponse userInfo = oAuth2ApplicationService.getUserInfo();
+        UserResponse response = oAuth2ApplicationService.getUserInfo();
         // 验证
-        assertThat(userInfo).isNotNull();
+        assertThat(response).isNotNull();
+        assertThat(response.getUsername()).isEqualTo(username);
+        assertThat(response.getPermissions()).isEqualTo(permissions);
     }
 
+    /**
+     * {@link OAuth2ApplicationServiceImpl#getUsers()}
+     *
+     * 获取所有的用户信息及其拥有的权限
+     */
     @Test
     void getUsers_test() {
-        // mock
-        mock_restTemplate();
-        String email = "email@test.com";
-        when(userPermissionService.list()).thenReturn(List.of(
-            UserPermissionEntity.builder().email(email).permissionGroupId(1L).build()));
-        NerkoUserResponse nerkoUserResponse = new NerkoUserResponse();
-        nerkoUserResponse
-            .setData(Collections.singletonList(UserPermissionGroupResponse.builder().email(email).build()));
-        ResponseEntity<NerkoUserResponse> responseEntity = new ResponseEntity<>(nerkoUserResponse,
-            HttpStatus.OK);
-        when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
-            .thenReturn(responseEntity);
+        // mock NerkoUserInfo
+        String username = "username";
+        String email = "email";
+        NerkoUserInfo nerkoUserInfo = mock(NerkoUserInfo.class);
+        when(nerkoUserInfo.getUsername()).thenReturn(username);
+        when(nerkoUserInfo.getEmail()).thenReturn(email);
+        // mock nerkoUserService.getUserList()
+        List<NerkoUserInfo> list = new ArrayList<>(Collections.singletonList(nerkoUserInfo));
+        when(nerkoUserService.getUserList()).thenReturn(list);
+        // mock userPermissionService.list()
+        Long permissionGroupId = 1L;
+        UserPermissionEntity userPermission = UserPermissionEntity.builder()
+            .email(email).permissionGroupId(permissionGroupId).build();
+        List<UserPermissionEntity> userPermissionEntities = new ArrayList<>(Collections.singletonList(userPermission));
+        when(userPermissionService.list()).thenReturn(userPermissionEntities);
         // 执行
         List<UserPermissionGroupResponse> users = oAuth2ApplicationService.getUsers();
         // 验证
         assertThat(users).hasSize(1);
-        assertThat(users).allMatch(userPermissionGroupResponse -> email.equals(userPermissionGroupResponse.getEmail()));
+        assertThat(users)
+            .allMatch(response -> Objects.equals(permissionGroupId, response.getPermissionGroupId()))
+            .allMatch(userPermissionGroupResponse -> Objects.equals(userPermissionGroupResponse.getEmail(), email));
     }
-
-    @Test
-    void getUsers_exception_test() {
-        // mock
-        mock_restTemplate();
-        String email = "email@test.com";
-        when(userPermissionService.list()).thenReturn(List.of(
-            UserPermissionEntity.builder().email(email).permissionGroupId(1L).build()));
-        NerkoUserResponse nerkoUserResponse = new NerkoUserResponse();
-        nerkoUserResponse
-            .setData(Collections.singletonList(UserPermissionGroupResponse.builder().email(email).build()));
-        when(restTemplate.exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
-            .thenThrow(new RestClientException(""));
-        // 验证异常
-        assertThatThrownBy(oAuth2ApplicationService::getUsers).isInstanceOf(EagleEyeException.class);
-    }
-
-    private void mock_restTemplate() {
-        OAuth2TokenResponse auth2AccessTokenResponse = OAuth2TokenResponse.builder()
-            .accessToken(ACCESS_TOKEN)
-            .refreshToken("refreshToken").build();
-        when(restTemplate.postForObject(anyString(), any(HttpEntity.class), any()))
-            .thenReturn(auth2AccessTokenResponse);
-    }
-
 }

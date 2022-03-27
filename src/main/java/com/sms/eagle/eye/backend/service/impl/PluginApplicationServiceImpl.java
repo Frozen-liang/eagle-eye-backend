@@ -99,7 +99,8 @@ public class PluginApplicationServiceImpl implements PluginApplicationService, A
             if (registerResponse.getScheduleBySelf()) {
                 Assert.notEmpty(request.getAlarmLevelMapping(),
                     "Please enter the plugin alarm level that corresponds to the system alarm level");
-                if (request.getAlarmLevelMapping().stream().distinct().count() < request.getAlarmLevelMapping().size()) {
+                if (request.getAlarmLevelMapping().stream().distinct().count()
+                    < request.getAlarmLevelMapping().size()) {
                     throw new EagleEyeException(ALARM_MAPPING_CAN_NOT_BE_REPEATED);
                 }
                 pluginAlarmLevelMappingService.updateByRequest(request.getAlarmLevelMapping(), pluginId);
@@ -155,7 +156,7 @@ public class PluginApplicationServiceImpl implements PluginApplicationService, A
     /**
      * 根据绑定的告警规则关系得到完整的告警规则表单数据.
      *
-     * @param alertRuleMap key为告警级别，value是告警级别绑定的告警表单的key
+     * @param alertRuleMap  key为告警级别，value是告警级别绑定的告警表单的key
      * @param alertFieldMap key是告警表单的key，value是告警表单详情（虽然是List，但只会有一个）
      */
     private List<AlertRuleResponse> generateAlertRuleResponse(Map<Integer, List<PluginAlertRuleEntity>> alertRuleMap,
