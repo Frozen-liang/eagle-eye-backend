@@ -8,6 +8,7 @@ import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.response.plugin.PluginResponse;
 import com.sms.eagle.eye.plugin.v1.RegisterResponse;
 import java.util.List;
+import java.util.Optional;
 
 public interface PluginService extends IService<PluginEntity> {
 
@@ -23,5 +24,7 @@ public interface PluginService extends IService<PluginEntity> {
 
     PluginEntity getEntityById(Long pluginId);
 
-    Integer countByName(String name);
+    Optional<PluginEntity> getByName(String name);
+
+    void updatePluginUrlOrVersion(Long pluginId, Integer version, String url);
 }

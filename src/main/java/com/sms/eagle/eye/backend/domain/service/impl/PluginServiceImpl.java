@@ -18,6 +18,7 @@ import com.sms.eagle.eye.backend.utils.SecurityUtil;
 import com.sms.eagle.eye.plugin.v1.RegisterResponse;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +43,7 @@ public class PluginServiceImpl extends ServiceImpl<PluginMapper, PluginEntity>
     @Override
     public Long savePluginAndReturnId(RegisterResponse registerResponse, String url) {
         PluginEntity pluginEntity = pluginConverter.rpcResponseToEntity(
-            registerResponse, url, SecurityUtil.getCurrentUser().getUsername());
+            registerResponse, url.trim(), SecurityUtil.getCurrentUser().getUsername());
         save(pluginEntity);
         return pluginEntity.getId();
     }
@@ -73,8 +74,16 @@ public class PluginServiceImpl extends ServiceImpl<PluginMapper, PluginEntity>
     }
 
     @Override
-    public Integer countByName(String name) {
-        return getBaseMapper().selectCountByName(name.toLowerCase(Locale.ROOT));
+    public Optional<PluginEntity> getByName(String name) {
+        return getBaseMapper().getByName(name.toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public void updatePluginUrlOrVersion(Long pluginId, Integer version, String url) {
+        update(Wrappers.<PluginEntity>lambdaUpdate()
+            .eq(PluginEntity::getId, pluginId)
+            .set(Objects.nonNull(version), PluginEntity::getVersion, version)
+            .set(Objects.nonNull(url), PluginEntity::getUrl, url));
     }
 }
 

@@ -6,6 +6,7 @@ import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginUpdateRequest;
 import com.sms.eagle.eye.backend.response.plugin.PluginDetailResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginResponse;
+import java.util.List;
 
 public interface PluginApplicationService {
 
@@ -22,5 +23,7 @@ public interface PluginApplicationService {
     boolean enablePlugin(Long pluginId);
 
     boolean disablePlugin(Long pluginId);
+
+    List<Integer> getAllAlarmLevel(Long pluginId);
 
 }

@@ -78,46 +78,42 @@ public class GrpcTaskHandler implements TaskHandler {
     @Override
     public void stopTask(TaskOperationRequest request) {
         Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(request.getTask().getId());
-        mappingIdOptional.ifPresent(mappingId -> {
-            try {
-                GeneralResponse response = factory.getClient(request.getPlugin().getUrl()).getBlockingStub()
-                    .remove(DeleteTaskRequest.newBuilder()
-                        .setMappingId(mappingId)
-                        .setConfig(request.getDecryptedConfig())
-                        .build());
-                log.info("GeneralResponse: {}", response);
-            } catch (Exception exception) {
-                log.error("", exception);
-                throw exception;
-            }
-        });
+        try {
+            GeneralResponse response = factory.getClient(request.getPlugin().getUrl()).getBlockingStub()
+                .remove(DeleteTaskRequest.newBuilder()
+                    .setMappingId(mappingIdOptional.orElse(request.getTask().getId().toString()))
+                    .setConfig(request.getDecryptedConfig())
+                    .build());
+            log.info("GeneralResponse: {}", response);
+        } catch (Exception exception) {
+            log.error("", exception);
+            throw exception;
+        }
     }
 
     @Override
     public void updateTask(TaskOperationRequest request) {
         Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(request.getTask().getId());
-        mappingIdOptional.ifPresent(mappingId -> {
-            try {
-                List<AlertRule> rules = request.getAlertRules().stream().map(taskAlertRule -> AlertRule.newBuilder()
-                    .setAlarmLevel(taskAlertRule.getAlarmLevel())
-                    .setRule(taskAlertRule.getDecryptedAlertRule())
-                    .setInterval(getMinuteInterval(taskAlertRule))
-                    .build()).collect(Collectors.toList());
-                UpdateTaskRequest grpcRequest = UpdateTaskRequest.newBuilder()
-                    .setMappingId(mappingId)
-                    .setName(request.getTask().getName())
-                    .setDescription(request.getTask().getDescription())
-                    .addAllRules(rules)
-                    .setConfig(request.getDecryptedConfig())
-                    .build();
-                GeneralResponse response = factory.getClient(request.getPlugin().getUrl())
-                    .getBlockingStub().edit(grpcRequest);
-                log.info("GeneralResponse: {}", response);
-            } catch (Exception exception) {
-                log.error("", exception);
-                throw exception;
-            }
-        });
+        try {
+            List<AlertRule> rules = request.getAlertRules().stream().map(taskAlertRule -> AlertRule.newBuilder()
+                .setAlarmLevel(taskAlertRule.getAlarmLevel())
+                .setRule(taskAlertRule.getDecryptedAlertRule())
+                .setInterval(getMinuteInterval(taskAlertRule))
+                .build()).collect(Collectors.toList());
+            UpdateTaskRequest grpcRequest = UpdateTaskRequest.newBuilder()
+                .setMappingId(mappingIdOptional.orElse(request.getTask().getId().toString()))
+                .setName(request.getTask().getName())
+                .setDescription(request.getTask().getDescription())
+                .addAllRules(rules)
+                .setConfig(request.getDecryptedConfig())
+                .build();
+            GeneralResponse response = factory.getClient(request.getPlugin().getUrl())
+                .getBlockingStub().edit(grpcRequest);
+            log.info("GeneralResponse: {}", response);
+        } catch (Exception exception) {
+            log.error("", exception);
+            throw exception;
+        }
     }
 
     @Override

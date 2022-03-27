@@ -1,7 +1,6 @@
 package com.sms.eagle.eye.backend.service;
 
 import static com.sms.eagle.eye.backend.exception.ErrorCode.DATE_FORMAT_ERROR;
-import static com.sms.eagle.eye.backend.service.impl.AlertApplicationServiceImpl.DEFAULT_INTERVAL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -189,31 +188,7 @@ public class AlertApplicationServiceTest {
      * {@link AlertApplicationServiceImpl#list(AlertListRequest)}
      *
      * <P> 情形2：{@link AlertListRequest} 请求中的 fromDate 与 toDate
-     * 间隔超过 {@link AlertApplicationServiceImpl#DEFAULT_INTERVAL} ，
-     * 则按照 [fromDate -> toDate-DEFAULT_INTERVAL] 这个范围进行查询
-     */
-    @Test
-    public void list_test_2() {
-        // 构造请求对象
-        String fromDate = "2022-01-01";
-        String toDate = "2022-05-01";
-        AlertListRequest request = AlertListRequest.builder().fromDate(fromDate).toDate(toDate).build();
-        // mock alertService.getResponseList() 方法
-        List<AlertResponse> list = mock(List.class);
-        doReturn(list).when(alertService).getResponseList(
-            LocalDate.parse(fromDate), LocalDate.parse(fromDate).plusMonths(DEFAULT_INTERVAL));
-        // 执行
-        List<AlertResponse> result = alertApplicationService.list(request);
-        // 验证
-        assertThat(result).isEqualTo(list);
-    }
-
-    /**
-     * {@link AlertApplicationServiceImpl#list(AlertListRequest)}
-     *
-     * <P> 情形3：{@link AlertListRequest} 请求中的 fromDate 与 toDate
-     * 间隔没有超过 {@link AlertApplicationServiceImpl#DEFAULT_INTERVAL} ，
-     * 则按照 [fromDate -> toDate] 这个范围进行查询
+     * 格式没有错误，则按照 [fromDate -> toDate] 这个范围进行查询
      */
     @Test
     public void list_test_3() {

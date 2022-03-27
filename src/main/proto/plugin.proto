@@ -26,6 +26,7 @@ enum FieldType{
   RULE_EDITOR = 5;
   RULE_SINGLE_EDITOR = 6;
   EMAIL_INPUT = 7;
+  SINGLE_SELECT = 8;
 }
 
 message ConfigField{
