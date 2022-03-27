@@ -82,8 +82,7 @@ public class AlertApplicationServiceImpl implements AlertApplicationService, App
     public List<AlertResponse> list(AlertListRequest request) {
         LocalDate fromDate = convertToLocalDate(request.getFromDate());
         LocalDate toDate = convertToLocalDate(request.getToDate());
-        Optional<LocalDate> optional = getDateIfExceedMaxInterval(fromDate, toDate);
-        return alertService.getResponseList(fromDate, optional.orElse(toDate));
+        return alertService.getResponseList(fromDate, toDate);
     }
 
     private static LocalDate convertToLocalDate(String date) {

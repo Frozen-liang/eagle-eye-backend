@@ -14,5 +14,6 @@ import lombok.NoArgsConstructor;
 public class NotificationTemplateDetailResponse {
 
     private String template;
+    private String variableKey;
     private List<TemplateField> fieldList;
 }

@@ -32,8 +32,8 @@
         where is_deleted = false and is_enabled = true
         order by name
     </select>
-    <select id="selectCountByName" resultType="java.lang.Integer">
-        select count(1)
+    <select id="getByName" resultType="com.sms.eagle.eye.backend.domain.entity.PluginEntity">
+        select id, name, url, description, version, is_schedule_by_self
         from plugin
         where lower(name) = #{name} and is_deleted = false
     </select>

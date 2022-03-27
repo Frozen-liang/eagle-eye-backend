@@ -24,10 +24,13 @@ public class NotificationTemplateApplicationServiceImpl implements NotificationT
 
     @Override
     public NotificationTemplateResponse getTemplate(Integer channelType, Integer templateType) {
+        NotificationTemplateType notificationTemplateType = NotificationTemplateType.resolve(templateType);
         return NotificationTemplateResponse.builder()
-                .template(notificationTemplateService.getByChannelAndTemplateType(channelType, templateType)
-                        .map(NotificationTemplateEntity::getTemplate).orElse(DEFAULT_TEMPLATE))
-                .build();
+            .variableKey(notificationTemplateType.getVariableKey())
+            .fieldList(notificationTemplateType.getFieldList())
+            .template(notificationTemplateService.getByChannelAndTemplateType(channelType, templateType)
+                .map(NotificationTemplateEntity::getTemplate).orElse(DEFAULT_TEMPLATE))
+            .build();
     }
 
     @Override
@@ -43,6 +46,7 @@ public class NotificationTemplateApplicationServiceImpl implements NotificationT
             .getByChannelAndTemplateType(channelType, notificationTemplateType.getValue());
         return NotificationTemplateDetailResponse.builder()
             .template(entityOptional.map(NotificationTemplateEntity::getTemplate).orElse(DEFAULT_TEMPLATE))
+            .variableKey(notificationTemplateType.getVariableKey())
             .fieldList(notificationTemplateType.getFieldList())
             .build();
     }

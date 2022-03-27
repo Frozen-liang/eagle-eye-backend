@@ -1,5 +1,6 @@
 package com.sms.eagle.eye.backend.service.impl;
 
+import static com.sms.eagle.eye.backend.exception.ErrorCode.ALARM_MAPPING_CAN_NOT_BE_REPEATED;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.PLUGIN_HAS_ALREADY_EXIST;
 
 import com.sms.eagle.eye.backend.domain.entity.PluginAlertRuleEntity;
@@ -27,7 +28,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -67,6 +70,9 @@ public class PluginApplicationServiceImpl implements PluginApplicationService, A
     /**
      * 添加插件
      *
+     * <p>如果存在相同插件，并且版本高于现有插件版本，则对现有插件进行升级处理；
+     * 如果版本和现有插件版本相同，但地址变更，则更新插件地址，否则抛出异常.
+     *
      * <p>如果插件的 ScheduleBySelf 为true，则需要为系统告警级别
      * 与插件自身的告警级别设置映射关系，TODO 至少一条.
      *
@@ -77,19 +83,32 @@ public class PluginApplicationServiceImpl implements PluginApplicationService, A
     @Override
     public boolean addPlugin(PluginRequest request) {
         RegisterResponse registerResponse = pluginRpcService.getRegisterResponseByTarget(request.getUrl());
-        if (pluginService.countByName(registerResponse.getName()) != 0) {
-            throw new EagleEyeException(PLUGIN_HAS_ALREADY_EXIST);
-        }
-        Long pluginId = pluginService.savePluginAndReturnId(registerResponse, request.getUrl());
-        if (registerResponse.getScheduleBySelf()) {
-            Assert.notEmpty(request.getAlarmLevelMapping(),
-                "Please enter the plugin alarm level that corresponds to the system alarm level");
-            pluginAlarmLevelMappingService.updateByRequest(request.getAlarmLevelMapping(), pluginId);
-        }
-        pluginAlertRuleService.updateByRequest(request.getAlertRule(), pluginId);
-        pluginAlertFieldService.saveFromRpcData(registerResponse.getAlertsList(), pluginId);
-        pluginConfigFieldService.saveFromRpcData(registerResponse.getFieldsList(), pluginId);
-        pluginSelectOptionService.saveFromRpcData(registerResponse.getOptionsList(), pluginId);
+        Optional<PluginEntity> pluginEntityOptional = pluginService.getByName(registerResponse.getName());
+        pluginEntityOptional.ifPresentOrElse(plugin -> {
+            if (registerResponse.getVersion() > plugin.getVersion()) {
+                // TODO 升级
+            } else {
+                if (!StringUtils.equals(plugin.getUrl().trim(), request.getUrl().trim())) {
+                    pluginService.updatePluginUrlOrVersion(plugin.getId(), null, request.getUrl().trim());
+                } else {
+                    throw new EagleEyeException(PLUGIN_HAS_ALREADY_EXIST);
+                }
+            }
+        }, () -> {
+            Long pluginId = pluginService.savePluginAndReturnId(registerResponse, request.getUrl());
+            if (registerResponse.getScheduleBySelf()) {
+                Assert.notEmpty(request.getAlarmLevelMapping(),
+                    "Please enter the plugin alarm level that corresponds to the system alarm level");
+                if (request.getAlarmLevelMapping().stream().distinct().count() < request.getAlarmLevelMapping().size()) {
+                    throw new EagleEyeException(ALARM_MAPPING_CAN_NOT_BE_REPEATED);
+                }
+                pluginAlarmLevelMappingService.updateByRequest(request.getAlarmLevelMapping(), pluginId);
+            }
+            pluginAlertRuleService.updateByRequest(request.getAlertRule(), pluginId);
+            pluginAlertFieldService.saveFromRpcData(registerResponse.getAlertsList(), pluginId);
+            pluginConfigFieldService.saveFromRpcData(registerResponse.getFieldsList(), pluginId);
+            pluginSelectOptionService.saveFromRpcData(registerResponse.getOptionsList(), pluginId);
+        });
         return true;
     }
 
@@ -198,6 +217,11 @@ public class PluginApplicationServiceImpl implements PluginApplicationService, A
         applicationContext.publishEvent(DisablePluginEvent.builder().pluginId(pluginId).build());
         pluginService.updatePluginStatus(pluginId, Boolean.FALSE);
         return true;
+    }
+
+    @Override
+    public List<Integer> getAllAlarmLevel(Long pluginId) {
+        return pluginAlarmLevelMappingService.getAlarmLevelByPluginId(pluginId);
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.sms.eagle.eye.backend.model.IdNameResponse;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.response.plugin.PluginResponse;
 import java.util.List;
+import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -20,7 +21,7 @@ public interface PluginMapper extends BaseMapper<PluginEntity> {
 
     List<IdNameResponse<Long>> getList();
 
-    Integer selectCountByName(@Param("name") String name);
+    Optional<PluginEntity> getByName(@Param("name") String name);
 }
 
 

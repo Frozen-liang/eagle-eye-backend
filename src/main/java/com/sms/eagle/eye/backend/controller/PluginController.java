@@ -1,7 +1,7 @@
 package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.model.CustomPage;
-import com.sms.eagle.eye.backend.model.Response;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginUpdateRequest;
@@ -10,6 +10,7 @@ import com.sms.eagle.eye.backend.response.plugin.PluginMetadataResponse;
 import com.sms.eagle.eye.backend.response.plugin.PluginResponse;
 import com.sms.eagle.eye.backend.service.PluginApplicationService;
 import com.sms.eagle.eye.backend.service.PluginRpcService;
+import java.util.List;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -99,5 +100,11 @@ public class PluginController {
     @PutMapping("/disable/{id}")
     public Response<Boolean> disable(@PathVariable Long id) {
         return Response.ok(pluginApplicationService.disablePlugin(id));
+    }
+
+
+    @GetMapping("/alarm-level/all")
+    public Response<List<Integer>> getAllAlarmLevel(@RequestParam Long pluginId) {
+        return Response.ok(pluginApplicationService.getAllAlarmLevel(pluginId));
     }
 }
