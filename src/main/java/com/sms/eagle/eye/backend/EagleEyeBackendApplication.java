@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableCaching
-@EnableFeignClients(basePackages = "com.sms.eagle.eye.backend.wecom.client")
+@EnableFeignClients(basePackages = "com.sms.eagle.eye.backend.*.client")
 public class EagleEyeBackendApplication {
 
 

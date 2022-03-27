@@ -1,6 +1,6 @@
 package com.sms.eagle.eye.backend.controller;
 
-import com.sms.eagle.eye.backend.model.Response;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.response.user.UserPermissionGroupResponse;
 import com.sms.eagle.eye.backend.response.user.UserResponse;
 import com.sms.eagle.eye.backend.service.OAuth2ApplicationService;
@@ -20,7 +20,7 @@ public class OAuth2Controller {
 
     @GetMapping("/access-token")
     public Response<String> getAccessToken(@RequestParam String code) {
-        return Response.ok(oauth2ApplicationService.getAccessToken(code));
+        return Response.ok(oauth2ApplicationService.getToken(code).getAccessToken());
     }
 
     @GetMapping("/userinfo")

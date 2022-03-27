@@ -7,9 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "nerko.oauth2")
 public class NerkoOAuth2Properties {
 
-    private String tokenEndpoint;
-    private String usersEndpoint;
     private String clientId;
     private String clientSecret;
+    private String basePath;
 
 }

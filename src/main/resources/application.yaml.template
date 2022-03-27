@@ -21,5 +21,45 @@ spring:
     import: 'optional:vault://secret/${spring.application.name},consul:'
   datasource:
     url: jdbc:postgresql://localhost:5666/dbName
+    username:
+    password:
+  mail:
+    host:
+    port:
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+
 server:
   port: 8080
+
+jasypt:
+  encryptor:
+    password:
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-value: true
+      logic-not-delete-value: false
+
+nerko:
+  oauth2:
+    base-path:
+    client-id:
+    client-secret:
+  resource:
+    base-path:
+
+eagle:
+  aws:
+    region: ap-southeast-1
+    lambda-arn:
+    queue-name:
+    queue-url:
+  encrypt:
+    secret-key:

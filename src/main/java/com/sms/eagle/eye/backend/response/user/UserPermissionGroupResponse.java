@@ -15,4 +15,6 @@ public class UserPermissionGroupResponse {
     private String username;
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long permissionGroupId;
+    private String fullName;
+    private String workNumber;
 }
