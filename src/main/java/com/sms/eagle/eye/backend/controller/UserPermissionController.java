@@ -1,7 +1,7 @@
 package com.sms.eagle.eye.backend.controller;
 
-import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.permission.UserPermissionRequest;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.service.UserPermissionApplicationService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PutMapping;

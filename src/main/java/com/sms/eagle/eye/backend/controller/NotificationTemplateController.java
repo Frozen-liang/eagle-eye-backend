@@ -1,8 +1,8 @@
 package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.common.enums.NotificationTemplateType;
-import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.template.NotificationTemplateRequest;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.response.template.NotificationTemplateDetailResponse;
 import com.sms.eagle.eye.backend.response.template.NotificationTemplateResponse;
 import com.sms.eagle.eye.backend.service.NotificationTemplateApplicationService;

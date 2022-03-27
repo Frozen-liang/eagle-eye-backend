@@ -1,8 +1,8 @@
 package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.model.IdNameResponse;
-import com.sms.eagle.eye.backend.model.Response;
 import com.sms.eagle.eye.backend.request.tag.TagRequest;
+import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.service.TagApplicationService;
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;

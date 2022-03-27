@@ -1,4 +1,4 @@
-package com.sms.eagle.eye.backend.model;
+package com.sms.eagle.eye.backend.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
