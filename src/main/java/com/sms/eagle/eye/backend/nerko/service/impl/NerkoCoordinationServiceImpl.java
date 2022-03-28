@@ -8,6 +8,7 @@ import com.sms.eagle.eye.backend.nerko.client.CoordinationClient;
 import com.sms.eagle.eye.backend.nerko.dto.NerkoProjectInfo;
 import com.sms.eagle.eye.backend.nerko.service.NerkoCoordinationService;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,12 @@ public class NerkoCoordinationServiceImpl implements NerkoCoordinationService {
 
     @Cacheable(value = PROJECT_CACHE_KEY)
     @Override
-    public List<NerkoProjectInfo> getProjectList() {
+    public List<String> getProjectList() {
         try {
             log.info("Get Project List");
-            return coordinationClient.getProjectList().getData();
+            return coordinationClient.getProjectList().getData().stream()
+                .map(NerkoProjectInfo::getName)
+                .collect(Collectors.toList());
         } catch (Exception exception) {
             throw new EagleEyeException(GET_OAUTH_RESOURCE_ERROR, exception.getMessage());
         }
