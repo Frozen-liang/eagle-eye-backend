@@ -1,5 +1,12 @@
 package com.sms.eagle.eye.backend.controller;
 
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PASSWORD_ADD;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PASSWORD_DELETE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PASSWORD_EDIT;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PASSWORD_VIEWS;
+
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
+import com.sms.eagle.eye.backend.common.enums.PermissionType;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.request.password.PasswordQueryRequest;
 import com.sms.eagle.eye.backend.request.password.PasswordRequest;
@@ -36,6 +43,7 @@ public class PasswordController {
      * 分页获取.
      */
     @GetMapping("/page")
+    @PreAuth(PASSWORD_VIEWS)
     public Response<CustomPage<PasswordPageResponse>> page(PasswordQueryRequest request) {
         return Response.ok(applicationService.page(request));
     }
@@ -52,6 +60,7 @@ public class PasswordController {
      * 添加.
      */
     @PostMapping
+    @PreAuth(PASSWORD_ADD)
     public Response<Boolean> add(@Validated @RequestBody PasswordRequest request) {
         return Response.ok(applicationService.addPassword(request));
     }
@@ -60,6 +69,7 @@ public class PasswordController {
      * 修改.
      */
     @PutMapping
+    @PreAuth(PASSWORD_EDIT)
     public Response<Boolean> edit(@Validated @RequestBody PasswordRequest request) {
         return Response.ok(applicationService.updatePassword(request));
     }
@@ -68,6 +78,7 @@ public class PasswordController {
      * 删除.
      */
     @DeleteMapping("/{id}")
+    @PreAuth(PASSWORD_DELETE)
     public Response<Boolean> delete(@PathVariable Long id) {
         return Response.ok(applicationService.deletePassword(id));
     }

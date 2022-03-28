@@ -1,6 +1,11 @@
 package com.sms.eagle.eye.backend.controller;
 
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.MESSAGE_TEMPLATE_EDIT;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.MESSAGE_TEMPLATE_VIEWS;
+
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.enums.NotificationTemplateType;
+import com.sms.eagle.eye.backend.common.enums.PermissionType;
 import com.sms.eagle.eye.backend.request.template.NotificationTemplateRequest;
 import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.response.template.NotificationTemplateDetailResponse;
@@ -33,6 +38,7 @@ public class NotificationTemplateController {
      * 根据 通道类型 和 模版类型 获取模版内容.
      */
     @GetMapping
+    @PreAuth(MESSAGE_TEMPLATE_VIEWS)
     public Response<NotificationTemplateResponse> getTemplate(@RequestParam Integer channelType,
         @RequestParam Integer templateType) {
         return Response.ok(notificationTemplateApplicationService.getTemplate(channelType, templateType));
@@ -42,6 +48,7 @@ public class NotificationTemplateController {
      * 更新消息模版.
      */
     @PutMapping
+    @PreAuth(MESSAGE_TEMPLATE_EDIT)
     public Response<Boolean> updateTemplate(@RequestBody NotificationTemplateRequest request) {
         return Response.ok(notificationTemplateApplicationService.updateTemplate(request));
     }

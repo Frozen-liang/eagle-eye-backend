@@ -1,5 +1,12 @@
 package com.sms.eagle.eye.backend.controller;
 
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_ADD;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_DELETE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_EDIT;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_VIEWS;
+
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
+import com.sms.eagle.eye.backend.common.enums.PermissionType;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.model.CustomPage;
@@ -31,6 +38,7 @@ public class PermissionGroupController {
     }
 
     @GetMapping("/page")
+    @PreAuth(PERMISSION_GROUP_VIEWS)
     public Response<CustomPage<PermissionGroupResponse>> page(PermissionGroupQueryRequest pageRequest) {
         return Response.ok(permissionGroupApplicationService.page(pageRequest));
     }
@@ -41,26 +49,31 @@ public class PermissionGroupController {
     }
 
     @PostMapping
+    @PreAuth(PERMISSION_GROUP_ADD)
     public Response<String> add(@Validated(InsertGroup.class) @RequestBody PermissionGroupRequest request) {
         return Response.ok(permissionGroupApplicationService.save(request));
     }
 
     @PutMapping
+    @PreAuth(PERMISSION_GROUP_EDIT)
     public Response<Boolean> update(@Validated(UpdateGroup.class) @RequestBody PermissionGroupRequest request) {
         return Response.ok(permissionGroupApplicationService.update(request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuth(PERMISSION_GROUP_DELETE)
     public Response<Boolean> delete(@PathVariable Long id) {
         return Response.ok(permissionGroupApplicationService.delete(id));
     }
 
     @PostMapping("/addPermission")
+    @PreAuth(PERMISSION_GROUP_EDIT)
     public Response<Boolean> addPermission(@Validated @RequestBody PermissionGroupConnRequest request) {
         return Response.ok(permissionGroupApplicationService.addPermission(request));
     }
 
     @PostMapping("/removePermission")
+    @PreAuth(PERMISSION_GROUP_EDIT)
     public Response<Boolean> removePermission(@Validated @RequestBody PermissionGroupConnRequest request) {
         return Response.ok(permissionGroupApplicationService.removePermission(request));
     }

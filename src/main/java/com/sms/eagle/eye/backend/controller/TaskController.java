@@ -1,5 +1,13 @@
 package com.sms.eagle.eye.backend.controller;
 
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_HANDLE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_ADD;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_DELETE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_EDIT;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_START_CLOSE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_VIEWS;
+
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.model.CustomPage;
@@ -44,7 +52,9 @@ public class TaskController {
      * 分页查询监控任务列表.
      */
     @GetMapping("/page")
+    @PreAuth(TASK_VIEWS)
     public Response<CustomPage<TaskResponse>> page(TaskQueryRequest request) {
+
         return Response.ok(taskApplicationService.page(request));
     }
 
@@ -52,6 +62,7 @@ public class TaskController {
      * 添加监控任务基本信息.
      */
     @PostMapping
+    @PreAuth(TASK_ADD)
     public Response<String> add(@Validated(value = InsertGroup.class) @RequestBody TaskBasicInfoRequest request) {
         return Response.ok(taskApplicationService.addTask(request));
     }
@@ -60,6 +71,7 @@ public class TaskController {
      * 修改监控任务基本信息.
      */
     @PutMapping
+    @PreAuth(TASK_EDIT)
     public Response<Boolean> update(@Validated(value = UpdateGroup.class) @RequestBody TaskBasicInfoRequest request) {
         return Response.ok(taskApplicationService.updateTask(request));
     }
@@ -76,6 +88,7 @@ public class TaskController {
      * 修改任务使用插件的配置.
      */
     @PutMapping("/plugin-config")
+    @PreAuth(TASK_EDIT)
     public Response<Boolean> updatePluginConfig(@Validated @RequestBody TaskPluginConfigRequest request) {
         return Response.ok(taskApplicationService.updatePluginConfig(request));
     }
@@ -92,6 +105,7 @@ public class TaskController {
      * 修改任务告警规则.
      */
     @PutMapping("/alert-rule")
+    @PreAuth(TASK_EDIT)
     public Response<Boolean> updateAlertRule(@RequestBody TaskAlertRuleRequest request) {
         return Response.ok(taskApplicationService.updateAlertRule(request));
     }
@@ -100,6 +114,7 @@ public class TaskController {
      * 根据任务id启动.
      */
     @PutMapping("/start/{id}")
+    @PreAuth(TASK_START_CLOSE)
     public Response<Boolean> startTask(@PathVariable Long id) {
         return Response.ok(taskApplicationService.startByTaskId(id));
     }
@@ -108,6 +123,7 @@ public class TaskController {
      * 根据任务id停止.
      */
     @PutMapping("/stop/{id}")
+    @PreAuth(TASK_START_CLOSE)
     public Response<Boolean> stopTask(@PathVariable Long id) {
         return Response.ok(taskApplicationService.stopByTaskId(id));
     }
@@ -116,6 +132,7 @@ public class TaskController {
      * 根据id删除任务.
      */
     @DeleteMapping("/{id}")
+    @PreAuth(TASK_DELETE)
     public Response<Boolean> delete(@PathVariable Long id) {
         return Response.ok(taskApplicationService.removeTask(id));
     }
@@ -126,10 +143,10 @@ public class TaskController {
     }
 
     /**
-     * TODO
-     * 告警处理.
+     * TODO 告警处理.
      */
     @PostMapping("/alarm-level/reset")
+    @PreAuth(ALARM_HANDLE)
     public Response<Boolean> resetAlarmLevel(@RequestParam Long taskId) {
         return Response.ok(Boolean.TRUE);
     }

@@ -1,6 +1,7 @@
 package com.sms.eagle.eye.backend.interceptor;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
+import com.sms.eagle.eye.backend.common.enums.PermissionType;
 import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
 import com.sms.eagle.eye.backend.exception.ForbiddenException;
 import com.sms.eagle.eye.backend.interceptor.order.InterceptorOrder;
@@ -52,9 +53,9 @@ public class AuthInterceptor implements HandlerInterceptor, Ordered {
         return userPermissionService.getPermissionByEmail(SecurityUtil.getCurrentUser().getEmail());
     }
 
-    private void verifyPermission(String[] value, List<String> permissions) {
-        if (!Arrays.stream(value).allMatch(permissions::contains)) {
-            log.error("Forbidden permission:{}", Arrays.toString(value));
+    private void verifyPermission(PermissionType value, List<String> permissions) {
+        if (!permissions.contains(value.getPermission())) {
+            log.error("Forbidden permission:{}", value.getPermission());
             throw new ForbiddenException();
         }
     }

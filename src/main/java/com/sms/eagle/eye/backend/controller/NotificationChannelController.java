@@ -1,6 +1,13 @@
 package com.sms.eagle.eye.backend.controller;
 
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_CHANNEL_ADD;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_CHANNEL_DELETE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_CHANNEL_EDIT;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_CHANNEL_VIEWS;
+
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.enums.NotificationChannelType;
+import com.sms.eagle.eye.backend.common.enums.PermissionType;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.model.CustomPage;
@@ -53,6 +60,7 @@ public class NotificationChannelController {
      * 分页获取通道实例列表.
      */
     @GetMapping("/page")
+    @PreAuth(ALARM_CHANNEL_VIEWS)
     public Response<CustomPage<ChannelPageResponse>> getPage(NotificationChannelQueryRequest request) {
         return Response.ok(notificationChannelApplicationService.getPage(request));
     }
@@ -93,6 +101,7 @@ public class NotificationChannelController {
      * 添加通道实例.
      */
     @PostMapping
+    @PreAuth(ALARM_CHANNEL_ADD)
     public Response<Boolean> add(
         @Validated(value = InsertGroup.class) @RequestBody NotificationChannelRequest request) {
         return Response.ok(notificationChannelApplicationService.addChannel(request));
@@ -102,6 +111,7 @@ public class NotificationChannelController {
      * 编辑通道实例.
      */
     @PutMapping
+    @PreAuth(ALARM_CHANNEL_EDIT)
     public Response<Boolean> edit(
         @Validated(value = UpdateGroup.class) @RequestBody NotificationChannelRequest request) {
         return Response.ok(notificationChannelApplicationService.updateChannel(request));
@@ -111,6 +121,7 @@ public class NotificationChannelController {
      * 根据 channelId 删除通道实例.
      */
     @DeleteMapping("/{channelId}")
+    @PreAuth(ALARM_CHANNEL_DELETE)
     public Response<Boolean> delete(@PathVariable Long channelId) {
         return Response.ok(notificationChannelApplicationService.removeChannel(channelId));
     }

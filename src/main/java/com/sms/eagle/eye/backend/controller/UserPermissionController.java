@@ -1,5 +1,8 @@
 package com.sms.eagle.eye.backend.controller;
 
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.USER_EDIT;
+
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.request.permission.UserPermissionRequest;
 import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.service.UserPermissionApplicationService;
@@ -21,6 +24,7 @@ public class UserPermissionController {
     }
 
     @PutMapping
+    @PreAuth(USER_EDIT)
     public Response<Boolean> addOrUpdate(@Validated @RequestBody UserPermissionRequest request) {
         return Response.ok(userPermissionApplicationService.addOrUpdate(request));
     }
