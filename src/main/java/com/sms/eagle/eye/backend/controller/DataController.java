@@ -1,7 +1,6 @@
 package com.sms.eagle.eye.backend.controller;
 
 import com.sms.eagle.eye.backend.common.enums.SelectData;
-import com.sms.eagle.eye.backend.nerko.dto.NerkoProjectInfo;
 import com.sms.eagle.eye.backend.nerko.service.NerkoCoordinationService;
 import com.sms.eagle.eye.backend.response.Response;
 import com.sms.eagle.eye.backend.service.DataApplicationService;
@@ -29,8 +28,8 @@ public class DataController {
         return Response.ok(SelectData.getSelectData(dataApplicationService));
     }
 
-    @GetMapping("/project")
-    public Response<List<NerkoProjectInfo>> getProjects() {
+    @GetMapping("/projects")
+    public Response<List<String>> getProjects() {
         return Response.ok(nerkoCoordinationService.getProjectList());
     }
 
