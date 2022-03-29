@@ -24,6 +24,8 @@ task_test:
   stage: test
   only:
     - merge_requests
+    - refs:
+        - develop
   except:
     variables:
       - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
