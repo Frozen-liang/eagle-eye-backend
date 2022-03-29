@@ -55,8 +55,8 @@ public class TaskEventListener {
                 .id(event.getTaskId())
                 .status(TaskStatus.ERROR.getValue())
                 .build());
-        } catch (EagleEyeException eee) {
-            log.warn(eee.getMessage());
+        } catch (EagleEyeException exception) {
+            log.warn(exception.getMessage());
         }
     }
 }
