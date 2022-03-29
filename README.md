@@ -1,6 +1,6 @@
 # Eagle Eye
-[![pipeline status](https://gitlab.smsassist.com/nerko/eagle-eye/eagle-eye-backend/badges/develop/pipeline.svg)](https://gitlab.smsassist.com/nerko/eagle-eye/eagle-eye-backend/-/commits/develop)
-[![coverage report](https://gitlab.smsassist.com/nerko/eagle-eye/eagle-eye-backend/badges/develop/coverage.svg)](https://gitlab.smsassist.com/nerko/eagle-eye/eagle-eye-backend/-/commits/develop)
+![pipeline status](https://gitlab.smsassist.com/nerko/eagle-eye/eagle-eye-backend/badges/develop/pipeline.svg)
+![coverage report](https://gitlab.smsassist.com/nerko/eagle-eye/eagle-eye-backend/badges/develop/coverage.svg)
 
 
 ![](./img/general.jpg)

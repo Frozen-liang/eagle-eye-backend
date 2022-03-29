@@ -23,6 +23,7 @@ task_test:
     - docker-runner
   stage: test
   only:
+    - develop
     - merge_requests
   except:
     variables:
