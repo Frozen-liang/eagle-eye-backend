@@ -27,7 +27,8 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     }
 
     /**
-     * 每一条任务 可能含 多条告警规则（对应不同告警规则） 需要为 每一条告警规则，在 EventBridge 中创建 rule.
+     * <p>每一条任务可能含多条告警规则（对应不同告警规则）
+     * 为每一条 taskAlertRule 创建 EventBridge rule，并绑定 target 关系.
      */
     @Override
     public void startTask(TaskOperationRequest request) {
@@ -38,6 +39,12 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
         });
     }
 
+    /**
+     * <p>根据每一条告警规则中的 {@link TaskAlertRule#getRuleId()}
+     * 找到对应的 Aws EventBridge 的 ruleArn，
+     * 先将 rule 下绑定的所有 target 删除，
+     * 再将 rule 删除.
+     */
     @Override
     public void stopTask(TaskOperationRequest request) {
         request.getAlertRules().forEach(taskAlertRule -> {
@@ -47,10 +54,16 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
                 removeRuleTargetIfPresent(request.getTask(), taskAlertRule);
                 awsOperation.deleteRule(request.getTask(), taskAlertRule);
                 log.info("delete event bridge, {}", ruleArn);
-            }, () -> log.info("delete error"));
+            }, () -> log.info("no ruleArn to remove"));
         });
     }
 
+    /**
+     * <p>根据每一条告警规则中的 {@link TaskAlertRule#getRuleId()}
+     * 找到对应的 Aws EventBridge 的 ruleArn，
+     * 先将 rule 下绑定的所有 target 删除，
+     * 再绑定新的 target.
+     */
     @Override
     public void updateTask(TaskOperationRequest request) {
         request.getAlertRules().forEach(taskAlertRule -> {
@@ -67,9 +80,11 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     }
 
     /**
-     * 记录与 ruleArn 与 TaskAlertRule 的对应关系，并将 lambda 绑定至 ruleTarget.
+     * <p>删除 rule 下绑定的所有 target，
+     * 绑定一条新的 target，并为该 target 添加 lambda 的执行权限，
+     * 再保存 {@link TaskAlertRule#getRuleId()} 和 ruleArn 以及 ruleTarget 的对应关系.
      */
-    private void generalOperation(String ruleArn, TaskEntity task,
+    protected void generalOperation(String ruleArn, TaskEntity task,
         PluginEntity plugin, String decryptedConfig, TaskAlertRule taskAlertRule) {
         removeRuleTargetIfPresent(task, taskAlertRule);
         String targetId = awsOperation.createOrUpdateRuleTarget(task, taskAlertRule, plugin, decryptedConfig);
@@ -79,7 +94,12 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
         thirdPartyMappingService.addAwsRuleTargetMapping(taskAlertRule.getRuleId(), targetId);
     }
 
-    private void removeRuleTargetIfPresent(TaskEntity task, TaskAlertRule taskAlertRule) {
+    /**
+     * <p>根据 {@link TaskAlertRule#getRuleId()} 查询对应的 ruleTarget 列表，
+     * 调用 aws接口 删除所有的 ruleTarget，同时删除 ruleTarget 对 lambda 的执行权限，
+     * 最后删除 {@link TaskAlertRule#getRuleId()} 和 ruleArn 以及 ruleTarget 的对应关系.
+     */
+    protected void removeRuleTargetIfPresent(TaskEntity task, TaskAlertRule taskAlertRule) {
         List<String> ruleTargetList = thirdPartyMappingService.getAwsRuleTargetList(taskAlertRule.getRuleId());
         if (CollectionUtils.isNotEmpty(ruleTargetList)) {
             awsOperation.removeTarget(task.getName(), taskAlertRule.getAlarmLevel(), ruleTargetList);
@@ -87,8 +107,8 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
                 awsOperation.removePermissionForInvokeFunction(
                     task.getName(), taskAlertRule.getAlarmLevel(), ruleTarget);
             }
-            thirdPartyMappingService.removeAwsRuleMapping(taskAlertRule.getRuleId());
             thirdPartyMappingService.removeAwsRuleTargetMapping(taskAlertRule.getRuleId());
         }
+        thirdPartyMappingService.removeAwsRuleMapping(taskAlertRule.getRuleId());
     }
 }
