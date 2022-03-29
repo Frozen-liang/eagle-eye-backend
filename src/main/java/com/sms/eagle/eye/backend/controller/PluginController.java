@@ -1,5 +1,13 @@
 package com.sms.eagle.eye.backend.controller;
 
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_ADD;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_DELETE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_EDIT;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_ENABLE_DISABLE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_VIEWS;
+
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
+import com.sms.eagle.eye.backend.common.enums.PermissionType;
 import com.sms.eagle.eye.backend.model.CustomPage;
 import com.sms.eagle.eye.backend.request.plugin.PluginQueryRequest;
 import com.sms.eagle.eye.backend.request.plugin.PluginRequest;
@@ -58,6 +66,7 @@ public class PluginController {
      * 分页查询插件列表.
      */
     @GetMapping("/page")
+    @PreAuth(PLUGIN_VIEWS)
     public Response<CustomPage<PluginResponse>> page(PluginQueryRequest request) {
         return Response.ok(pluginApplicationService.page(request));
     }
@@ -66,6 +75,7 @@ public class PluginController {
      * 添加插件.
      */
     @PostMapping
+    @PreAuth(PLUGIN_ADD)
     public Response<Boolean> add(@Validated @RequestBody PluginRequest request) {
         return Response.ok(pluginApplicationService.addPlugin(request));
     }
@@ -74,6 +84,7 @@ public class PluginController {
      * 编辑插件.
      */
     @PutMapping
+    @PreAuth(PLUGIN_EDIT)
     public Response<Boolean> update(@Validated @RequestBody PluginUpdateRequest request) {
         return Response.ok(pluginApplicationService.updatePlugin(request));
     }
@@ -82,6 +93,7 @@ public class PluginController {
      * 根据id删除插件.
      */
     @DeleteMapping("/{id}")
+    @PreAuth(PLUGIN_DELETE)
     public Response<Boolean> remove(@PathVariable Long id) {
         return Response.ok(pluginApplicationService.deletePlugin(id));
     }
@@ -90,6 +102,7 @@ public class PluginController {
      * 启用插件.
      */
     @PutMapping("/enable/{id}")
+    @PreAuth(PLUGIN_ENABLE_DISABLE)
     public Response<Boolean> enable(@PathVariable Long id) {
         return Response.ok(pluginApplicationService.enablePlugin(id));
     }
@@ -98,6 +111,7 @@ public class PluginController {
      * 禁用插件.
      */
     @PutMapping("/disable/{id}")
+    @PreAuth(PLUGIN_ENABLE_DISABLE)
     public Response<Boolean> disable(@PathVariable Long id) {
         return Response.ok(pluginApplicationService.disablePlugin(id));
     }

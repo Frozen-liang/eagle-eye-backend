@@ -9,12 +9,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@TableName(value = "user_permission")
+@TableName(value = "user_permission_group")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserPermissionEntity implements Serializable {
+public class UserPermissionGroupEntity implements Serializable {
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
     @TableId

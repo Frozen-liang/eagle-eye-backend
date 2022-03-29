@@ -20,4 +20,6 @@ public interface PermissionGroupService extends IService<PermissionGroupEntity> 
     boolean deleteById(Long id);
 
     List<PermissionGroupResponse> queryAll();
+
+    PermissionGroupEntity getOne(Long id);
 }

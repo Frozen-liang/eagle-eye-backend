@@ -1,17 +1,14 @@
 package com.sms.eagle.eye.backend.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.sms.eagle.eye.backend.domain.entity.permission.PermissionGroupConnEntity;
-import com.sms.eagle.eye.backend.domain.service.PermissionGroupConnService;
 import com.sms.eagle.eye.backend.domain.service.PermissionGroupService;
 import com.sms.eagle.eye.backend.model.CustomPage;
-import com.sms.eagle.eye.backend.request.permission.PermissionGroupConnRequest;
+import com.sms.eagle.eye.backend.request.permission.AddOrRemovePermissionRequest;
 import com.sms.eagle.eye.backend.request.permission.PermissionGroupQueryRequest;
 import com.sms.eagle.eye.backend.request.permission.PermissionGroupRequest;
 import com.sms.eagle.eye.backend.response.permission.PermissionGroupResponse;
 import com.sms.eagle.eye.backend.service.PermissionGroupApplicationService;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class PermissionGroupApplicationServiceImpl implements PermissionGroupApplicationService {
 
     private final PermissionGroupService permissionGroupService;
-    private final PermissionGroupConnService permissionGroupConnService;
 
 
-    public PermissionGroupApplicationServiceImpl(PermissionGroupService permissionGroupService,
-        PermissionGroupConnService permissionGroupConnService) {
+    public PermissionGroupApplicationServiceImpl(PermissionGroupService permissionGroupService) {
         this.permissionGroupService = permissionGroupService;
-        this.permissionGroupConnService = permissionGroupConnService;
     }
 
     @Override
@@ -46,46 +40,33 @@ public class PermissionGroupApplicationServiceImpl implements PermissionGroupApp
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delete(Long id) {
-        LambdaQueryWrapper<PermissionGroupConnEntity> queryWrapper = Wrappers
-            .lambdaQuery(PermissionGroupConnEntity.class)
-            .eq(PermissionGroupConnEntity::getGroupId, id);
-        permissionGroupConnService.remove(queryWrapper);
         return permissionGroupService.deleteById(id);
     }
 
     @Override
-    public boolean addPermission(PermissionGroupConnRequest request) {
-        LambdaQueryWrapper<PermissionGroupConnEntity> queryWrapper =
-            getPermissionGroupConnEntityLambdaQueryWrapper(request);
-        if (permissionGroupConnService.count(queryWrapper) > 0) {
-            return false;
-        }
-        PermissionGroupConnEntity groupConnEntity = PermissionGroupConnEntity.builder()
-            .groupId(request.getGroupId())
-            .permissionId(request.getPermissionId())
-            .build();
-        return permissionGroupConnService.save(groupConnEntity);
+    public boolean addPermission(AddOrRemovePermissionRequest request) {
+        Optional.ofNullable(permissionGroupService.getOne(request.getGroupId()))
+            .ifPresent(permissionGroup -> {
+                    permissionGroup.getPermissions().add(request.getPermission());
+                    permissionGroupService.updateById(permissionGroup);
+                }
+            );
+        return true;
     }
 
     @Override
-    public boolean removePermission(PermissionGroupConnRequest request) {
-        LambdaQueryWrapper<PermissionGroupConnEntity> queryWrapper =
-            getPermissionGroupConnEntityLambdaQueryWrapper(request);
-        return permissionGroupConnService.remove(queryWrapper);
+    public boolean removePermission(AddOrRemovePermissionRequest request) {
+        Optional.ofNullable(permissionGroupService.getOne(request.getGroupId()))
+            .ifPresent(permissionGroup -> {
+                    permissionGroup.getPermissions().remove(request.getPermission());
+                    permissionGroupService.updateById(permissionGroup);
+                }
+            );
+        return true;
     }
 
     @Override
     public List<PermissionGroupResponse> list() {
         return permissionGroupService.queryAll();
     }
-
-    private LambdaQueryWrapper<PermissionGroupConnEntity> getPermissionGroupConnEntityLambdaQueryWrapper(
-        PermissionGroupConnRequest request) {
-        return Wrappers
-            .lambdaQuery(PermissionGroupConnEntity.class)
-            .eq(PermissionGroupConnEntity::getGroupId, request.getGroupId())
-            .eq(PermissionGroupConnEntity::getPermissionId, request.getPermissionId());
-    }
-
-
 }

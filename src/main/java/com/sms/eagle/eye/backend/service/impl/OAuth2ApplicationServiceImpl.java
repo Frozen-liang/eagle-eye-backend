@@ -1,6 +1,6 @@
 package com.sms.eagle.eye.backend.service.impl;
 
-import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionEntity;
+import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionGroupEntity;
 import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
 import com.sms.eagle.eye.backend.model.OAuth2TokenResponse;
 import com.sms.eagle.eye.backend.model.UserInfo;
@@ -53,14 +53,15 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
     public List<UserPermissionGroupResponse> getUsers() {
         List<NerkoUserInfo> userList = nerkoUserService.getUserList();
         Map<String, Long> permissionGroupNameMap = userPermissionService.list().stream()
-            .collect(Collectors.toMap(UserPermissionEntity::getEmail, UserPermissionEntity::getPermissionGroupId));
+            .collect(Collectors
+                .toMap(UserPermissionGroupEntity::getEmail, UserPermissionGroupEntity::getPermissionGroupId));
         return userList.stream().map(nerkoUserInfo -> UserPermissionGroupResponse.builder()
-                .username(nerkoUserInfo.getUsername())
-                .email(nerkoUserInfo.getEmail())
-                .fullName(nerkoUserInfo.getFullName())
-                .workNumber(nerkoUserInfo.getWorkNumber())
-                .permissionGroupId(permissionGroupNameMap.get(nerkoUserInfo.getEmail()))
-                .build())
+            .username(nerkoUserInfo.getUsername())
+            .email(nerkoUserInfo.getEmail())
+            .fullName(nerkoUserInfo.getFullName())
+            .workNumber(nerkoUserInfo.getWorkNumber())
+            .permissionGroupId(permissionGroupNameMap.get(nerkoUserInfo.getEmail()))
+            .build())
             .collect(Collectors.toList());
     }
 

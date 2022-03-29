@@ -1,5 +1,11 @@
 package com.sms.eagle.eye.backend.controller;
 
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_GROUP_ADD;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_GROUP_DELETE;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_GROUP_EDIT;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_GROUP_VIEWS;
+
+import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.request.group.TaskGroupRequest;
@@ -29,36 +35,43 @@ public class TaskGroupController {
     }
 
     @GetMapping("/list")
+    @PreAuth(TASK_GROUP_VIEWS)
     public Response<List<TaskGroupResponse>> list(Long parentId) {
         return Response.ok(taskGroupApplicationService.getGroupListByParentId(parentId));
     }
 
     @GetMapping("/tree-list")
+    @PreAuth(TASK_GROUP_VIEWS)
     public Response<List<TaskGroupTreeResponse>> getTreeList() {
         return Response.ok(taskGroupApplicationService.getTaskGroupTreeList());
     }
 
     @PostMapping
+    @PreAuth(TASK_GROUP_ADD)
     public Response<Boolean> add(@Validated(value = InsertGroup.class) @RequestBody TaskGroupRequest request) {
         return Response.ok(taskGroupApplicationService.addGroup(request));
     }
 
     @PutMapping
+    @PreAuth(TASK_GROUP_EDIT)
     public Response<Boolean> update(@Validated(value = UpdateGroup.class) @RequestBody TaskGroupRequest request) {
         return Response.ok(taskGroupApplicationService.updateGroup(request));
     }
 
     @PutMapping("/name")
+    @PreAuth(TASK_GROUP_EDIT)
     public Response<Boolean> rename(@Validated(value = UpdateGroup.class) @RequestBody TaskGroupRequest request) {
         return Response.ok(taskGroupApplicationService.rename(request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuth(TASK_GROUP_DELETE)
     public Response<Boolean> delete(@PathVariable Long id) {
         return Response.ok(taskGroupApplicationService.removeGroup(id));
     }
 
     @DeleteMapping("/batch/{ids}")
+    @PreAuth(TASK_GROUP_DELETE)
     public Response<Boolean> deleteByIds(@PathVariable List<Long> ids) {
         return Response.ok(taskGroupApplicationService.removeGroupByIds(ids));
     }

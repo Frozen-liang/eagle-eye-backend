@@ -2,6 +2,7 @@ package com.sms.eagle.eye.backend.response.permission;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,5 +17,5 @@ public class PermissionGroupResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Long id;
     private String name;
-    private List<PermissionResponse> permissions;
+    private Set<String> permissions;
 }
