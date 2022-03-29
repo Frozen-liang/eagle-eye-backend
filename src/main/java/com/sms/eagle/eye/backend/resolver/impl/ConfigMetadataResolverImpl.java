@@ -109,9 +109,10 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
         ConfigMetadata metadata) {
         if (isFieldNeedEncrypted(metadata)) {
             getReferenceKey(value).ifPresentOrElse(referenceKey ->
-                configMap.put(metadata.getKey(), passwordStoreService.getValueByKey(referenceKey)), () -> {
-                throw new EagleEyeException(MUST_USE_PASSWORD_VAULT);
-            });
+                    configMap.put(metadata.getKey(), passwordStoreService.getValueByKey(referenceKey)),
+                () -> {
+                    throw new EagleEyeException(MUST_USE_PASSWORD_VAULT);
+                });
         }
     }
 

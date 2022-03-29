@@ -27,7 +27,7 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     }
 
     /**
-     * <p>每一条任务可能含多条告警规则（对应不同告警规则）
+     * 每一条任务可能含多条告警规则（对应不同告警规则）
      * 为每一条 taskAlertRule 创建 EventBridge rule，并绑定 target 关系.
      */
     @Override
@@ -40,7 +40,7 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     }
 
     /**
-     * <p>根据每一条告警规则中的 {@link TaskAlertRule#getRuleId()}
+     * 根据每一条告警规则中的 {@link TaskAlertRule#getRuleId()}
      * 找到对应的 Aws EventBridge 的 ruleArn，
      * 先将 rule 下绑定的所有 target 删除，
      * 再将 rule 删除.
@@ -59,7 +59,7 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     }
 
     /**
-     * <p>根据每一条告警规则中的 {@link TaskAlertRule#getRuleId()}
+     * 根据每一条告警规则中的 {@link TaskAlertRule#getRuleId()}
      * 找到对应的 Aws EventBridge 的 ruleArn，
      * 先将 rule 下绑定的所有 target 删除，
      * 再绑定新的 target.
@@ -80,7 +80,7 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     }
 
     /**
-     * <p>删除 rule 下绑定的所有 target，
+     * 删除 rule 下绑定的所有 target，
      * 绑定一条新的 target，并为该 target 添加 lambda 的执行权限，
      * 再保存 {@link TaskAlertRule#getRuleId()} 和 ruleArn 以及 ruleTarget 的对应关系.
      */
@@ -95,7 +95,7 @@ public class AwsEventBridgeTaskHandler implements TaskHandler {
     }
 
     /**
-     * <p>根据 {@link TaskAlertRule#getRuleId()} 查询对应的 ruleTarget 列表，
+     * 根据 {@link TaskAlertRule#getRuleId()} 查询对应的 ruleTarget 列表，
      * 调用 aws接口 删除所有的 ruleTarget，同时删除 ruleTarget 对 lambda 的执行权限，
      * 最后删除 {@link TaskAlertRule#getRuleId()} 和 ruleArn 以及 ruleTarget 的对应关系.
      */
