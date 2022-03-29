@@ -9,6 +9,7 @@ import com.sms.eagle.eye.backend.utils.SecurityUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class AuthInterceptor implements HandlerInterceptor, Ordered {
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Object bean = handlerMethod.getBean();
-            List<String> permissions = null;
+            Set<String> permissions = null;
             PreAuth classPreAuth = AnnotationUtils.findAnnotation(bean.getClass(), PreAuth.class);
             if (classPreAuth != null) {
                 permissions = getPermissions();
@@ -49,13 +50,13 @@ public class AuthInterceptor implements HandlerInterceptor, Ordered {
         return true;
     }
 
-    private List<String> getPermissions() {
+    private Set<String> getPermissions() {
         return userPermissionService.getPermissionByEmail(SecurityUtil.getCurrentUser().getEmail());
     }
 
-    private void verifyPermission(PermissionType value, List<String> permissions) {
+    private void verifyPermission(PermissionType value, Set<String> permissions) {
         if (!permissions.contains(value.getPermission())) {
-            log.error("Forbidden permission:{}", value.getPermission());
+            log.warn("Forbidden permission:{}", value.getPermission());
             throw new ForbiddenException();
         }
     }

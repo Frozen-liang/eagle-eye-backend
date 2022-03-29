@@ -8,46 +8,35 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionEntity;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionGroupEntity;
 import com.sms.eagle.eye.backend.domain.mapper.UserPermissionMapper;
 import com.sms.eagle.eye.backend.domain.service.impl.UserPermissionServiceImpl;
-import com.sms.eagle.eye.backend.request.permission.UserPermissionRequest;
-import com.sms.eagle.eye.backend.response.user.UserPermissionGroupResponse;
-import java.util.List;
+import com.sms.eagle.eye.backend.request.permission.UserPermissionGroupRequest;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class UserPermissionServiceTest {
 
     private final UserPermissionMapper userPermissionMapper = mock(UserPermissionMapper.class);
-    private final UserPermissionService userPermissionService = spy(new UserPermissionServiceImpl());
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final UserPermissionService userPermissionService = spy(new UserPermissionServiceImpl(objectMapper));
 
     @Test
     void getPermissionByEmail_test() {
         doReturn(userPermissionMapper).when(userPermissionService).getBaseMapper();
-        String permission = "permission";
-        when(userPermissionMapper.getPermissionByEmail(anyString())).thenReturn(List.of(permission));
-        List<String> permissions = userPermissionService.getPermissionByEmail("email@test.com");
-        assertThat(permissions).hasSize(1).anyMatch(permission::equals);
+        String permission = "[\"permission\"]";
+        when(userPermissionMapper.getPermissionByEmail(anyString())).thenReturn(permission);
+        Set<String> permissions = userPermissionService.getPermissionByEmail("email@test.com");
+        assertThat(permissions).hasSize(1);
     }
-
-    /*@Test
-    void getAllUserPermissionGroupName_test() {
-        doReturn(userPermissionMapper).when(userPermissionService).getBaseMapper();
-        String permissionGroupName = "permissionGroupName";
-        UserPermissionGroupResponse userPermissionGroupResponse = UserPermissionGroupResponse.builder()
-            .permissionGroupName(permissionGroupName).build();
-        when(userPermissionMapper.getAllUserPermissionGroupName()).thenReturn(List.of(userPermissionGroupResponse));
-        List<UserPermissionGroupResponse> result = userPermissionService
-            .getAllUserPermissionGroupName();
-        assertThat(result).hasSize(1).anyMatch(p -> permissionGroupName.equals(p.getPermissionGroupName()));
-    }*/
 
     @Test
     void addOrUpdate_test() {
-        UserPermissionRequest request = UserPermissionRequest.builder().email("email@test.com").permissionGroupId(1L)
+        UserPermissionGroupRequest request = UserPermissionGroupRequest.builder().email("email@test.com").permissionGroupId(1L)
             .build();
         doReturn(null).when(userPermissionService).getOne(any());
-        doReturn(true).when(userPermissionService).saveOrUpdate(any(UserPermissionEntity.class));
+        doReturn(true).when(userPermissionService).saveOrUpdate(any(UserPermissionGroupEntity.class));
         assert userPermissionService.addOrUpdate(request);
     }
 

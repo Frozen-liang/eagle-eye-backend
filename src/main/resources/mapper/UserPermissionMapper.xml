@@ -5,12 +5,9 @@
 <mapper namespace="com.sms.eagle.eye.backend.domain.mapper.UserPermissionMapper">
 
     <select id="getPermissionByEmail" resultType="java.lang.String">
-        select p.name
-        from user_permission up
-                 join permission_group_conn pg on up.permission_group_id = pg.group_id
-                 join permission p on pg.permission_id = p.id
-        where up.email = #{email}
-
+        select pg.permissions
+        from user_permission_group upg
+                 join permission_group pg on upg.permission_group_id = pg.id
+        where upg.email = #{email}
     </select>
-
 </mapper>

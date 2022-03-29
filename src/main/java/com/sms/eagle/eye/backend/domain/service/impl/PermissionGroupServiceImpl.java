@@ -53,4 +53,9 @@ public class PermissionGroupServiceImpl extends ServiceImpl<PermissionGroupMappe
     public List<PermissionGroupResponse> queryAll() {
         return permissionGroupConverter.toResponses(list());
     }
+
+    @Override
+    public PermissionGroupEntity getOne(Long id) {
+        return getById(id);
+    }
 }

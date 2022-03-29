@@ -6,11 +6,10 @@ import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_G
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_VIEWS;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
-import com.sms.eagle.eye.backend.common.enums.PermissionType;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
 import com.sms.eagle.eye.backend.common.validator.UpdateGroup;
 import com.sms.eagle.eye.backend.model.CustomPage;
-import com.sms.eagle.eye.backend.request.permission.PermissionGroupConnRequest;
+import com.sms.eagle.eye.backend.request.permission.AddOrRemovePermissionRequest;
 import com.sms.eagle.eye.backend.request.permission.PermissionGroupQueryRequest;
 import com.sms.eagle.eye.backend.request.permission.PermissionGroupRequest;
 import com.sms.eagle.eye.backend.response.Response;
@@ -68,13 +67,13 @@ public class PermissionGroupController {
 
     @PostMapping("/addPermission")
     @PreAuth(PERMISSION_GROUP_EDIT)
-    public Response<Boolean> addPermission(@Validated @RequestBody PermissionGroupConnRequest request) {
+    public Response<Boolean> addPermission(@Validated @RequestBody AddOrRemovePermissionRequest request) {
         return Response.ok(permissionGroupApplicationService.addPermission(request));
     }
 
     @PostMapping("/removePermission")
     @PreAuth(PERMISSION_GROUP_EDIT)
-    public Response<Boolean> removePermission(@Validated @RequestBody PermissionGroupConnRequest request) {
+    public Response<Boolean> removePermission(@Validated @RequestBody AddOrRemovePermissionRequest request) {
         return Response.ok(permissionGroupApplicationService.removePermission(request));
     }
 

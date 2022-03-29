@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PermissionResponse {
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Long id;
     private String name;
     private String description;
 
