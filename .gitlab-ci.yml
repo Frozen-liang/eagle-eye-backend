@@ -23,9 +23,8 @@ task_test:
     - docker-runner
   stage: test
   only:
+    - develop
     - merge_requests
-    - refs:
-        - develop
   except:
     variables:
       - $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
