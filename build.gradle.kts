@@ -234,15 +234,44 @@ tasks.jacocoTestReport {
 
 
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom( classDirectories.files.flatMap {
+        fileTree(it) {
+            exclude(
+                "**/common/encrypt/**",
+                "**/config/**",
+                "**/controller/**",
+                "**/domain/entity/**",
+                "**/event/**",
+                "**/model/**",
+                "**/request/**",
+                "**/response/**",
+                "**/nerko/config/**",
+                "**/nerko/dto/**",
+                "**/nerko/enums/**",
+                "**/nerko/exception/**",
+                "**/nerko/response/**",
+                "**/wecom/config/**",
+                "**/wecom/context/**",
+                "**/wecom/dto/**",
+                "**/wecom/enums/**",
+                "**/wecom/exception/**",
+                "**/wecom/manager/**",
+                "**/wecom/request/**",
+                "**/wecom/response/**",
+                "**/EagleEyeBackendApplication.class",
+                "**/common/*.class",
+                "com/sms/eagle/eye/plugin/v1/**",
+            )
+        }
+    })
     violationRules {
         rule {
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = "0.4".toBigDecimal()
+                minimum = "0.6".toBigDecimal()
             }
         }
-
     }
 }
 
