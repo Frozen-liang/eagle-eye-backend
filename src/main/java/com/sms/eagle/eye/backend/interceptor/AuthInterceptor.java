@@ -2,12 +2,10 @@ package com.sms.eagle.eye.backend.interceptor;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.enums.PermissionType;
-import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
+import com.sms.eagle.eye.backend.domain.service.UserPermissionGroupService;
 import com.sms.eagle.eye.backend.exception.ForbiddenException;
 import com.sms.eagle.eye.backend.interceptor.order.InterceptorOrder;
 import com.sms.eagle.eye.backend.utils.SecurityUtil;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -23,10 +21,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Slf4j
 public class AuthInterceptor implements HandlerInterceptor, Ordered {
 
-    private final UserPermissionService userPermissionService;
+    private final UserPermissionGroupService userPermissionGroupService;
 
-    public AuthInterceptor(UserPermissionService userPermissionService) {
-        this.userPermissionService = userPermissionService;
+    public AuthInterceptor(UserPermissionGroupService userPermissionGroupService) {
+        this.userPermissionGroupService = userPermissionGroupService;
     }
 
     @Override
@@ -51,7 +49,7 @@ public class AuthInterceptor implements HandlerInterceptor, Ordered {
     }
 
     private Set<String> getPermissions() {
-        return userPermissionService.getPermissionByEmail(SecurityUtil.getCurrentUser().getEmail());
+        return userPermissionGroupService.getPermissionByEmail(SecurityUtil.getCurrentUser().getEmail());
     }
 
     private void verifyPermission(PermissionType value, Set<String> permissions) {

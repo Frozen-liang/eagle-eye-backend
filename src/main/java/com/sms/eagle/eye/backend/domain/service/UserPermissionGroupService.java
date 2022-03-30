@@ -5,7 +5,7 @@ import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionGroupEnt
 import com.sms.eagle.eye.backend.request.permission.UserPermissionGroupRequest;
 import java.util.Set;
 
-public interface UserPermissionService extends IService<UserPermissionGroupEntity> {
+public interface UserPermissionGroupService extends IService<UserPermissionGroupEntity> {
 
     Set<String> getPermissionByEmail(String email);
 

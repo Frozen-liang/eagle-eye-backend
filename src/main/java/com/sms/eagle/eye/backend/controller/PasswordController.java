@@ -3,7 +3,6 @@ package com.sms.eagle.eye.backend.controller;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PASSWORD_ADD;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PASSWORD_DELETE;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PASSWORD_EDIT;
-import static com.sms.eagle.eye.backend.common.enums.PermissionType.PASSWORD_VIEWS;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.enums.PermissionType;
@@ -43,7 +42,6 @@ public class PasswordController {
      * 分页获取.
      */
     @GetMapping("/page")
-    @PreAuth(PASSWORD_VIEWS)
     public Response<CustomPage<PasswordPageResponse>> page(PasswordQueryRequest request) {
         return Response.ok(applicationService.page(request));
     }

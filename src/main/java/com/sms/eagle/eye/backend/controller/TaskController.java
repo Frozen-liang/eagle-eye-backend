@@ -5,7 +5,6 @@ import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_ADD;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_DELETE;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_EDIT;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_START_CLOSE;
-import static com.sms.eagle.eye.backend.common.enums.PermissionType.TASK_VIEWS;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
@@ -52,7 +51,6 @@ public class TaskController {
      * 分页查询监控任务列表.
      */
     @GetMapping("/page")
-    @PreAuth(TASK_VIEWS)
     public Response<CustomPage<TaskResponse>> page(TaskQueryRequest request) {
 
         return Response.ok(taskApplicationService.page(request));

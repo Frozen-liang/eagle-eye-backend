@@ -8,7 +8,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionGroupEntity;
-import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
+import com.sms.eagle.eye.backend.domain.service.UserPermissionGroupService;
 import com.sms.eagle.eye.backend.model.OAuth2TokenResponse;
 import com.sms.eagle.eye.backend.model.UserInfo;
 import com.sms.eagle.eye.backend.nerko.dto.NerkoUserInfo;
@@ -31,10 +31,10 @@ public class OAuth2ApplicationServiceTest {
 
     private final NerkoTokenService nerkoTokenService = mock(NerkoTokenService.class);
     private final NerkoUserService nerkoUserService = mock(NerkoUserService.class);
-    private final UserPermissionService userPermissionService = mock(UserPermissionService.class);
+    private final UserPermissionGroupService userPermissionGroupService = mock(UserPermissionGroupService.class);
 
     private final OAuth2ApplicationService oAuth2ApplicationService =
-        spy(new OAuth2ApplicationServiceImpl(nerkoTokenService, nerkoUserService, userPermissionService));
+        spy(new OAuth2ApplicationServiceImpl(nerkoTokenService, nerkoUserService, userPermissionGroupService));
 
     private static final MockedStatic<SecurityUtil> SECURITY_UTIL_MOCKED_STATIC = mockStatic(SecurityUtil.class);
 
@@ -74,7 +74,7 @@ public class OAuth2ApplicationServiceTest {
         SECURITY_UTIL_MOCKED_STATIC.when(SecurityUtil::getCurrentUser).thenReturn(userInfo);
         // mock userPermissionService.getPermissionByEmail()
         Set<String> permissions = mock(Set.class);
-        when(userPermissionService.getPermissionByEmail(email)).thenReturn(permissions);
+        when(userPermissionGroupService.getPermissionByEmail(email)).thenReturn(permissions);
         // 执行
         UserResponse response = oAuth2ApplicationService.getUserInfo();
         // 验证
@@ -104,7 +104,7 @@ public class OAuth2ApplicationServiceTest {
         UserPermissionGroupEntity userPermission = UserPermissionGroupEntity.builder()
             .email(email).permissionGroupId(permissionGroupId).build();
         List<UserPermissionGroupEntity> userPermissionEntities = new ArrayList<>(Collections.singletonList(userPermission));
-        when(userPermissionService.list()).thenReturn(userPermissionEntities);
+        when(userPermissionGroupService.list()).thenReturn(userPermissionEntities);
         // 执行
         List<UserPermissionGroupResponse> users = oAuth2ApplicationService.getUsers();
         // 验证

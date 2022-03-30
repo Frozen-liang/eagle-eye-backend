@@ -6,8 +6,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionGroupEntity;
-import com.sms.eagle.eye.backend.domain.mapper.UserPermissionMapper;
-import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
+import com.sms.eagle.eye.backend.domain.mapper.UserPermissionGroupMapper;
+import com.sms.eagle.eye.backend.domain.service.UserPermissionGroupService;
 import com.sms.eagle.eye.backend.request.permission.UserPermissionGroupRequest;
 import io.vavr.control.Try;
 import java.util.HashSet;
@@ -16,12 +16,13 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper, UserPermissionGroupEntity> implements
-    UserPermissionService {
+public class UserPermissionGroupServiceImpl extends
+    ServiceImpl<UserPermissionGroupMapper, UserPermissionGroupEntity> implements
+    UserPermissionGroupService {
 
     private final ObjectMapper objectMapper;
 
-    public UserPermissionServiceImpl(ObjectMapper objectMapper) {
+    public UserPermissionGroupServiceImpl(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
