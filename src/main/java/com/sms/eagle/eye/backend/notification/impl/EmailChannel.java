@@ -83,9 +83,10 @@ public class EmailChannel implements Channel {
             helper.setFrom(mailProperties.getUsername());
             javaMailSender.send(message);
         } catch (Exception exception) {
-            exception.printStackTrace();
+            log.error("Failed to send email", exception);
+            return false;
         }
-        return false;
+        return true;
     }
 
 }

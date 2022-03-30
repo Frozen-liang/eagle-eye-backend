@@ -91,6 +91,7 @@ public class NotificationChannelApplicationServiceImpl implements NotificationCh
                 .collect(Collectors.toList());
     }
 
+    // TODO 名称验证
     @Override
     public boolean addChannel(NotificationChannelRequest request) {
         List<ConfigMetadata> metadataList = getMetadataByType(request.getType());
