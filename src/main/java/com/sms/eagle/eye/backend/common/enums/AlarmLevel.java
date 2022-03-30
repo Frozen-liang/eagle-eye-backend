@@ -4,6 +4,7 @@ import static com.sms.eagle.eye.backend.exception.ErrorCode.INVALID_ALARM_LEVEL;
 
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -22,9 +23,11 @@ public enum AlarmLevel {
     private final String color;
 
     private static final Map<Integer, AlarmLevel> MAP;
+    private static final List<Integer> valueList;
 
     static {
         MAP = Arrays.stream(values()).collect(Collectors.toMap(AlarmLevel::getValue, Function.identity()));
+        valueList = Arrays.stream(values()).map(AlarmLevel::getValue).collect(Collectors.toList());
     }
 
     AlarmLevel(Integer value, String name, Boolean isAlarm, String color) {
@@ -36,5 +39,9 @@ public enum AlarmLevel {
 
     public static AlarmLevel resolve(int value) {
         return Optional.ofNullable(MAP.get(value)).orElseThrow(() -> new EagleEyeException(INVALID_ALARM_LEVEL));
+    }
+
+    public static List<Integer> getValueList() {
+        return valueList;
     }
 }

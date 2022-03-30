@@ -45,7 +45,7 @@ public interface Channel {
     }
 
     /**
-     * 从map中取出指定key的value
+     * 从map中取出指定key的value.
      * <li>value不存在：如果字段是必须的，则抛出异常；否则返回默认值.
      * <li>value存在：判断value类型，如果与提供的 clazz 一致，则将value返回；否则抛出异常.
      *
@@ -72,7 +72,7 @@ public interface Channel {
     }
 
     /**
-     * 先判断是否为空，不为空再根据value类型进行进一步判断：
+     * 先判断是否为空，不为空再根据value类型进行进一步判断.
      * <li>是string类型，则判断是不是空字符串
      * <li>是list类型，则判断是不是空列表
      */
