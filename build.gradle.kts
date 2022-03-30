@@ -37,7 +37,7 @@ plugins {
     jacoco
     idea
     id("com.github.spotbugs") version "4.7.1"
-    id("org.springframework.boot") version "2.6.3"
+    id("org.springframework.boot") version "2.6.5"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("com.google.protobuf") version "0.8.18"
 
@@ -196,8 +196,10 @@ tasks.jacocoTestReport {
     executionData.setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
     classDirectories.setFrom(sourceSets.main.get().output.asFileTree.matching {
         exclude(
+            "**/aws/dto/**",
             "**/common/encrypt/**",
             "**/config/**",
+            "**/context/**",
             "**/controller/**",
             "**/domain/entity/**",
             "**/event/**",
@@ -218,6 +220,7 @@ tasks.jacocoTestReport {
             "**/wecom/request/**",
             "**/wecom/response/**",
             "**/EagleEyeBackendApplication.class",
+            "**/factory/PluginClient.class",
             "**/common/*.class",
             "com/sms/eagle/eye/plugin/v1",
         )
@@ -237,8 +240,10 @@ tasks.jacocoTestCoverageVerification {
     classDirectories.setFrom( classDirectories.files.flatMap {
         fileTree(it) {
             exclude(
+                "**/aws/dto/**",
                 "**/common/encrypt/**",
                 "**/config/**",
+                "**/context/**",
                 "**/controller/**",
                 "**/domain/entity/**",
                 "**/event/**",
@@ -259,6 +264,7 @@ tasks.jacocoTestCoverageVerification {
                 "**/wecom/request/**",
                 "**/wecom/response/**",
                 "**/EagleEyeBackendApplication.class",
+                "**/factory/PluginClient.class",
                 "**/common/*.class",
                 "com/sms/eagle/eye/plugin/v1/**",
             )
