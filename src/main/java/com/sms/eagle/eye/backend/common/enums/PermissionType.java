@@ -34,7 +34,7 @@ public enum PermissionType {
     ALARM_CHANNEL_DELETE("Alarm_Channel_Delete", "Delete Permission for alarm channel!"),
 
     // 消息模板
-    MESSAGE_TEMPLATE_VIEWS("Message_Template_Views", "View Permission for message template!"),
+    //MESSAGE_TEMPLATE_VIEWS("Message_Template_Views", "View Permission for message template!"),
     MESSAGE_TEMPLATE_EDIT("Message_Template_Edit", "Edit Permission for message template!"),
 
     // 插件配置
