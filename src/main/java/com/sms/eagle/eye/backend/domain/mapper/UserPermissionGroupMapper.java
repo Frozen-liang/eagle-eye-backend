@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserPermissionMapper extends BaseMapper<UserPermissionGroupEntity> {
+public interface UserPermissionGroupMapper extends BaseMapper<UserPermissionGroupEntity> {
 
     String getPermissionByEmail(String email);
 

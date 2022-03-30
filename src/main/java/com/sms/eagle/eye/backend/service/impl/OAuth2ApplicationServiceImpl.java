@@ -1,7 +1,7 @@
 package com.sms.eagle.eye.backend.service.impl;
 
 import com.sms.eagle.eye.backend.domain.entity.permission.UserPermissionGroupEntity;
-import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
+import com.sms.eagle.eye.backend.domain.service.UserPermissionGroupService;
 import com.sms.eagle.eye.backend.model.OAuth2TokenResponse;
 import com.sms.eagle.eye.backend.model.UserInfo;
 import com.sms.eagle.eye.backend.nerko.dto.NerkoUserInfo;
@@ -23,14 +23,14 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
 
     private final NerkoTokenService nerkoTokenService;
     private final NerkoUserService nerkoUserService;
-    private final UserPermissionService userPermissionService;
+    private final UserPermissionGroupService userPermissionGroupService;
 
     public OAuth2ApplicationServiceImpl(NerkoTokenService nerkoTokenService,
         NerkoUserService nerkoUserService,
-        UserPermissionService userPermissionService) {
+        UserPermissionGroupService userPermissionGroupService) {
         this.nerkoTokenService = nerkoTokenService;
         this.nerkoUserService = nerkoUserService;
-        this.userPermissionService = userPermissionService;
+        this.userPermissionGroupService = userPermissionGroupService;
     }
 
     @Override
@@ -45,14 +45,14 @@ public class OAuth2ApplicationServiceImpl implements OAuth2ApplicationService {
             .username(userInfo.getUsername())
             .email(userInfo.getEmail())
             .nickname(userInfo.getNickname())
-            .permissions(userPermissionService.getPermissionByEmail(userInfo.getEmail()))
+            .permissions(userPermissionGroupService.getPermissionByEmail(userInfo.getEmail()))
             .build();
     }
 
     @Override
     public List<UserPermissionGroupResponse> getUsers() {
         List<NerkoUserInfo> userList = nerkoUserService.getUserList();
-        Map<String, Long> permissionGroupNameMap = userPermissionService.list().stream()
+        Map<String, Long> permissionGroupNameMap = userPermissionGroupService.list().stream()
             .collect(Collectors
                 .toMap(UserPermissionGroupEntity::getEmail, UserPermissionGroupEntity::getPermissionGroupId));
         return userList.stream().map(nerkoUserInfo -> UserPermissionGroupResponse.builder()

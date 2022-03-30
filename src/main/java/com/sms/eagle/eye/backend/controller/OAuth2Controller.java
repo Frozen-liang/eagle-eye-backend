@@ -1,6 +1,6 @@
 package com.sms.eagle.eye.backend.controller;
 
-import static com.sms.eagle.eye.backend.common.enums.PermissionType.USER_VIEWS;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_VIEWS;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.response.Response;
@@ -32,7 +32,7 @@ public class OAuth2Controller {
     }
 
     @GetMapping("/users")
-    @PreAuth(USER_VIEWS)
+    @PreAuth(PERMISSION_VIEWS)
     public Response<List<UserPermissionGroupResponse>> getUsers() {
         return Response.ok(oauth2ApplicationService.getUsers());
     }

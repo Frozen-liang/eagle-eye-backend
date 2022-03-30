@@ -4,7 +4,6 @@ import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_ADD;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_DELETE;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_EDIT;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_ENABLE_DISABLE;
-import static com.sms.eagle.eye.backend.common.enums.PermissionType.PLUGIN_VIEWS;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.enums.PermissionType;
@@ -66,7 +65,6 @@ public class PluginController {
      * 分页查询插件列表.
      */
     @GetMapping("/page")
-    @PreAuth(PLUGIN_VIEWS)
     public Response<CustomPage<PluginResponse>> page(PluginQueryRequest request) {
         return Response.ok(pluginApplicationService.page(request));
     }
