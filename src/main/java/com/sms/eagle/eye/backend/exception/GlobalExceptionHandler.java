@@ -27,14 +27,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return Response.error(e.getCode(), e.getMessage());
     }
 
-    @ExceptionHandler(ForbiddenException.class)
-    public Response<Object> forbiddenExceptionHandler(final ForbiddenException e,
-        HttpServletResponse response) {
-        response.setStatus(HttpStatus.FORBIDDEN.value());
-        return Response.error(Integer.toString(HttpStatus.FORBIDDEN.value()),
-            HttpStatus.FORBIDDEN.getReasonPhrase());
-    }
-
     @ExceptionHandler(UnauthorizedException.class)
     public Response<Object> unauthorizedExceptionHandler(final Exception e,
         HttpServletResponse response) {
