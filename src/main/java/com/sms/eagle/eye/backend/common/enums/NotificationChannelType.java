@@ -16,8 +16,7 @@ import lombok.Getter;
 public enum NotificationChannelType {
 
     EMAIL(1, "Email", Boolean.TRUE),
-    WECOM(2, "WeCom", Boolean.FALSE),
-    WEBHOOK(3, "Webhook", Boolean.FALSE);
+    WECOM(2, "WeCom", Boolean.FALSE);
 
     private static final Map<Integer, NotificationChannelType> MAP;
     private static final List<ChannelTypeResponse> LIST;

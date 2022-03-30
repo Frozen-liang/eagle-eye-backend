@@ -44,6 +44,17 @@ public interface Channel {
         return Try.of(() -> objectMapper.readValue(value, Map.class)).getOrElse(new HashMap<>());
     }
 
+    /**
+     * 从map中取出指定key的value.
+     * <li>value不存在：如果字段是必须的，则抛出异常；否则返回默认值.
+     * <li>value存在：判断value类型，如果与提供的 clazz 一致，则将value返回；否则抛出异常.
+     *
+     * @param map 字段键值对的集合
+     * @param key 指定的key
+     * @param clazz 取出的值类型
+     * @param required 字段是否必须
+     * @param defaultValue 字段默认值
+     */
     default <T> T getValueFromMap(Map<String, Object> map, String key, Class<T> clazz,
         boolean required, T defaultValue) {
         Object value = map.get(key);
@@ -60,6 +71,11 @@ public interface Channel {
         }
     }
 
+    /**
+     * 先判断是否为空，不为空再根据value类型进行进一步判断.
+     * <li>是string类型，则判断是不是空字符串
+     * <li>是list类型，则判断是不是空列表
+     */
     default boolean isNull(Object value) {
         if (Objects.isNull(value)) {
             return true;
