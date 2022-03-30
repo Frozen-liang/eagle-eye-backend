@@ -41,14 +41,6 @@ public enum TaskScheduleUnit {
         return minuteToMinute(60);
     }
 
-    private static Integer dayToMinute(Integer day) {
-        return hourToMinute(24);
-    }
-
-    private static Integer monthToMinute(Integer month) {
-        return dayToMinute(30);
-    }
-
     public static TaskScheduleUnit resolve(Integer id) {
         Optional<TaskScheduleUnit> optional = Optional.ofNullable(MAPPING.get(id));
         if (optional.isPresent()) {

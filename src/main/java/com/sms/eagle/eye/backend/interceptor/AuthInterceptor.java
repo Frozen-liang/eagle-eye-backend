@@ -1,6 +1,7 @@
 package com.sms.eagle.eye.backend.interceptor;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
+import com.sms.eagle.eye.backend.common.enums.PermissionType;
 import com.sms.eagle.eye.backend.domain.service.UserPermissionService;
 import com.sms.eagle.eye.backend.exception.ForbiddenException;
 import com.sms.eagle.eye.backend.interceptor.order.InterceptorOrder;
@@ -8,6 +9,7 @@ import com.sms.eagle.eye.backend.utils.SecurityUtil;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +35,7 @@ public class AuthInterceptor implements HandlerInterceptor, Ordered {
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Object bean = handlerMethod.getBean();
-            List<String> permissions = null;
+            Set<String> permissions = null;
             PreAuth classPreAuth = AnnotationUtils.findAnnotation(bean.getClass(), PreAuth.class);
             if (classPreAuth != null) {
                 permissions = getPermissions();
@@ -48,13 +50,13 @@ public class AuthInterceptor implements HandlerInterceptor, Ordered {
         return true;
     }
 
-    private List<String> getPermissions() {
+    private Set<String> getPermissions() {
         return userPermissionService.getPermissionByEmail(SecurityUtil.getCurrentUser().getEmail());
     }
 
-    private void verifyPermission(String[] value, List<String> permissions) {
-        if (!Arrays.stream(value).allMatch(permissions::contains)) {
-            log.error("Forbidden permission:{}", Arrays.toString(value));
+    private void verifyPermission(PermissionType value, Set<String> permissions) {
+        if (!permissions.contains(value.getPermission())) {
+            log.warn("Forbidden permission:{}", value.getPermission());
             throw new ForbiddenException();
         }
     }

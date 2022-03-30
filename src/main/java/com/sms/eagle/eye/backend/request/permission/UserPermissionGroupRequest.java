@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserPermissionRequest {
+public class UserPermissionGroupRequest {
     @NotBlank
     @Email
     private String email;

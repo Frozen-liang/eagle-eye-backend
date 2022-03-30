@@ -1,4 +1,4 @@
-package com.sms.eagle.eye.backend.handler;
+package com.sms.eagle.eye.backend.handler.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -17,7 +17,7 @@ import com.sms.eagle.eye.backend.domain.service.TaskService;
 import com.sms.eagle.eye.backend.domain.service.ThirdPartyMappingService;
 import com.sms.eagle.eye.backend.factory.PluginClient;
 import com.sms.eagle.eye.backend.factory.PluginClientFactory;
-import com.sms.eagle.eye.backend.handler.impl.GrpcTaskHandler;
+import com.sms.eagle.eye.backend.handler.TaskHandler;
 import com.sms.eagle.eye.backend.model.TaskAlertRule;
 import com.sms.eagle.eye.backend.request.task.TaskOperationRequest;
 import com.sms.eagle.eye.backend.utils.TaskScheduleUtil;
@@ -26,6 +26,7 @@ import com.sms.eagle.eye.plugin.v1.CreateTaskResponse;
 import com.sms.eagle.eye.plugin.v1.DeleteTaskRequest;
 import com.sms.eagle.eye.plugin.v1.GeneralResponse;
 import com.sms.eagle.eye.plugin.v1.PluginServiceGrpc;
+import com.sms.eagle.eye.plugin.v1.UpdateTaskRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -295,7 +296,43 @@ public class GrpcTaskHandlerTest {
      */
     @Test
     void stopTask_test_2() {
-
+        // mock request
+        TaskOperationRequest operationRequest = mock(TaskOperationRequest.class);
+        // mock operationRequest.getTask()
+        TaskEntity taskEntity = mock(TaskEntity.class);
+        when(operationRequest.getTask()).thenReturn(taskEntity);
+        // mock taskEntity.getId()
+        Long taskId = 1L;
+        when(taskEntity.getId()).thenReturn(taskId);
+        // mock operationRequest.getDecryptedConfig()
+        String decryptedConfig = "decryptedConfig";
+        when(operationRequest.getDecryptedConfig()).thenReturn(decryptedConfig);
+        // mock operationRequest.getPlugin()
+        PluginEntity plugin = mock(PluginEntity.class);
+        when(operationRequest.getPlugin()).thenReturn(plugin);
+        // mock plugin.getUrl()
+        String url = "url";
+        when(plugin.getUrl()).thenReturn(url);
+        // mock thirdPartyMappingService.getPluginSystemUnionId
+        when(thirdPartyMappingService.getPluginSystemUnionId(taskId)).thenReturn(Optional.empty());
+        // mock factory.getClient()
+        PluginClient pluginClient = mock(PluginClient.class);
+        when(factory.getClient(url)).thenReturn(pluginClient);
+        // mock pluginClient.getBlockingStub()
+        PluginServiceGrpc.PluginServiceBlockingStub stub = mock(PluginServiceGrpc.PluginServiceBlockingStub.class);
+        when(pluginClient.getBlockingStub()).thenReturn(stub);
+        // build DeleteTaskRequest
+        DeleteTaskRequest deleteTaskRequest = DeleteTaskRequest.newBuilder()
+            .setMappingId(taskId.toString())
+            .setConfig(decryptedConfig)
+            .build();
+        // mock stub.remove()
+        GeneralResponse response = mock(GeneralResponse.class);
+        when(stub.remove(deleteTaskRequest)).thenReturn(response);
+        // invoke
+        taskHandler.stopTask(operationRequest);
+        // verify
+        verify(factory.getClient(url).getBlockingStub()).remove(deleteTaskRequest);
     }
 
     /**
@@ -305,7 +342,42 @@ public class GrpcTaskHandlerTest {
      */
     @Test
     void stopTask_test_3() {
-
+        // mock request
+        TaskOperationRequest operationRequest = mock(TaskOperationRequest.class);
+        // mock operationRequest.getTask()
+        TaskEntity taskEntity = mock(TaskEntity.class);
+        when(operationRequest.getTask()).thenReturn(taskEntity);
+        // mock taskEntity.getId()
+        Long taskId = 1L;
+        when(taskEntity.getId()).thenReturn(taskId);
+        // mock operationRequest.getDecryptedConfig()
+        String decryptedConfig = "decryptedConfig";
+        when(operationRequest.getDecryptedConfig()).thenReturn(decryptedConfig);
+        // mock operationRequest.getPlugin()
+        PluginEntity plugin = mock(PluginEntity.class);
+        when(operationRequest.getPlugin()).thenReturn(plugin);
+        // mock plugin.getUrl()
+        String url = "url";
+        when(plugin.getUrl()).thenReturn(url);
+        // mock thirdPartyMappingService.getPluginSystemUnionId
+        when(thirdPartyMappingService.getPluginSystemUnionId(taskId)).thenReturn(Optional.empty());
+        // mock factory.getClient()
+        PluginClient pluginClient = mock(PluginClient.class);
+        when(factory.getClient(url)).thenReturn(pluginClient);
+        // mock pluginClient.getBlockingStub()
+        PluginServiceGrpc.PluginServiceBlockingStub stub = mock(PluginServiceGrpc.PluginServiceBlockingStub.class);
+        when(pluginClient.getBlockingStub()).thenReturn(stub);
+        // build DeleteTaskRequest
+        DeleteTaskRequest deleteTaskRequest = DeleteTaskRequest.newBuilder()
+            .setMappingId(taskId.toString())
+            .setConfig(decryptedConfig)
+            .build();
+        // mock exception stub.remove()
+        RuntimeException exception = new RuntimeException();
+        when(stub.remove(deleteTaskRequest)).thenThrow(exception);
+        // invoke and verify
+        assertThatThrownBy(() -> taskHandler.stopTask(operationRequest))
+            .isInstanceOf(RuntimeException.class);
     }
 
     /**
@@ -315,7 +387,61 @@ public class GrpcTaskHandlerTest {
      */
     @Test
     void updateTask_test_1() {
-
+        // mock operationRequest
+        TaskOperationRequest operationRequest = mock(TaskOperationRequest.class);
+        // mock operationRequest.getTask()
+        TaskEntity taskEntity = mock(TaskEntity.class);
+        when(operationRequest.getTask()).thenReturn(taskEntity);
+        // mock taskEntity.getId()
+        Long taskId = 1L;
+        when(taskEntity.getId()).thenReturn(taskId);
+        // mock taskEntity.getName()
+        String taskName = "taskName";
+        when(taskEntity.getName()).thenReturn(taskName);
+        // mock taskEntity.getDescription()
+        String taskDescription = "taskDescription";
+        when(taskEntity.getDescription()).thenReturn(taskDescription);
+        // mock operationRequest.getDecryptedConfig()
+        String decryptedConfig = "decryptedConfig";
+        when(operationRequest.getDecryptedConfig()).thenReturn(decryptedConfig);
+        // mock operationRequest.getPlugin()
+        PluginEntity plugin = mock(PluginEntity.class);
+        when(operationRequest.getPlugin()).thenReturn(plugin);
+        // mock plugin.getUrl()
+        String url = "url";
+        when(plugin.getUrl()).thenReturn(url);
+        // mock TaskAlertRule
+        TaskAlertRule taskAlertRule = mock(TaskAlertRule.class);
+        // mock taskAlertRule.getAlarmLevel()
+        String alarmLevel = "alarmLevel";
+        when(taskAlertRule.getAlarmLevel()).thenReturn(alarmLevel);
+        // mock taskAlertRule.getDecryptedAlertRule()
+        String decryptedAlertRule = "decryptedAlertRule";
+        when(taskAlertRule.getDecryptedAlertRule()).thenReturn(decryptedAlertRule);
+        // static mock
+        int interval = 10;
+        TASK_SCHEDULE_UTIL_MOCKED_STATIC.when(() -> TaskScheduleUtil.getMinuteInterval(taskAlertRule))
+            .thenReturn(interval);
+        // mock operationRequest.getAlertRules()
+        List<TaskAlertRule> taskAlertRules = new ArrayList<>(Collections.singletonList(taskAlertRule));
+        when(operationRequest.getAlertRules()).thenReturn(taskAlertRules);
+        // mock thirdPartyMappingService.getPluginSystemUnionId
+        String mappingId = "mappingId";
+        Optional<String> mappingIdOptional = Optional.of(mappingId);
+        when(thirdPartyMappingService.getPluginSystemUnionId(taskId)).thenReturn(mappingIdOptional);
+        // mock factory.getClient()
+        PluginClient pluginClient = mock(PluginClient.class);
+        when(factory.getClient(url)).thenReturn(pluginClient);
+        // mock pluginClient.getBlockingStub()
+        PluginServiceGrpc.PluginServiceBlockingStub stub = mock(PluginServiceGrpc.PluginServiceBlockingStub.class);
+        when(pluginClient.getBlockingStub()).thenReturn(stub);
+        // mock stub
+        GeneralResponse response = mock(GeneralResponse.class);
+        when(stub.edit(any(UpdateTaskRequest.class))).thenReturn(response);
+        // invoke
+        taskHandler.updateTask(operationRequest);
+        // verify
+        verify(factory.getClient(url).getBlockingStub()).edit(any(UpdateTaskRequest.class));
     }
 
     /**
@@ -325,7 +451,59 @@ public class GrpcTaskHandlerTest {
      */
     @Test
     void updateTask_test_2() {
-
+        // mock operationRequest
+        TaskOperationRequest operationRequest = mock(TaskOperationRequest.class);
+        // mock operationRequest.getTask()
+        TaskEntity taskEntity = mock(TaskEntity.class);
+        when(operationRequest.getTask()).thenReturn(taskEntity);
+        // mock taskEntity.getId()
+        Long taskId = 1L;
+        when(taskEntity.getId()).thenReturn(taskId);
+        // mock taskEntity.getName()
+        String taskName = "taskName";
+        when(taskEntity.getName()).thenReturn(taskName);
+        // mock taskEntity.getDescription()
+        String taskDescription = "taskDescription";
+        when(taskEntity.getDescription()).thenReturn(taskDescription);
+        // mock operationRequest.getDecryptedConfig()
+        String decryptedConfig = "decryptedConfig";
+        when(operationRequest.getDecryptedConfig()).thenReturn(decryptedConfig);
+        // mock operationRequest.getPlugin()
+        PluginEntity plugin = mock(PluginEntity.class);
+        when(operationRequest.getPlugin()).thenReturn(plugin);
+        // mock plugin.getUrl()
+        String url = "url";
+        when(plugin.getUrl()).thenReturn(url);
+        // mock TaskAlertRule
+        TaskAlertRule taskAlertRule = mock(TaskAlertRule.class);
+        // mock taskAlertRule.getAlarmLevel()
+        String alarmLevel = "alarmLevel";
+        when(taskAlertRule.getAlarmLevel()).thenReturn(alarmLevel);
+        // mock taskAlertRule.getDecryptedAlertRule()
+        String decryptedAlertRule = "decryptedAlertRule";
+        when(taskAlertRule.getDecryptedAlertRule()).thenReturn(decryptedAlertRule);
+        // static mock
+        int interval = 10;
+        TASK_SCHEDULE_UTIL_MOCKED_STATIC.when(() -> TaskScheduleUtil.getMinuteInterval(taskAlertRule))
+            .thenReturn(interval);
+        // mock operationRequest.getAlertRules()
+        List<TaskAlertRule> taskAlertRules = new ArrayList<>(Collections.singletonList(taskAlertRule));
+        when(operationRequest.getAlertRules()).thenReturn(taskAlertRules);
+        // mock thirdPartyMappingService.getPluginSystemUnionId
+        when(thirdPartyMappingService.getPluginSystemUnionId(taskId)).thenReturn(Optional.empty());
+        // mock factory.getClient()
+        PluginClient pluginClient = mock(PluginClient.class);
+        when(factory.getClient(url)).thenReturn(pluginClient);
+        // mock pluginClient.getBlockingStub()
+        PluginServiceGrpc.PluginServiceBlockingStub stub = mock(PluginServiceGrpc.PluginServiceBlockingStub.class);
+        when(pluginClient.getBlockingStub()).thenReturn(stub);
+        // mock stub
+        GeneralResponse response = mock(GeneralResponse.class);
+        when(stub.edit(any(UpdateTaskRequest.class))).thenReturn(response);
+        // invoke
+        taskHandler.updateTask(operationRequest);
+        // verify
+        verify(factory.getClient(url).getBlockingStub()).edit(any(UpdateTaskRequest.class));
     }
 
     /**
@@ -335,7 +513,58 @@ public class GrpcTaskHandlerTest {
      */
     @Test
     void updateTask_test_3() {
-
+        // mock operationRequest
+        TaskOperationRequest operationRequest = mock(TaskOperationRequest.class);
+        // mock operationRequest.getTask()
+        TaskEntity taskEntity = mock(TaskEntity.class);
+        when(operationRequest.getTask()).thenReturn(taskEntity);
+        // mock taskEntity.getId()
+        Long taskId = 1L;
+        when(taskEntity.getId()).thenReturn(taskId);
+        // mock taskEntity.getName()
+        String taskName = "taskName";
+        when(taskEntity.getName()).thenReturn(taskName);
+        // mock taskEntity.getDescription()
+        String taskDescription = "taskDescription";
+        when(taskEntity.getDescription()).thenReturn(taskDescription);
+        // mock operationRequest.getDecryptedConfig()
+        String decryptedConfig = "decryptedConfig";
+        when(operationRequest.getDecryptedConfig()).thenReturn(decryptedConfig);
+        // mock operationRequest.getPlugin()
+        PluginEntity plugin = mock(PluginEntity.class);
+        when(operationRequest.getPlugin()).thenReturn(plugin);
+        // mock plugin.getUrl()
+        String url = "url";
+        when(plugin.getUrl()).thenReturn(url);
+        // mock TaskAlertRule
+        TaskAlertRule taskAlertRule = mock(TaskAlertRule.class);
+        // mock taskAlertRule.getAlarmLevel()
+        String alarmLevel = "alarmLevel";
+        when(taskAlertRule.getAlarmLevel()).thenReturn(alarmLevel);
+        // mock taskAlertRule.getDecryptedAlertRule()
+        String decryptedAlertRule = "decryptedAlertRule";
+        when(taskAlertRule.getDecryptedAlertRule()).thenReturn(decryptedAlertRule);
+        // static mock
+        int interval = 10;
+        TASK_SCHEDULE_UTIL_MOCKED_STATIC.when(() -> TaskScheduleUtil.getMinuteInterval(taskAlertRule))
+            .thenReturn(interval);
+        // mock operationRequest.getAlertRules()
+        List<TaskAlertRule> taskAlertRules = new ArrayList<>(Collections.singletonList(taskAlertRule));
+        when(operationRequest.getAlertRules()).thenReturn(taskAlertRules);
+        // mock thirdPartyMappingService.getPluginSystemUnionId
+        when(thirdPartyMappingService.getPluginSystemUnionId(taskId)).thenReturn(Optional.empty());
+        // mock factory.getClient()
+        PluginClient pluginClient = mock(PluginClient.class);
+        when(factory.getClient(url)).thenReturn(pluginClient);
+        // mock pluginClient.getBlockingStub()
+        PluginServiceGrpc.PluginServiceBlockingStub stub = mock(PluginServiceGrpc.PluginServiceBlockingStub.class);
+        when(pluginClient.getBlockingStub()).thenReturn(stub);
+        // mock exception stub.remove()
+        RuntimeException exception = new RuntimeException();
+        when(stub.edit(any(UpdateTaskRequest.class))).thenThrow(exception);
+        // invoke and verify
+        assertThatThrownBy(() -> taskHandler.updateTask(operationRequest))
+            .isInstanceOf(RuntimeException.class);
     }
 
     /**

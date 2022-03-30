@@ -95,11 +95,13 @@ public class GrpcTaskHandler implements TaskHandler {
     public void updateTask(TaskOperationRequest request) {
         Optional<String> mappingIdOptional = thirdPartyMappingService.getPluginSystemUnionId(request.getTask().getId());
         try {
-            List<AlertRule> rules = request.getAlertRules().stream().map(taskAlertRule -> AlertRule.newBuilder()
-                .setAlarmLevel(taskAlertRule.getAlarmLevel())
-                .setRule(taskAlertRule.getDecryptedAlertRule())
-                .setInterval(getMinuteInterval(taskAlertRule))
-                .build()).collect(Collectors.toList());
+            List<AlertRule> rules = request.getAlertRules().stream()
+                .map(taskAlertRule -> AlertRule.newBuilder()
+                    .setAlarmLevel(taskAlertRule.getAlarmLevel())
+                    .setRule(taskAlertRule.getDecryptedAlertRule())
+                    .setInterval(getMinuteInterval(taskAlertRule))
+                    .build())
+                .collect(Collectors.toList());
             UpdateTaskRequest grpcRequest = UpdateTaskRequest.newBuilder()
                 .setMappingId(mappingIdOptional.orElse(request.getTask().getId().toString()))
                 .setName(request.getTask().getName())

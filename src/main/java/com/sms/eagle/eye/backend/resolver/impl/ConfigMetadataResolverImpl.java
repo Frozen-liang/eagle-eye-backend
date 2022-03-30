@@ -19,23 +19,19 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.jasypt.encryption.StringEncryptor;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
 
     private static final String DEFAULT_MAP = "{}";
-    private static final String SENSITIVE_FLAG = "[EAGLE-ENCRYPTED-VALUE]";
 
     private final ObjectMapper objectMapper;
-    private final StringEncryptor stringEncryptor;
     private final PasswordStoreService passwordStoreService;
 
-    public ConfigMetadataResolverImpl(ObjectMapper objectMapper, StringEncryptor stringEncryptor,
+    public ConfigMetadataResolverImpl(ObjectMapper objectMapper,
         PasswordStoreService passwordStoreService) {
         this.objectMapper = objectMapper;
-        this.stringEncryptor = stringEncryptor;
         this.passwordStoreService = passwordStoreService;
     }
 
@@ -45,8 +41,7 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
     }
 
     /**
-     * 检查是否必须
-     * 如 加密 则需引用密码库中的密码.
+     * 检查是否必须 如 加密 则需引用密码库中的密码.
      */
     @Override
     public String checkAndEncrypt(List<ConfigMetadata> metadataList, String config) {
@@ -82,14 +77,14 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
     /**
      * 判断字段是否要求加密.
      */
-    private boolean isFieldNeedEncrypted(ConfigMetadata configMetadata) {
+    protected boolean isFieldNeedEncrypted(ConfigMetadata configMetadata) {
         return Objects.equals(configMetadata.getEncrypted(), Boolean.TRUE);
     }
 
     /**
      * 是否引用密钥库.
      */
-    private boolean isNoReferencedPassword(Object value) {
+    protected boolean isNoReferencedPassword(Object value) {
         if (value instanceof String) {
             return !Pattern.matches(PASSWORD_REGEX, (String) value);
         }
@@ -99,7 +94,7 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
     /**
      * 获取引用的 Password Key.
      */
-    private Optional<String> getReferenceKey(Object value) {
+    protected Optional<String> getReferenceKey(Object value) {
         if (value instanceof String) {
             Matcher matcher = PASSWORD_PATTERN.matcher((String) value);
             if (matcher.find()) {
@@ -110,11 +105,11 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
         return Optional.empty();
     }
 
-    private void parsingRefOrElseDecrypt(Object value, Map<String, Object> configMap,
+    protected void parsingRefOrElseDecrypt(Object value, Map<String, Object> configMap,
         ConfigMetadata metadata) {
         if (isFieldNeedEncrypted(metadata)) {
-            getReferenceKey(value).ifPresentOrElse(
-                referenceKey -> configMap.put(metadata.getKey(), passwordStoreService.getValueByKey(referenceKey)),
+            getReferenceKey(value).ifPresentOrElse(referenceKey ->
+                    configMap.put(metadata.getKey(), passwordStoreService.getValueByKey(referenceKey)),
                 () -> {
                     throw new EagleEyeException(MUST_USE_PASSWORD_VAULT);
                 });
@@ -124,7 +119,7 @@ public class ConfigMetadataResolverImpl implements ConfigMetadataResolver {
     /**
      * 如果字段是必须的，则抛出异常.
      */
-    private void throwExceptionWhileFieldIsRequired(ConfigMetadata metadata) {
+    protected void throwExceptionWhileFieldIsRequired(ConfigMetadata metadata) {
         if (Objects.equals(metadata.getRequired(), Boolean.TRUE)) {
             throw new EagleEyeException(PLUGIN_CONFIG_FIELD_MISSING_ERROR, metadata.getLabelName());
         }

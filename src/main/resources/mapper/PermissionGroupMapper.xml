@@ -5,15 +5,12 @@
 <mapper namespace="com.sms.eagle.eye.backend.domain.mapper.PermissionGroupMapper">
 
 
-    <select id="page" resultMap="pageMap">
+    <select id="page" resultType="com.sms.eagle.eye.backend.response.permission.PermissionGroupResponse">
         select
         pg.id,
         pg.name,
-        p.id permissionId,
-        p.name permissionName
+        pg.permissions
         from permission_group pg
-        left join permission_group_conn pgc on pg.id = pgc.group_id
-        left join permission p on pgc.permission_id = p.id
         <where>
             pg.is_deleted = false
             <if test="request != null">
@@ -22,16 +19,6 @@
                 </if>
             </if>
         </where>
+        order by pg.name
     </select>
-
-    <resultMap id="pageMap" type="com.sms.eagle.eye.backend.response.permission.PermissionGroupResponse">
-        <id property="id" column="id"/>
-        <result property="name" column="name"/>
-        <collection property="permissions"
-            ofType="com.sms.eagle.eye.backend.response.permission.PermissionResponse">
-            <id property="id" column="permissionId"/>
-            <result property="name" column="permissionName"/>
-        </collection>
-    </resultMap>
-
 </mapper>

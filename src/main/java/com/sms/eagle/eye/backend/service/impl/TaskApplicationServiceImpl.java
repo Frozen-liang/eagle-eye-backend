@@ -166,6 +166,7 @@ public class TaskApplicationServiceImpl implements TaskApplicationService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateTask(TaskBasicInfoRequest request) {
+        // TODO 逻辑优化
         if (taskService.countByName(request.getName()) > 1) {
             throw new EagleEyeException(TASK_NAME_HAS_ALREADY_EXIST);
         }

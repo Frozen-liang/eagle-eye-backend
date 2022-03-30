@@ -13,7 +13,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 
 group = "com.sms.eagle.eye"
-version = "1.2.6"
+version = "1.2.7"
 description = "backend"
 
 val checkstyleVersion by extra("8.42")
@@ -196,10 +196,30 @@ tasks.jacocoTestReport {
     executionData.setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
     classDirectories.setFrom(sourceSets.main.get().output.asFileTree.matching {
         exclude(
-            "com/sms/eagle/eye/backend/aspect",
+            "**/common/encrypt/**",
+            "**/config/**",
+            "**/controller/**",
+            "**/domain/entity/**",
+            "**/event/**",
+            "**/model/**",
+            "**/request/**",
+            "**/response/**",
+            "**/nerko/config/**",
+            "**/nerko/dto/**",
+            "**/nerko/enums/**",
+            "**/nerko/exception/**",
+            "**/nerko/response/**",
+            "**/wecom/config/**",
+            "**/wecom/context/**",
+            "**/wecom/dto/**",
+            "**/wecom/enums/**",
+            "**/wecom/exception/**",
+            "**/wecom/manager/**",
+            "**/wecom/request/**",
+            "**/wecom/response/**",
+            "**/EagleEyeBackendApplication.class",
+            "**/common/*.class",
             "com/sms/eagle/eye/plugin/v1",
-            "com/sms/eagle/eye/backend/model",
-            "com/sms/eagle/eye/backend/service"
         )
     })
     dependsOn(tasks.test)
@@ -214,15 +234,44 @@ tasks.jacocoTestReport {
 
 
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom( classDirectories.files.flatMap {
+        fileTree(it) {
+            exclude(
+                "**/common/encrypt/**",
+                "**/config/**",
+                "**/controller/**",
+                "**/domain/entity/**",
+                "**/event/**",
+                "**/model/**",
+                "**/request/**",
+                "**/response/**",
+                "**/nerko/config/**",
+                "**/nerko/dto/**",
+                "**/nerko/enums/**",
+                "**/nerko/exception/**",
+                "**/nerko/response/**",
+                "**/wecom/config/**",
+                "**/wecom/context/**",
+                "**/wecom/dto/**",
+                "**/wecom/enums/**",
+                "**/wecom/exception/**",
+                "**/wecom/manager/**",
+                "**/wecom/request/**",
+                "**/wecom/response/**",
+                "**/EagleEyeBackendApplication.class",
+                "**/common/*.class",
+                "com/sms/eagle/eye/plugin/v1/**",
+            )
+        }
+    })
     violationRules {
         rule {
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = "0.0".toBigDecimal()
+                minimum = "0.6".toBigDecimal()
             }
         }
-
     }
 }
 
