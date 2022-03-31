@@ -30,8 +30,7 @@ public class AuthInterceptor implements HandlerInterceptor, Ordered {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-        throws ForbiddenException {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Object bean = handlerMethod.getBean();
