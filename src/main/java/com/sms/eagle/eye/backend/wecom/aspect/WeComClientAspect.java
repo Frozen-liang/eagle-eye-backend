@@ -4,6 +4,7 @@ import com.sms.eagle.eye.backend.wecom.enums.WeComErrorCode;
 import com.sms.eagle.eye.backend.wecom.exception.WeComException;
 import com.sms.eagle.eye.backend.wecom.manager.WeComManager;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -41,8 +42,7 @@ public class WeComClientAspect {
                 WeComException w = throwable instanceof WeComException
                     ? (WeComException) throwable
                     : (WeComException) throwable.getCause();
-                if (w.getErrorCode() != null && needRetry(w.getErrorCode().getErrorCode())) {
-
+                if (Objects.nonNull(w.getErrorCode()) && needRetry(w.getErrorCode().getErrorCode())) {
                     String applicationName = getApplicationName(joinPoint);
                     if (StringUtils.isNotEmpty(applicationName)) {
                         weComManager.tokenService().clearAccessToken(applicationName);
@@ -62,7 +62,7 @@ public class WeComClientAspect {
     /**
      * 获取请求的应用.
      */
-    private String getApplicationName(ProceedingJoinPoint joinPoint) {
+    protected String getApplicationName(ProceedingJoinPoint joinPoint) {
         String applicationName = null;
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
@@ -70,10 +70,10 @@ public class WeComClientAspect {
         if (postMapping != null) {
             String[] headers = postMapping.headers();
             if (headers.length > 0) {
-                //获取应用
+                // 获取应用
                 Object[] objects = joinPoint.getArgs();
                 if (objects.length > 0) {
-                    /*约定好应用这个参数放在最后*/
+                    // 应用这个参数放在最后
                     applicationName = (String) objects[objects.length - 1];
                 }
             }
@@ -82,10 +82,10 @@ public class WeComClientAspect {
             if (getMapping != null) {
                 String[] headers = getMapping.headers();
                 if (headers.length > 0) {
-                    //获取应用
+                    // 获取应用
                     Object[] objects = joinPoint.getArgs();
                     if (objects.length > 0) {
-                        /*约定好应用这个参数放在最后*/
+                        // 应用这个参数放在最后
                         applicationName = (String) objects[objects.length - 1];
                     }
                 }
@@ -101,7 +101,7 @@ public class WeComClientAspect {
      * 42001[access_token已过期]
      * 则重新获取授权码，重试一次.
      */
-    private boolean needRetry(String errorCode) {
+    protected boolean needRetry(String errorCode) {
         boolean needRetry = false;
         if (WeComErrorCode.ERROR_CODE_40014.getErrorCode().equals(errorCode)) {
             needRetry = true;

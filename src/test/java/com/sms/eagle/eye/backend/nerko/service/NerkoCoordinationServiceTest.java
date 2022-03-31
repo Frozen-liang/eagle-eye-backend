@@ -1,4 +1,4 @@
-package com.sms.eagle.eye.backend.nerko;
+package com.sms.eagle.eye.backend.nerko.service;
 
 import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.GET_OAUTH_RESOURCE_ERROR;

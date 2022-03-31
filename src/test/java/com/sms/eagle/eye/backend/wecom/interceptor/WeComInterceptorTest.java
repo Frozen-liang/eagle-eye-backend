@@ -1,17 +1,8 @@
-package com.sms.eagle.eye.backend.wecom;
+package com.sms.eagle.eye.backend.wecom.interceptor;
 
-import com.sms.eagle.eye.backend.wecom.client.WeComClient;
-import com.sms.eagle.eye.backend.wecom.context.WeComContextHolder;
-import com.sms.eagle.eye.backend.wecom.interceptor.WeComInterceptor;
-import com.sms.eagle.eye.backend.wecom.manager.WeComManager;
-import com.sms.eagle.eye.backend.wecom.service.TokenService;
-import feign.RequestTemplate;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import org.mockito.MockedStatic;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -19,9 +10,18 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.sms.eagle.eye.backend.wecom.client.WeComClient;
+import com.sms.eagle.eye.backend.wecom.context.WeComContextHolder;
+import com.sms.eagle.eye.backend.wecom.manager.WeComManager;
+import com.sms.eagle.eye.backend.wecom.service.TokenService;
+import feign.RequestTemplate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 public class WeComInterceptorTest {
 

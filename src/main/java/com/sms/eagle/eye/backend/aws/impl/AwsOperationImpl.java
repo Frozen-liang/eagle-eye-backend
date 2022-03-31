@@ -61,8 +61,33 @@ public class AwsOperationImpl implements AwsOperation {
         this.lambdaClient = lambdaClient;
     }
 
-    private String generateRuleName(String taskName, String alarmLevel) {
+    /**
+     * 根据任务名称和告警级别生成 aws 的 EventBridge rule name.
+     */
+    protected String generateRuleName(String taskName, String alarmLevel) {
         return String.format(RULE_NAME_FORMAT, taskName, alarmLevel);
+    }
+
+    /**
+     * 生成lambda的执行参数.
+     */
+    protected String generateInput(TaskEntity task, TaskAlertRule taskAlertRule, String pluginUrl,
+        String decryptedConfig) {
+        Integer minuteInterval = getMinuteInterval(taskAlertRule);
+        AwsLambdaInput input = AwsLambdaInput.builder()
+            .id(taskAlertRule.getRuleId().toString())
+            .name(generateRuleName(task.getName(), taskAlertRule.getAlarmLevel()))
+            .description(task.getDescription())
+            .alertRule(Collections.singletonList(AwsAlertRuleDto.builder()
+                .interval(minuteInterval)
+                .rule(taskAlertRule.getDecryptedAlertRule())
+                .build()))
+            .pluginUrl(pluginUrl)
+            .queueUrl(awsProperties.getQueueUrl())
+            .decryptKey(aesEncryptor.getSecretKey())
+            .payload(aesEncryptor.encrypt(decryptedConfig))
+            .build();
+        return Try.of(() -> objectMapper.writeValueAsString(input)).getOrElse(DEFAULT_INPUT);
     }
 
     @Override
@@ -133,24 +158,5 @@ public class AwsOperationImpl implements AwsOperation {
             .rule(generateRuleName(taskName, alarmLevel)).ids(targets).build();
         RemoveTargetsResponse response = eventBridgeClient.removeTargets(request);
         log.info("RemoveTargetsResponse: {}", response);
-    }
-
-    private String generateInput(TaskEntity task, TaskAlertRule taskAlertRule, String pluginUrl,
-        String decryptedConfig) {
-        Integer minuteInterval = getMinuteInterval(taskAlertRule);
-        AwsLambdaInput input = AwsLambdaInput.builder()
-            .id(taskAlertRule.getRuleId().toString())
-            .name(generateRuleName(task.getName(), taskAlertRule.getAlarmLevel()))
-            .description(task.getDescription())
-            .alertRule(Collections.singletonList(AwsAlertRuleDto.builder()
-                .interval(minuteInterval)
-                .rule(taskAlertRule.getDecryptedAlertRule())
-                .build()))
-            .pluginUrl(pluginUrl)
-            .queueUrl(awsProperties.getQueueUrl())
-            .decryptKey(aesEncryptor.getSecretKey())
-            .payload(aesEncryptor.encrypt(decryptedConfig))
-            .build();
-        return Try.of(() -> objectMapper.writeValueAsString(input)).getOrElse(DEFAULT_INPUT);
     }
 }

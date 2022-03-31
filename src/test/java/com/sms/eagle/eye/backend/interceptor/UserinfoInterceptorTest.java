@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sms.eagle.eye.backend.context.UserContextHolder;
+import com.sms.eagle.eye.backend.interceptor.order.InterceptorOrder;
 import com.sms.eagle.eye.backend.model.UserInfo;
 import java.io.IOException;
 import java.util.Base64;
@@ -51,5 +52,11 @@ public class UserinfoInterceptorTest {
         when(request.getHeader(header)).thenReturn(userInfoBase64);
         when(objectMapper.readValue(Base64.getDecoder().decode(userInfoBase64), UserInfo.class)).thenThrow(new RuntimeException());
         assertThat(userinfoInterceptor.preHandle(request, response, handler)).isTrue();
+    }
+
+    @Test
+    void getOrder_test() {
+        int order = userinfoInterceptor.getOrder();
+        assertThat(order).isEqualTo(InterceptorOrder.USER_INFO);
     }
 }
