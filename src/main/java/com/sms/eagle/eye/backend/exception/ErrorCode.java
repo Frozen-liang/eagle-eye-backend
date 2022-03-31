@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
+    FORBIDDEN("403", "Forbidden!"),
     UN_SUPPORT_OPERATION("", "Unsupported operations"),
     OAUTH_CODE_ERROR("10000", "OAuth failed, invalid grant"),
     DATABASE_OPERATION_FAILURE("9999", "Database exceptions"),
