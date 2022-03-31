@@ -1,21 +1,14 @@
 package com.sms.eagle.eye.backend.wecom;
 
-import com.sms.eagle.eye.backend.request.alert.AlertQueryRequest;
-import com.sms.eagle.eye.backend.service.impl.AlertApplicationServiceImpl;
 import com.sms.eagle.eye.backend.wecom.client.WeComClient;
-import com.sms.eagle.eye.backend.wecom.context.WeComPropertiesContextHolder;
-import com.sms.eagle.eye.backend.wecom.dto.WeComProperties;
 import com.sms.eagle.eye.backend.wecom.request.SendMessageRequest;
-import com.sms.eagle.eye.backend.wecom.response.AccessTokenResponse;
 import com.sms.eagle.eye.backend.wecom.response.SendMessageResponse;
 import com.sms.eagle.eye.backend.wecom.service.MessageService;
-import com.sms.eagle.eye.backend.wecom.service.TokenService;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class MessageServiceTest {
 
@@ -55,7 +48,7 @@ public class MessageServiceTest {
         // mock
         SendMessageRequest request = mock(SendMessageRequest.class);
         SendMessageResponse response = mock(SendMessageResponse.class);
-        doReturn(response).when(weComClient).sendMessage(request,APPLICATIONNAME);
+        doReturn(response).when(weComClient).sendMessage(request, APPLICATIONNAME);
         // 执行
 //        SendMessageResponse result = service.sendMessage(request, APPLICATIONNAME);
         // 验证

@@ -1,10 +1,8 @@
 package com.sms.eagle.eye.backend.wecom;
 
 import com.sms.eagle.eye.backend.wecom.client.decoder.CustomJacksonDecoder;
-import com.sms.eagle.eye.backend.wecom.service.TokenService;
 import feign.Response;
 import org.junit.jupiter.api.Test;
-
 import java.lang.reflect.Type;
 
 public class CustomJacksonDecoderTest {
@@ -14,11 +12,11 @@ public class CustomJacksonDecoderTest {
 
     /**
      * {@link CustomJacksonDecoder#decode(Response, Type)}.
-     *
+     * <p>
      * 情况1: 无异常
      */
     @Test
-    public void decode(){
+    public void decode() {
 
     }
 }

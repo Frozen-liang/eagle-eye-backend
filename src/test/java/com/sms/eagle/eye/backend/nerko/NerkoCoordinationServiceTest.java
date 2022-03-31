@@ -15,27 +15,43 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class NerkoCoordinationServiceTest {
 
     private final CoordinationClient coordinationClient = mock(CoordinationClient.class);
     private final NerkoCoordinationService service = spy(new NerkoCoordinationServiceImpl(coordinationClient));
 
+    /**
+     * {@link NerkoCoordinationService#getProjectList()}.
+     *
+     * <p>获取 项目列表
+     */
     @Test
     public void getProjectList_test() {
+        // 请求构建参数
+        String NAME = "NAME";
         // mock
-        NerkoBaseResponse<List<NerkoProjectInfo>> response = mock(NerkoBaseResponse.class);
         NerkoProjectInfo projectInfo = mock(NerkoProjectInfo.class);
+
         List<NerkoProjectInfo> list = Arrays.asList(projectInfo);
+
+        NerkoBaseResponse<List<NerkoProjectInfo>> response = mock(NerkoBaseResponse.class);
         when(response.getData()).thenReturn(list);
+        when(projectInfo.getName()).thenReturn(NAME);
         when(coordinationClient.getProjectList()).thenReturn(response);
         // 执行
-        List<NerkoProjectInfo> result = service.getProjectList();
+        List<String> projectList = service.getProjectList();
         // 验证
-        assertThat(result).isNotEmpty();
-        assertThat(result).isEqualTo(list);
+        assertThat(projectList).isNotEmpty();
+        assertThat(projectList).allMatch(item -> Objects.equals(item, NAME));
     }
 
+    /**
+     * {@link NerkoCoordinationService#getProjectList()}.
+     *
+     * <p>获取 项目列表异常
+     */
     @Test
     public void getProjectList_exception_test() {
         // mock

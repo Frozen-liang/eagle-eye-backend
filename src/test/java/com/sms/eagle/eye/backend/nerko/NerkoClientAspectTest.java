@@ -1,17 +1,12 @@
 package com.sms.eagle.eye.backend.nerko;
 
-import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import com.sms.eagle.eye.backend.nerko.aspect.NerkoClientAspect;
-import com.sms.eagle.eye.backend.nerko.service.impl.NerkoCoordinationServiceImpl;
 import com.sms.eagle.eye.backend.oauth2.NerkoTokenService;
-import com.sms.eagle.eye.backend.service.impl.NotificationChannelApplicationServiceImpl;
 import feign.FeignException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;

@@ -3,17 +3,12 @@ package com.sms.eagle.eye.backend.nerko;
 import com.sms.eagle.eye.backend.nerko.client.decoder.NerkoJacksonDecoder;
 import feign.Request;
 import feign.jackson.JacksonDecoder;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import feign.Response;
-
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 public class NerkoJacksonDecoderTest {
 

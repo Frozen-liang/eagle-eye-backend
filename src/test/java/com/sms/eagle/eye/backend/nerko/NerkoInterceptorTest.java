@@ -6,7 +6,6 @@ import com.sms.eagle.eye.backend.oauth2.NerkoTokenService;
 import feign.RequestTemplate;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.MockedStatic;
 import static org.mockito.Mockito.doReturn;
@@ -25,12 +24,12 @@ public class NerkoInterceptorTest {
             = mockStatic(AccessTokenContextHolder.class);
 
     @AfterAll
-    public static void close(){
+    public static void close() {
         ACCESS_TOKEN_CONTEXT_HOLDER_MOCKED_STATIC.close();
     }
 
     @Test
-    public void apply_test(){
+    public void apply_test() {
         // 构建请求参数
         String CREDENTIAL = "CREDENTIAL";
         String NAME = "NAME";
@@ -40,10 +39,10 @@ public class NerkoInterceptorTest {
         when(AccessTokenContextHolder.getTokenService()).thenReturn(service);
         when(service.getAccessTokenByClientCredential()).thenReturn(CREDENTIAL);
         RequestTemplate template = mock(RequestTemplate.class);
-        doReturn(null).when(template).header(NAME,VALUE);
+        doReturn(null).when(template).header(NAME, VALUE);
         // 执行
         nerkoInterceptor.apply(template);
         // 验证
-        verify(template,times(1)).header(anyString(),anyString());
+        verify(template, times(1)).header(anyString(), anyString());
     }
 }
