@@ -1,4 +1,4 @@
-package com.sms.eagle.eye.backend.nerko;
+package com.sms.eagle.eye.backend.nerko.interceptor;
 
 import com.sms.eagle.eye.backend.context.AccessTokenContextHolder;
 import com.sms.eagle.eye.backend.nerko.interceptor.NerkoInterceptor;

@@ -1,20 +1,15 @@
-package com.sms.eagle.eye.backend.wecom.service;
+package com.sms.eagle.eye.backend.wecom.utils;
 
-import com.sms.eagle.eye.backend.wecom.client.WeComClient;
 import com.sms.eagle.eye.backend.wecom.enums.WeComErrorCode;
 import com.sms.eagle.eye.backend.wecom.exception.WeComException;
 import com.sms.eagle.eye.backend.wecom.response.AbstractBaseResponse;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
-public abstract class AbstractBaseService {
+public abstract class WeComResponseUtil {
 
-    @Autowired
-    protected WeComClient weComClient;
-
-    final boolean isSuccess(AbstractBaseResponse baseResponse) {
+    public static boolean isSuccess(AbstractBaseResponse baseResponse) {
         if (Objects.nonNull(baseResponse)) {
             if (WeComErrorCode.ERROR_CODE_0.getErrorCode().equals(baseResponse.getErrCode())) {
                 return true;
@@ -29,5 +24,4 @@ public abstract class AbstractBaseService {
         }
 
     }
-
 }

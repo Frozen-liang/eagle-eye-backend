@@ -1,20 +1,20 @@
-package com.sms.eagle.eye.backend.nerko;
+package com.sms.eagle.eye.backend.nerko.service;
 
-import com.sms.eagle.eye.backend.exception.EagleEyeException;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.GET_OAUTH_RESOURCE_ERROR;
-import com.sms.eagle.eye.backend.nerko.client.UserManagementClient;
-import com.sms.eagle.eye.backend.nerko.dto.NerkoUserInfo;
-import com.sms.eagle.eye.backend.nerko.response.NerkoBaseResponse;
-import com.sms.eagle.eye.backend.nerko.service.NerkoUserService;
-import com.sms.eagle.eye.backend.nerko.service.impl.NerkoUserServiceImpl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+
+import com.sms.eagle.eye.backend.exception.EagleEyeException;
+import com.sms.eagle.eye.backend.nerko.client.UserManagementClient;
+import com.sms.eagle.eye.backend.nerko.dto.NerkoUserInfo;
+import com.sms.eagle.eye.backend.nerko.response.NerkoBaseResponse;
+import com.sms.eagle.eye.backend.nerko.service.impl.NerkoUserServiceImpl;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
 public class NerkoUserServiceTest {
 
