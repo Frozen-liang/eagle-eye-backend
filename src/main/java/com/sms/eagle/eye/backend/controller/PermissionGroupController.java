@@ -3,7 +3,7 @@ package com.sms.eagle.eye.backend.controller;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_ADD;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_DELETE;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_EDIT;
-import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_GROUP_VIEWS;
+import static com.sms.eagle.eye.backend.common.enums.PermissionType.PERMISSION_VIEWS;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.validator.InsertGroup;
@@ -37,7 +37,7 @@ public class PermissionGroupController {
     }
 
     @GetMapping("/page")
-    @PreAuth(PERMISSION_GROUP_VIEWS)
+    @PreAuth(PERMISSION_VIEWS)
     public Response<CustomPage<PermissionGroupResponse>> page(PermissionGroupQueryRequest pageRequest) {
         return Response.ok(permissionGroupApplicationService.page(pageRequest));
     }

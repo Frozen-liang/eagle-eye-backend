@@ -3,6 +3,7 @@ package com.sms.eagle.eye.backend.service.impl;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.ALARM_MAPPING_CAN_NOT_BE_REPEATED;
 import static com.sms.eagle.eye.backend.exception.ErrorCode.PLUGIN_HAS_ALREADY_EXIST;
 
+import com.sms.eagle.eye.backend.common.enums.AlarmLevel;
 import com.sms.eagle.eye.backend.domain.entity.PluginAlertRuleEntity;
 import com.sms.eagle.eye.backend.domain.entity.PluginEntity;
 import com.sms.eagle.eye.backend.domain.service.PluginAlarmLevelMappingService;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -220,9 +222,20 @@ public class PluginApplicationServiceImpl implements PluginApplicationService, A
         return true;
     }
 
+    /**
+     * 先判断插件类型.
+     * <li>如果 scheduleBySelf 为 true，则从 {@link com.sms.eagle.eye.backend.domain.entity.PluginAlarmLevelMappingEntity}
+     * 中找到映射了第三方级别的系统级别；
+     * <li>如果为false，则返回全部级别
+     */
     @Override
     public List<Integer> getAllAlarmLevel(Long pluginId) {
-        return pluginAlarmLevelMappingService.getAlarmLevelByPluginId(pluginId);
+        PluginEntity entity = pluginService.getEntityById(pluginId);
+        if (Objects.equals(entity.getScheduleBySelf(), Boolean.TRUE)) {
+            return pluginAlarmLevelMappingService.getAlarmLevelByPluginId(pluginId);
+        } else {
+            return AlarmLevel.getValueList();
+        }
     }
 
     @Override

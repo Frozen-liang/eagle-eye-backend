@@ -1,6 +1,11 @@
 package com.sms.eagle.eye.backend.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.sms.eagle.eye.backend.domain.entity.TaskAlertNotificationEntity;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.junit.jupiter.api.BeforeAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -32,7 +37,11 @@ public class PermissionGroupServiceTest {
     private static final Long ID = 1L;
     private final PermissionGroupRequest request = PermissionGroupRequest.builder().id(ID).name("name").build();
 
-
+    @BeforeAll
+    private static void initTableInfoForClassList() {
+        TableInfoHelper.initTableInfo(new MapperBuilderAssistant(new MybatisConfiguration(), ""),
+            PermissionGroupEntity.class);
+    }
 
     @Test
     void page_test() {
@@ -66,7 +75,7 @@ public class PermissionGroupServiceTest {
 
     @Test
     void queryAll_test() {
-        doReturn(Collections.emptyList()).when(permissionGroupService).list();
+        doReturn(Collections.emptyList()).when(permissionGroupService).list(any());
         List<PermissionGroupResponse> result = permissionGroupService.queryAll();
         assertThat(result).isEmpty();
     }

@@ -3,7 +3,6 @@ package com.sms.eagle.eye.backend.controller;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_CHANNEL_ADD;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_CHANNEL_DELETE;
 import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_CHANNEL_EDIT;
-import static com.sms.eagle.eye.backend.common.enums.PermissionType.ALARM_CHANNEL_VIEWS;
 
 import com.sms.eagle.eye.backend.common.annotation.PreAuth;
 import com.sms.eagle.eye.backend.common.enums.NotificationChannelType;
@@ -60,7 +59,6 @@ public class NotificationChannelController {
      * 分页获取通道实例列表.
      */
     @GetMapping("/page")
-    @PreAuth(ALARM_CHANNEL_VIEWS)
     public Response<CustomPage<ChannelPageResponse>> getPage(NotificationChannelQueryRequest request) {
         return Response.ok(notificationChannelApplicationService.getPage(request));
     }
