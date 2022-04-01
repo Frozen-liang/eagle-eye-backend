@@ -86,7 +86,7 @@ public class TaskController {
      * 修改任务使用插件的配置.
      */
     @PutMapping("/plugin-config")
-    @PreAuth(TASK_EDIT)
+    //@PreAuth(TASK_EDIT)
     public Response<Boolean> updatePluginConfig(@Validated @RequestBody TaskPluginConfigRequest request) {
         return Response.ok(taskApplicationService.updatePluginConfig(request));
     }
@@ -103,7 +103,7 @@ public class TaskController {
      * 修改任务告警规则.
      */
     @PutMapping("/alert-rule")
-    @PreAuth(TASK_EDIT)
+    //@PreAuth(TASK_EDIT)
     public Response<Boolean> updateAlertRule(@RequestBody TaskAlertRuleRequest request) {
         return Response.ok(taskApplicationService.updateAlertRule(request));
     }
