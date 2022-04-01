@@ -219,6 +219,24 @@ public class TaskGroupApplicationServiceTest {
     }
 
     /**
+     * {@link TaskGroupApplicationServiceImpl#rename(TaskGroupRequest)}
+     *
+     * <p>
+     * 重复名 抛出异常
+     */
+    @Test
+    @DisplayName("Test the removeGroup method in the Tag Application Service")
+    public void rename_exception_test() {
+        // mock
+        when(taskGroupRequest.getName()).thenReturn(NAME);
+        when(taskGroupService.countByName(NAME)).thenReturn(INTEGER);
+        // 异常验证
+        assertThatThrownBy(() -> taskGroupApplicationService.rename(taskGroupRequest))
+                .isInstanceOf(EagleEyeException.class)
+                .extracting("code").isEqualTo(GROUP_NAME_HAS_ALREADY_EXIST.getCode());
+    }
+
+    /**
      * {@link TaskGroupApplicationServiceImpl#removeGroup(Long)}
      * <p>
      * 根据参数 id删除任务组.
