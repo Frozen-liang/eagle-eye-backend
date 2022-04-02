@@ -15,7 +15,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AlertQueryRequest extends PageRequest<AlertEntity> {
 
+    /**
+     * 预警任务名称.
+     */
     private String taskName;
+    /**
+     * 所属项目.
+     */
     private String project;
     private String from;
     private String to;
