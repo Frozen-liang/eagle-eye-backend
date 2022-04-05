@@ -8,6 +8,7 @@
         select alert.id,
                alert.task_name,
                alert.project,
+               alert.alarm_level,
                alert.description,
                plugin.name          pluginName,
                alert.utc_alert_time alert_time
