@@ -181,6 +181,9 @@ public class TaskGroupApplicationServiceImpl implements TaskGroupApplicationServ
      */
     @Override
     public boolean rename(TaskGroupRequest request) {
+        if (taskGroupService.countByName(request.getName()) != 0) {
+            throw new EagleEyeException(GROUP_NAME_HAS_ALREADY_EXIST);
+        }
         taskGroupService.rename(request.getId(), request.getName());
         return true;
     }
